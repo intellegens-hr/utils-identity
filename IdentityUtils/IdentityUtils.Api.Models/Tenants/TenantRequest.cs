@@ -1,4 +1,4 @@
-﻿namespace IdentityUtils.ApiExtension.Models.Tenants
+﻿namespace IdentityUtils.Api.Models.Tenants
 {
     public class TenantRequest
     {

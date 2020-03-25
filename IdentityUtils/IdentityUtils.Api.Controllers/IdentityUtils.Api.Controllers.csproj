@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IdentityUtils.ApiExtension.Models\IdentityUtils.ApiExtension.Models.csproj" />
+    <ProjectReference Include="..\IdentityUtils.Api.Models\IdentityUtils.Api.Models.csproj" />
     <ProjectReference Include="..\IdentityUtils.Core.Services\IdentityUtils.Core.Services.csproj" />
   </ItemGroup>
 

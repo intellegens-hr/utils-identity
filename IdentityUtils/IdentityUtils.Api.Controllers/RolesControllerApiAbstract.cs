@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace IdentityUtils.ApiExtension.Controllers
+namespace IdentityUtils.Api.Controllers
 {
     /// <summary>
     /// Basic controller which provides all needed API endpoints for role management.

@@ -11,11 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Core.Contract
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Core.Services", "IdentityUtils.Core.Services\IdentityUtils.Core.Services.csproj", "{BF1AA017-E68A-4CF1-B05E-15E06C9CA0FD}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiExtension", "ApiExtension", "{C2EFC4D1-43DB-46C4-B44C-CEC9DF60DFC4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Api", "Api", "{C2EFC4D1-43DB-46C4-B44C-CEC9DF60DFC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.ApiExtension.Models", "IdentityUtils.ApiExtension.Models\IdentityUtils.ApiExtension.Models.csproj", "{F8DFE6DB-85B8-42A8-B1D5-66ACAFCCF2DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Api.Models", "IdentityUtils.Api.Models\IdentityUtils.Api.Models.csproj", "{F8DFE6DB-85B8-42A8-B1D5-66ACAFCCF2DC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.ApiExtension.Controllers", "IdentityUtils.ApiExtension.Controllers\IdentityUtils.ApiExtension.Controllers.csproj", "{F82BDBA4-BACE-416E-A07F-2FE7D57CFBBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Api.Controllers", "IdentityUtils.Api.Controllers\IdentityUtils.Api.Controllers.csproj", "{F82BDBA4-BACE-416E-A07F-2FE7D57CFBBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

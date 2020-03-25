@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Commons.Mailing;
-using IdentityUtils.ApiExtension.Models.Users;
+using IdentityUtils.Api.Models.Users;
 using IdentityUtils.Core.Contracts;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace IdentityUtils.ApiExtension.Controllers
+namespace IdentityUtils.Api.Controllers
 {
     /// <summary>
     /// Basic controller which provides all needed API endpoints for user management.

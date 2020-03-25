@@ -1,4 +1,4 @@
-﻿namespace IdentityUtils.ApiExtension.Models.Users
+﻿namespace IdentityUtils.Api.Models.Users
 {
     public class PasswordForgottenNewPassword : PasswordForgottenResponse
     {

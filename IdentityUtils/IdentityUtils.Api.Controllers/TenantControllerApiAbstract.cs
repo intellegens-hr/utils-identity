@@ -1,4 +1,4 @@
-﻿using IdentityUtils.ApiExtension.Models.Tenants;
+﻿using IdentityUtils.Api.Models.Tenants;
 using IdentityUtils.Core.Contracts;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Services;
@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace IdentityUtils.ApiExtension.Controllers
+namespace IdentityUtils.Api.Controllers
 {
     /// <summary>
     /// Basic controller which provides all needed API endpoints for tenant management.
