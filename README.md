@@ -1,3 +1,5 @@
 # dotnetcore-identityserver-utils
 
-[Identity Utils Commons](./IdentityUtils/IdentityUtils.Commons/README.md)
+[IdentityUtils.Commons](./IdentityUtils.Commons/README.md)
+
+[IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)

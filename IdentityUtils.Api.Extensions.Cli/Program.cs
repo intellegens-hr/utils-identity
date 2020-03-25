@@ -17,7 +17,7 @@ namespace IdentityUtils.Api.Extensions.Cli
         [Option(ShortName = "aid", LongName = "Auth.ClientId", Description = "Authentication - Client Id")]
         public static string AuthClientId { get; set; }
 
-        [Option(ShortName = "asecret", LongName = "Auth.Secret", Description = "Authentication - Client secret")]
+        [Option(ShortName = "asecret", LongName = "Auth.ClientSecret", Description = "Authentication - Client secret")]
         public static string AuthClientSecret { get; set; }
 
         [Option(ShortName = "ascope", LongName = "Auth.Scope", Description = "Authentication - Scope")]

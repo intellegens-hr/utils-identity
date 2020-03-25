@@ -85,7 +85,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         private class Add
         {
             [Required(ErrorMessage = "Must specify role name")]
-            [Option(Description = "Tenant name")]
+            [Option(Description = "Role name")]
             public string Name { get; }
 
             private void OnExecute(IConsole console)
