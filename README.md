@@ -2,4 +2,6 @@
 
 [IdentityUtils.Commons](./IdentityUtils.Commons/README.md)
 
+[IdentityUtils.Core.Contracts](./IdentityUtils.Core.Contracts/README.md)
+
 [IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)

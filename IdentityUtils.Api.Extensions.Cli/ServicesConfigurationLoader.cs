@@ -8,7 +8,7 @@ namespace IdentityUtils.Api.Extensions.Cli
 {
     internal class ServicesConfigurationLoader
     {
-        private const string configFileName = "identitymanagement-cli.config";
+        private const string configFileName = "identityutils-cli.config";
 
         private static List<ConsoleMessage> FileNotFoundInfoMessage(List<string> configFilePaths)
         {

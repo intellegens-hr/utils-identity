@@ -34,7 +34,7 @@ Authentication parameters can be specified in following way:
 
 ### Via configuration file
 
-If authentication arguments are not set (or are partially set), CLI tool will look for configuration file named `identitymanagement-cli.config` in following directories:
+If authentication arguments are not set (or are partially set), CLI tool will look for configuration file named `identityutils-cli.config` in following directories:
 - executing directory - directory from which the exe is called
 - executable directory - directory where CLI .exe file is located
 
