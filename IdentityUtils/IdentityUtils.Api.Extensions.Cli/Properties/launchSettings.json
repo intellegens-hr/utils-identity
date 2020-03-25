@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "IdentityUtils.Api.Extensions.Cli": {
+      "commandName": "Project"
+    }
+  }
+}

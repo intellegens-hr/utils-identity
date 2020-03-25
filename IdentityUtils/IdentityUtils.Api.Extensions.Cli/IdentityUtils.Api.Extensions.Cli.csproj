@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IdentityUtils.Api.Extensions\IdentityUtils.Api.Extensions.csproj" />
+    <ProjectReference Include="..\IdentityUtils.Core.Contracts\IdentityUtils.Core.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="identitymanagement-cli.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
