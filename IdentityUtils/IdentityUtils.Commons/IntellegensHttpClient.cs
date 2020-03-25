@@ -16,7 +16,7 @@ namespace Commons
             return message;
         }
 
-        protected async Task<T> Get<T>(string url)
+        public virtual async Task<T> Get<T>(string url)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Get, url);
             var response = await httpClient.SendAsync(message);
@@ -25,7 +25,7 @@ namespace Commons
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        protected async Task<T> Delete<T>(string url)
+        public virtual async Task<T> Delete<T>(string url)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Delete, url);
             var response = await httpClient.SendAsync(message);
@@ -34,7 +34,7 @@ namespace Commons
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        protected async Task<T> Post<T>(string url, object dataToSend)
+        public virtual async Task<T> Post<T>(string url, object dataToSend)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Post, url);
             message.Content = new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json");
