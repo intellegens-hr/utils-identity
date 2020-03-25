@@ -1,4 +1,4 @@
-﻿using IdentityUtils.Core.Contracts;
+﻿using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using System;
 using System.Collections.Generic;
@@ -26,16 +26,16 @@ namespace IdentityUtils.Api.Extensions
         public Task<List<TRoleDto>> GetRoles()
             => Get<List<TRoleDto>>($"{BasePath}");
 
-        public Task<IdentityManagementResult<TRoleDto>> AddRole(TRoleDto role)
-            => Post<IdentityManagementResult<TRoleDto>>($"{BasePath}", role);
+        public Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto role)
+            => Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}", role);
 
-        public Task<IdentityManagementResult> DeleteRole(Guid id)
-            => Delete<IdentityManagementResult>($"{BasePath}/{id}");
+        public Task<IdentityUtilsResult> DeleteRole(Guid id)
+            => Delete<IdentityUtilsResult>($"{BasePath}/{id}");
 
-        public Task<IdentityManagementResult<TRoleDto>> GetRoleById(Guid id)
-            => Get<IdentityManagementResult<TRoleDto>>($"{BasePath}/{id}");
+        public Task<IdentityUtilsResult<TRoleDto>> GetRoleById(Guid id)
+            => Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}");
 
-        public Task<IdentityManagementResult<TRoleDto>> GetRoleByNormalizedName(string roleName)
-            => Get<IdentityManagementResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}");
+        public Task<IdentityUtilsResult<TRoleDto>> GetRoleByNormalizedName(string roleName)
+            => Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}");
     }
 }

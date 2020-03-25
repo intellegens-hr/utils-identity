@@ -1,5 +1,5 @@
 ﻿using IdentityUtils.Api.Models.Tenants;
-using IdentityUtils.Core.Contracts;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -31,24 +31,24 @@ namespace IdentityUtils.Api.Controllers
             => await tenantService.GetTenants();
 
         [HttpPost]
-        public async Task<IdentityManagementResult<TTenantDto>> AddTenant([FromBody]TTenantDto tenant)
+        public async Task<IdentityUtilsResult<TTenantDto>> AddTenant([FromBody]TTenantDto tenant)
             => await tenantService.AddTenant(tenant);
 
         [HttpGet("{tenantId}")]
-        public async Task<IdentityManagementResult<TTenantDto>> GetTenant([FromRoute]Guid tenantId)
+        public async Task<IdentityUtilsResult<TTenantDto>> GetTenant([FromRoute]Guid tenantId)
             => await tenantService.GetTenant(tenantId);
 
         [HttpPost("{tenantId}")]
-        public async Task<IdentityManagementResult<TTenantDto>> UpdateTenant([FromRoute]Guid tenantId, [FromBody]TTenantDto tenant)
+        public async Task<IdentityUtilsResult<TTenantDto>> UpdateTenant([FromRoute]Guid tenantId, [FromBody]TTenantDto tenant)
         {
             if (tenantId != tenant.TenantId)
-                return IdentityManagementResult<TTenantDto>.ErrorResult("Id specified in route and payload are not the same!");
+                return IdentityUtilsResult<TTenantDto>.ErrorResult("Id specified in route and payload are not the same!");
 
             return await tenantService.UpdateTenant(tenant);
         }
 
         [HttpDelete("{tenantId}")]
-        public async Task<IdentityManagementResult> DeleteTenant([FromRoute]Guid tenantId)
+        public async Task<IdentityUtilsResult> DeleteTenant([FromRoute]Guid tenantId)
             => await tenantService.DeleteTenant(tenantId);
 
         [HttpPost("byhostname")]

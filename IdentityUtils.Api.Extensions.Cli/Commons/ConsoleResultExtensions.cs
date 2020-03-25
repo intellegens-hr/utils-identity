@@ -1,4 +1,4 @@
-﻿using IdentityUtils.Core.Contracts;
+﻿using IdentityUtils.Core.Contracts.Commons;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,16 +6,16 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
 {
     internal static class ConsoleResultExtensions
     {
-        internal static List<ConsoleMessage> GetConsoleErrorMessages(this IdentityManagementResult result)
+        internal static List<ConsoleMessage> GetConsoleErrorMessages(this IdentityUtilsResult result)
             => result.ErrorMessages.Select(x => new ConsoleMessage(MessageTypes.ERROR, x)).ToList();
 
-        internal static ConsoleResult ToConsoleResult(this IdentityManagementResult result)
+        internal static ConsoleResult ToConsoleResult(this IdentityUtilsResult result)
             => new ConsoleResult
             {
                 Messages = result.GetConsoleErrorMessages()
             };
 
-        internal static ConsoleResult ToConsoleResultWithDefaultMessages(this IdentityManagementResult result)
+        internal static ConsoleResult ToConsoleResultWithDefaultMessages(this IdentityUtilsResult result)
         {
             var consoleResult = new ConsoleResult();
 

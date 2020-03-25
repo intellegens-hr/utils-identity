@@ -1,5 +1,5 @@
 ﻿using IdentityUtils.Api.Models.Users;
-using IdentityUtils.Core.Contracts;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Users;
 using System;
 using System.Collections.Generic;
@@ -26,34 +26,34 @@ namespace IdentityUtils.Api.Extensions
         public Task<List<TUserDto>> GetAllUsers()
             => Get<List<TUserDto>>($"{BasePath}");
 
-        public Task<IdentityManagementResult<TUserDto>> GetUserById(Guid id)
-            => Get<IdentityManagementResult<TUserDto>>($"{BasePath}/{id}");
+        public Task<IdentityUtilsResult<TUserDto>> GetUserById(Guid id)
+            => Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{id}");
 
-        public Task<IdentityManagementResult> DeleteUser(Guid id)
-            => Delete<IdentityManagementResult>($"{BasePath}/{id}");
+        public Task<IdentityUtilsResult> DeleteUser(Guid id)
+            => Delete<IdentityUtilsResult>($"{BasePath}/{id}");
 
-        public Task<IdentityManagementResult<TUserDto>> CreateUser(TUserDto userDto)
-            => Post<IdentityManagementResult<TUserDto>>($"{BasePath}", userDto);
+        public Task<IdentityUtilsResult<TUserDto>> CreateUser(TUserDto userDto)
+            => Post<IdentityUtilsResult<TUserDto>>($"{BasePath}", userDto);
 
-        public Task<IdentityManagementResult<TUserDto>> UpdateUser(TUserDto userDto)
-           => Post<IdentityManagementResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto);
+        public Task<IdentityUtilsResult<TUserDto>> UpdateUser(TUserDto userDto)
+           => Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto);
 
-        public Task<IdentityManagementResult<TUserDto>> GetUserByUsername(string username)
-             => Get<IdentityManagementResult<TUserDto>>($"{BasePath}/{username}"); //TODO: encode
+        public Task<IdentityUtilsResult<TUserDto>> GetUserByUsername(string username)
+             => Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{username}"); //TODO: encode
 
-        public Task<IdentityManagementResult<PasswordForgottenResponse>> GetPasswordResetToken(PasswordForgottenRequest passwordForgottenRequest)
-            => Post<IdentityManagementResult<PasswordForgottenResponse>>($"{BasePath}/passwordreset", passwordForgottenRequest);
+        public Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken(PasswordForgottenRequest passwordForgottenRequest)
+            => Post<IdentityUtilsResult<PasswordForgottenResponse>>($"{BasePath}/passwordreset", passwordForgottenRequest);
 
-        public Task<IdentityManagementResult> SetNewPasswordAfterReset(PasswordForgottenNewPassword newPassword)
-            => Post<IdentityManagementResult>($"{BasePath}/passwordreset/newpassword", newPassword);
+        public Task<IdentityUtilsResult> SetNewPasswordAfterReset(PasswordForgottenNewPassword newPassword)
+            => Post<IdentityUtilsResult>($"{BasePath}/passwordreset/newpassword", newPassword);
 
-        public Task<IdentityManagementResult<List<TUserDto>>> RoleUsersPerTenant(Guid roleId, Guid tenantId)
-            => Get<IdentityManagementResult<List<TUserDto>>>($"{BasePath}/roles/listusers/{roleId}/{tenantId}");
+        public Task<IdentityUtilsResult<List<TUserDto>>> RoleUsersPerTenant(Guid roleId, Guid tenantId)
+            => Get<IdentityUtilsResult<List<TUserDto>>>($"{BasePath}/roles/listusers/{roleId}/{tenantId}");
 
-        public Task<IdentityManagementResult> AddToRole(Guid userId, Guid roleId, Guid tenantId)
-            => Get<IdentityManagementResult>($"{BasePath}/{userId}/roles/{roleId}/{tenantId}");
+        public Task<IdentityUtilsResult> AddToRole(Guid userId, Guid roleId, Guid tenantId)
+            => Get<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{roleId}/{tenantId}");
 
-        public Task<IdentityManagementResult> RemoveFromRole(Guid userId, Guid roleId, Guid tenantId)
-            => Delete<IdentityManagementResult>($"{BasePath}/{userId}/roles/{roleId}/{tenantId}");
+        public Task<IdentityUtilsResult> RemoveFromRole(Guid userId, Guid roleId, Guid tenantId)
+            => Delete<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{roleId}/{tenantId}");
     }
 }

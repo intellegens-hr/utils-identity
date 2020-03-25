@@ -15,7 +15,6 @@ Specifies role db model (`IdentityManagerRole`) and interface for DTO model impl
 Specifies tenant db model (`IdentityManagerTenant`) and interface for DTO model implementations (`IIdentityManagerTenantDto`)
 
 ### Users 
-
 Specifies user db model (`IdentityManagerUser`). User db model inherits IdentityUser and extends it with `AdditionalDataJson` member. This member can be used by DTO implementations to store or fetch additional user settings without extending database model. 
 Due to this feature, user model has two separate DTO interfaces:
   + `IIdentityManagerUserDto`
@@ -24,3 +23,8 @@ Due to this feature, user model has two separate DTO interfaces:
 Apart from these two interfaces, it contains base class for other user DTO objects:
    + `IdentityManagerUserDtoBase` which implements `IIdentityManagerUserDto`
    + `IdentityManagerUserDtoBase<T>` which inherits `IdentityManagerUserDtoBase` and implements `IIdentityManagerUserDto<T>`. This class is usefull since it contains property `public T AdditionalData { get; set; }` which is getter/setter with serialization/deserialization for `AdditionalDataJson` member.
+
+### Commons
+To have standardized response, all identity services should return same result class `IdentityUtilsResult`. This class also has typed variant `IdentityUtilsResult<T>` in case service needs to return an object.
+
+To make integration with .Net Core Identity easier, various extension methods are added to quickly transform `IdentityResult` to `IdentityUtilsResult`.

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using IdentityUtils.Core.Contracts;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,51 +28,51 @@ namespace IdentityUtils.Core.Services
             return mapper.Map<IList<TRoleDto>>(roles);
         }
 
-        private async Task<IdentityManagementResult<TRole>> GetRoleById(Guid roleId)
+        private async Task<IdentityUtilsResult<TRole>> GetRoleById(Guid roleId)
         {
             var role = await roleManager.FindByIdAsync(roleId.ToString());
             if (role == null)
-                return IdentityManagementResult<TRole>.ErrorResult("Role with specified ID not found");
+                return IdentityUtilsResult<TRole>.ErrorResult("Role with specified ID not found");
 
-            return IdentityManagementResult<TRole>.SuccessResult(role);
+            return IdentityUtilsResult<TRole>.SuccessResult(role);
         }
 
-        public async Task<IdentityManagementResult<TRoleDto>> GetRole(Guid roleId)
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRole(Guid roleId)
         {
             var roleResult = await GetRoleById(roleId);
             return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Payload));
         }
 
-        public async Task<IdentityManagementResult<TRoleDto>> GetRole(string roleNameNormalized)
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRole(string roleNameNormalized)
         {
             var role = await roleManager.FindByNameAsync(roleNameNormalized);
             if (role == null)
-                return IdentityManagementResult<TRoleDto>.ErrorResult("Role with specified name not found");
+                return IdentityUtilsResult<TRoleDto>.ErrorResult("Role with specified name not found");
 
-            return IdentityManagementResult<TRoleDto>.SuccessResult(mapper.Map<TRoleDto>(role));
+            return IdentityUtilsResult<TRoleDto>.SuccessResult(mapper.Map<TRoleDto>(role));
         }
 
-        public async Task<IdentityManagementResult> AddRole(TRoleDto roleDto)
+        public async Task<IdentityUtilsResult> AddRole(TRoleDto roleDto)
         {
             roleDto.Name = roleDto.Name.Trim();
             var role = mapper.Map<TRole>(roleDto);
 
             var roleResult = await roleManager.CreateAsync(role);
             if (!roleResult.Succeeded)
-                return roleResult.ToIdentityManagementResult();
+                return roleResult.ToIdentityUtilsResult();
 
             mapper.Map(role, roleDto);
-            return IdentityManagementResult.SuccessResult;
+            return IdentityUtilsResult.SuccessResult;
         }
 
-        public async Task<IdentityManagementResult> DeleteRole(Guid id)
+        public async Task<IdentityUtilsResult> DeleteRole(Guid id)
         {
             var roleResult = await GetRoleById(id);
             if (!roleResult.Success)
                 return roleResult;
 
             var deleteResult = await roleManager.DeleteAsync(roleResult.Payload);
-            return deleteResult.ToIdentityManagementResult();
+            return deleteResult.ToIdentityUtilsResult();
         }
     }
 }

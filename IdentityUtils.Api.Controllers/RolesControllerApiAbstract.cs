@@ -1,4 +1,4 @@
-﻿using IdentityUtils.Core.Contracts;
+﻿using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services;
@@ -36,22 +36,22 @@ namespace IdentityUtils.Api.Controllers
             => await rolesService.GetAllRoles();
 
         [HttpPost]
-        public async Task<IdentityManagementResult<TRoleDto>> AddRole(TRoleDto roleDto)
+        public async Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto roleDto)
         {
             var roleResult = await rolesService.AddRole(roleDto);
             return roleResult.ToTypedResult<TRoleDto>(roleDto);
         }
 
         [HttpGet("{roleId}")]
-        public async Task<IdentityManagementResult<TRoleDto>> GetRoleById([FromRoute]Guid roleId)
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRoleById([FromRoute]Guid roleId)
             => await rolesService.GetRole(roleId);
 
         [HttpDelete("{roleId}")]
-        public async Task<IdentityManagementResult> DeleteRole([FromRoute]Guid roleId)
+        public async Task<IdentityUtilsResult> DeleteRole([FromRoute]Guid roleId)
             => await rolesService.DeleteRole(roleId);
 
         [HttpGet("rolename/{roleName}")]
-        public async Task<IdentityManagementResult<TRoleDto>> GetRoleByNormalizedName([FromRoute]string roleName)
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRoleByNormalizedName([FromRoute]string roleName)
         {
             roleName = WebUtility.UrlDecode(roleName);
             return await rolesService.GetRole(roleName);

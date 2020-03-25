@@ -1,5 +1,5 @@
 ﻿using IdentityUtils.Api.Models.Tenants;
-using IdentityUtils.Core.Contracts;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Tenants;
 using System;
 using System.Collections.Generic;
@@ -26,17 +26,17 @@ namespace IdentityUtils.Api.Extensions
         public Task<List<TTenantDto>> GetTenants()
             => Get<List<TTenantDto>>($"{BasePath}");
 
-        public Task<IdentityManagementResult<TTenantDto>> AddTenant(TTenantDto tenant)
-            => Post<IdentityManagementResult<TTenantDto>>($"{BasePath}", tenant);
+        public Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenant)
+            => Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}", tenant);
 
-        public Task<IdentityManagementResult<TTenantDto>> GetTenant(Guid id)
-            => Get<IdentityManagementResult<TTenantDto>>($"{BasePath}/{id}");
+        public Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
+            => Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}");
 
-        public Task<IdentityManagementResult> DeleteTenant(Guid id)
-            => Delete<IdentityManagementResult>($"{BasePath}/{id}");
+        public Task<IdentityUtilsResult> DeleteTenant(Guid id)
+            => Delete<IdentityUtilsResult>($"{BasePath}/{id}");
 
-        public Task<IdentityManagementResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
-            => Post<IdentityManagementResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant);
+        public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
+            => Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant);
 
         public Task<TTenantDto> GetTenantByHostname(string hostname)
             => Post<TTenantDto>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname });

@@ -2,7 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Commons.Validation;
 using IdentityManagement.Services;
-using IdentityUtils.Core.Contracts;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Context;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
@@ -50,13 +50,13 @@ namespace IdentityUtils.Core.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IdentityManagementResult<TUser>> FindByIdAsync(Guid id)
+        public async Task<IdentityUtilsResult<TUser>> FindByIdAsync(Guid id)
         {
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user == null)
-                return IdentityManagementResult<TUser>.ErrorResult("User with specified ID not found");
+                return IdentityUtilsResult<TUser>.ErrorResult("User with specified ID not found");
             else
-                return IdentityManagementResult<TUser>.SuccessResult(user);
+                return IdentityUtilsResult<TUser>.SuccessResult(user);
         }
 
         /// <summary>
@@ -65,43 +65,43 @@ namespace IdentityUtils.Core.Services
         /// <typeparam name="TDto"></typeparam>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IdentityManagementResult<TDto>> FindByIdAsync<TDto>(Guid id) where TDto : class
+        public async Task<IdentityUtilsResult<TDto>> FindByIdAsync<TDto>(Guid id) where TDto : class
         {
             var user = await FindByIdAsync(id);
 
             return user.Success
-                ? IdentityManagementResult<TDto>.SuccessResult(mapper.Map<TDto>(user.Payload))
-                : IdentityManagementResult<TDto>.ErrorResult(user.ErrorMessages);
+                ? IdentityUtilsResult<TDto>.SuccessResult(mapper.Map<TDto>(user.Payload))
+                : IdentityUtilsResult<TDto>.ErrorResult(user.ErrorMessages);
         }
 
-        public async Task<IdentityManagementResult<TUser>> FindByNameAsync(string name)
+        public async Task<IdentityUtilsResult<TUser>> FindByNameAsync(string name)
         {
             var user = await userManager.FindByNameAsync(name);
             if (user == null)
-                return IdentityManagementResult<TUser>.ErrorResult("User with specified name not found");
+                return IdentityUtilsResult<TUser>.ErrorResult("User with specified name not found");
 
-            return IdentityManagementResult<TUser>.SuccessResult(user);
+            return IdentityUtilsResult<TUser>.SuccessResult(user);
         }
 
-        public async Task<IdentityManagementResult<TUserDto>> FindByNameAsync<TUserDto>(string name) where TUserDto : class
+        public async Task<IdentityUtilsResult<TUserDto>> FindByNameAsync<TUserDto>(string name) where TUserDto : class
         {
             var userResult = await FindByNameAsync(name);
 
             if (!userResult.Success)
-                return IdentityManagementResult<TUserDto>.ErrorResult(userResult.ErrorMessages);
+                return IdentityUtilsResult<TUserDto>.ErrorResult(userResult.ErrorMessages);
 
-            return IdentityManagementResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Payload));
+            return IdentityUtilsResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Payload));
         }
 
-        public async Task<IdentityManagementResult> CreateUser(TUserDto user)
+        public async Task<IdentityUtilsResult> CreateUser(TUserDto user)
         {
             var userDb = mapper.Map<TUser>(user);
 
-            var result = ModelValidator.ValidateDataAnnotations(userDb).ToIdentityManagementResult();
+            var result = ModelValidator.ValidateDataAnnotations(userDb).ToIdentityUtilsResult();
             if (!result.Success)
                 return result;
 
-            result = (await userManager.CreateAsync(userDb, user.Password)).ToIdentityManagementResult();
+            result = (await userManager.CreateAsync(userDb, user.Password)).ToIdentityUtilsResult();
 
             if (result.Success)
                 mapper.Map(userDb, user);
@@ -109,40 +109,40 @@ namespace IdentityUtils.Core.Services
             return result;
         }
 
-        public async Task<IdentityManagementResult> UpdateUser(TUserDto user)
+        public async Task<IdentityUtilsResult> UpdateUser(TUserDto user)
         {
             var userDbResult = await FindByIdAsync(user.Id);
 
             if (!userDbResult.Success)
-                return IdentityManagementResult.ErrorResult(userDbResult.ErrorMessages);
+                return IdentityUtilsResult.ErrorResult(userDbResult.ErrorMessages);
 
             mapper.Map(user, userDbResult.Payload);
             var result = await userManager.UpdateAsync(userDbResult.Payload);
 
             if (!result.Succeeded)
-                return result.ToIdentityManagementResult();
+                return result.ToIdentityUtilsResult();
 
             mapper.Map(userDbResult.Payload, user);
-            return IdentityManagementResult.SuccessResult;
+            return IdentityUtilsResult.SuccessResult;
         }
 
-        public async Task<IdentityManagementResult> DeleteUser(Guid userId)
+        public async Task<IdentityUtilsResult> DeleteUser(Guid userId)
         {
             var userResult = await FindByIdAsync(userId);
             if (!userResult.Success)
                 return userResult;
 
             var identityResult = await userManager.DeleteAsync(userResult.Payload);
-            return identityResult.ToIdentityManagementResult();
+            return identityResult.ToIdentityUtilsResult();
         }
 
         public Task<string> GeneratePasswordResetTokenAsync(TUser user)
             => userManager.GeneratePasswordResetTokenAsync(user);
 
-        public async Task<IdentityManagementResult> ResetPasswordAsync(TUser user, string token, string newPassword)
+        public async Task<IdentityUtilsResult> ResetPasswordAsync(TUser user, string token, string newPassword)
         {
             var result = await userManager.ResetPasswordAsync(user, token, newPassword);
-            return result.ToIdentityManagementResult();
+            return result.ToIdentityUtilsResult();
         }
 
         public async Task<IEnumerable<Claim>> GetUserTenantRolesClaims(Guid userId)
@@ -156,17 +156,17 @@ namespace IdentityUtils.Core.Services
             return tenantClaims.Select(x => x.ToClaim());
         }
 
-        public async Task<IdentityManagementResult> AddClaimAsync(Guid userId, Claim claim)
+        public async Task<IdentityUtilsResult> AddClaimAsync(Guid userId, Claim claim)
             => await AddClaimsAsync(userId, new List<Claim> { claim });
 
-        public async Task<IdentityManagementResult> AddClaimsAsync(Guid userId, IEnumerable<Claim> claims)
+        public async Task<IdentityUtilsResult> AddClaimsAsync(Guid userId, IEnumerable<Claim> claims)
         {
             var userResult = await FindByIdAsync(userId);
             if (!userResult.Success)
                 return userResult;
 
             var result = await userManager.AddClaimsAsync(userResult.Payload, claims);
-            return result.ToIdentityManagementResult();
+            return result.ToIdentityUtilsResult();
         }
 
         public async Task<Claim> GetUserTenantRolesClaims(Guid userId, Guid tenantId)
@@ -177,7 +177,7 @@ namespace IdentityUtils.Core.Services
                 .FirstOrDefault();
         }
 
-        private async Task<IdentityManagementResult> AddOrUpdateTenantRolesClaim(Guid userId, Guid tenantId, TenantRolesClaimData tenantClaimData)
+        private async Task<IdentityUtilsResult> AddOrUpdateTenantRolesClaim(Guid userId, Guid tenantId, TenantRolesClaimData tenantClaimData)
         {
             var result = IdentityResult.Success;
             var newTenantRolesClaim = new Claim(TenantClaimsSchema.TenantRolesData, tenantClaimData.Serialize());
@@ -193,7 +193,7 @@ namespace IdentityUtils.Core.Services
             if (result.Succeeded)
                 result = await userManager.AddClaimAsync(userResult.Payload, newTenantRolesClaim);
 
-            return result.ToIdentityManagementResult();
+            return result.ToIdentityUtilsResult();
         }
 
         public async Task<IEnumerable<TenantRolesClaimData>> GetTenantRolesListAsync(Guid userId)
@@ -202,7 +202,7 @@ namespace IdentityUtils.Core.Services
             return claims.Select(x => x.Value.DeserializeToTenantRolesClaimData());
         }
 
-        public async Task<IdentityManagementResult> AddToRoleAsync(Guid userId, Guid tenantId, Guid roleId)
+        public async Task<IdentityUtilsResult> AddToRoleAsync(Guid userId, Guid tenantId, Guid roleId)
         {
             var role = await roleManager.FindByIdAsync(roleId.ToString());
             TenantRolesClaimData tenantClaimData = new TenantRolesClaimData(tenantId, role.NormalizedName);
@@ -219,9 +219,9 @@ namespace IdentityUtils.Core.Services
             return result;
         }
 
-        public async Task<IdentityManagementResult> AddToRolesAsync(Guid userId, Guid tenantId, IEnumerable<Guid> roles)
+        public async Task<IdentityUtilsResult> AddToRolesAsync(Guid userId, Guid tenantId, IEnumerable<Guid> roles)
         {
-            var result = IdentityManagementResult.SuccessResult;
+            var result = IdentityUtilsResult.SuccessResult;
             foreach (var role in roles)
             {
                 if (result.Success)
@@ -245,7 +245,7 @@ namespace IdentityUtils.Core.Services
             return roles.Contains(role);
         }
 
-        public async Task<IdentityManagementResult> RemoveFromRoleAsync(Guid userId, Guid tenantId, Guid roleId)
+        public async Task<IdentityUtilsResult> RemoveFromRoleAsync(Guid userId, Guid tenantId, Guid roleId)
         {
             var role = await roleManager.FindByIdAsync(roleId.ToString());
             TenantRolesClaimData tenantClaimData = new TenantRolesClaimData(tenantId, role.NormalizedName);
@@ -262,7 +262,7 @@ namespace IdentityUtils.Core.Services
             return result;
         }
 
-        public async Task<IdentityManagementResult<List<TUserDto>>> RoleUsersPerTenant(Guid roleId, Guid tenantId)
+        public async Task<IdentityUtilsResult<List<TUserDto>>> RoleUsersPerTenant(Guid roleId, Guid tenantId)
         {
             var role = await roleManager.FindByIdAsync(roleId.ToString());
             string roleNormalizedName = role.NormalizedName;
@@ -287,7 +287,7 @@ namespace IdentityUtils.Core.Services
                 .ProjectTo<TUserDto>(mapper.ConfigurationProvider)
                 .ToListAsync();
 
-            return IdentityManagementResult<List<TUserDto>>.SuccessResult(usersDto);
+            return IdentityUtilsResult<List<TUserDto>>.SuccessResult(usersDto);
         }
     }
 }
