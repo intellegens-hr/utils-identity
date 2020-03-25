@@ -1,5 +1,7 @@
 # IdentityUtils.Core.Services
 
+This project contains all services required to manage tenants, roles and users in multitenant environment.
+
 To avoid adding `TenantId` member to all identity models (roles, users), services contained in this project wrap around .Net Core Identity `UserManager`/`RoleManager` and add this feature without altering base identity database models.
 
 Following issues need to be solved with these services:
