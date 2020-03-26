@@ -68,7 +68,7 @@ Your configuration file content:";
             {
                 result.Data = new ServicesConfiguration
                 {
-                    Is4Hostname = lines[0].Replace("HOSTNAME: ", "").Trim(),
+                    Hostname = lines[0].Replace("HOSTNAME: ", "").Trim(),
                     ClientId = lines[1].Replace("CLIENT ID: ", "").Trim(),
                     ClientSecret = lines[2].Replace("CLIENT SECRET: ", "").Trim(),
                     ClientScope = lines[3].Replace("SCOPE: ", "").Trim()
@@ -97,7 +97,7 @@ Your configuration file content:";
 
                 result.Data = new ServicesConfiguration
                 {
-                    Is4Hostname = IS4Manager.AuthHostname,
+                    Hostname = IS4Manager.AuthHostname,
                     ClientId = IS4Manager.AuthClientId,
                     ClientSecret = IS4Manager.AuthClientSecret,
                     ClientScope = IS4Manager.AuthScope

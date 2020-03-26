@@ -1,4 +1,5 @@
-﻿using IdentityUtils.Core.Contracts.Commons;
+﻿using IdentityUtils.Commons;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using System;
 using System.Collections.Generic;
@@ -11,31 +12,31 @@ namespace IdentityUtils.Api.Extensions
     /// Wraps and exposes all role management API endpoints
     /// </summary>
     /// <typeparam name="TRoleDto">Role DTO model used</typeparam>
-    public class RoleManagementApi<TRoleDto> : ApiHttpClient
+    public class RoleManagementApi<TRoleDto>
         where TRoleDto : class, IIdentityManagerRoleDto
     {
-        protected override string BasePath { get; }
-        protected override IApiWrapperConfig WrapperConfig { get; }
+        private readonly RestClient restClient;
+        private string BasePath { get; }
 
-        public RoleManagementApi(IApiWrapperConfig wrapperConfig)
+        public RoleManagementApi(RestClient restClient, IApiExtensionsConfig apiExtensionsConfig)
         {
-            BasePath = $"{wrapperConfig.Is4Hostname.TrimEnd('/')}/api/intellegens/roles";
-            WrapperConfig = wrapperConfig;
+            BasePath = $"{apiExtensionsConfig.Hostname.TrimEnd('/')}/{apiExtensionsConfig.RoleManagementBaseRoute.TrimStart('/')}";
+            this.restClient = restClient;
         }
 
         public Task<List<TRoleDto>> GetRoles()
-            => Get<List<TRoleDto>>($"{BasePath}");
+            => restClient.Get<List<TRoleDto>>($"{BasePath}");
 
         public Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto role)
-            => Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}", role);
+            => restClient.Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}", role);
 
         public Task<IdentityUtilsResult> DeleteRole(Guid id)
-            => Delete<IdentityUtilsResult>($"{BasePath}/{id}");
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}");
 
         public Task<IdentityUtilsResult<TRoleDto>> GetRoleById(Guid id)
-            => Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}");
+            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}");
 
         public Task<IdentityUtilsResult<TRoleDto>> GetRoleByNormalizedName(string roleName)
-            => Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}");
+            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}");
     }
 }

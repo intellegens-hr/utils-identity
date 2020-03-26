@@ -1,5 +1,6 @@
 ﻿using IdentityManagement.Models.ModelsDto;
 using IdentityUtils.Api.Extensions.Cli.Models;
+using IdentityUtils.Api.Extensions.RestClients;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 
@@ -24,13 +25,28 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
             return authParamsResult.Data;
         }
 
+        private static Is4ManagementRestClient GetRestClient(IApiExtensionsIs4Config is4Config)
+            => new Is4ManagementRestClient(is4Config);
+
         internal static TenantManagementApi<TenantDto> GetTenantManagementApi(IConsole console)
-            => new TenantManagementApi<TenantDto>(GetServicesConfiguration(console));
+        {
+            var config = GetServicesConfiguration(console);
+            var client = GetRestClient(config);
+            return new TenantManagementApi<TenantDto>(client, config);
+        }
 
         internal static UserManagementApi<UserDto> GetUserManagementApi(IConsole console)
-            => new UserManagementApi<UserDto>(GetServicesConfiguration(console));
+        {
+            var config = GetServicesConfiguration(console);
+            var client = GetRestClient(config);
+            return new UserManagementApi<UserDto>(client, config);
+        }
 
         internal static RoleManagementApi<RoleDto> GetRoleManagementApi(IConsole console)
-            => new RoleManagementApi<RoleDto>(GetServicesConfiguration(console));
+        {
+            var config = GetServicesConfiguration(console);
+            var client = GetRestClient(config);
+            return new RoleManagementApi<RoleDto>(client, config);
+        }
     }
 }

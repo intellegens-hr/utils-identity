@@ -16,7 +16,10 @@ Currently supported management APIs:
 - Role management
 - User management
 
+## Configuration
 
+
+## Example
 Eg. to create new user, following steps are required:
 - create (or inject) instance of UserManagementApi with desired DTO type. DTO type should be the same as the one specified when configuring `IdentityUtils.Core.Services`
 ```csharp

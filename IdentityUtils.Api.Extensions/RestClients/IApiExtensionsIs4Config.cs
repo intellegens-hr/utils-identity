@@ -1,12 +1,12 @@
-﻿namespace IdentityUtils.Api.Extensions
+﻿namespace IdentityUtils.Api.Extensions.RestClients
 {
-    public interface IApiWrapperConfig
+    public interface IApiExtensionsIs4Config
     {
         /// <summary>
         /// Identity server 4 hostname (ie. https://10.10.10.10:5002)
         /// </summary>
-        string Is4Hostname { get; }
-        
+        string Hostname { get; }
+
         /// <summary>
         /// Client ID used to authorize API calls to IS4
         /// </summary>

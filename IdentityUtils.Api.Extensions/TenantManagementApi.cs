@@ -1,4 +1,5 @@
 ﻿using IdentityUtils.Api.Models.Tenants;
+using IdentityUtils.Commons;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Tenants;
 using System;
@@ -11,34 +12,34 @@ namespace IdentityUtils.Api.Extensions
     /// Wraps and exposes all tenant management API endpoints
     /// </summary>
     /// <typeparam name="TTenantDto">Tenant DTO model used</typeparam>
-    public class TenantManagementApi<TTenantDto> : ApiHttpClient
+    public class TenantManagementApi<TTenantDto> 
         where TTenantDto : class, IIdentityManagerTenantDto
     {
-        protected override string BasePath { get; }
-        protected override IApiWrapperConfig WrapperConfig { get; }
+        private readonly RestClient restClient;
+        private string BasePath { get; }
 
-        public TenantManagementApi(IApiWrapperConfig wrapperConfig)
+        public TenantManagementApi(RestClient restClient, IApiExtensionsConfig apiExtensionsConfig)
         {
-            BasePath = $"{wrapperConfig.Is4Hostname.TrimEnd('/')}/api/intellegens/tenants";
-            WrapperConfig = wrapperConfig;
+            BasePath = $"{apiExtensionsConfig.Hostname.TrimEnd('/')}/{apiExtensionsConfig.TenantManagementBaseRoute.TrimStart('/')}";
+            this.restClient = restClient;
         }
 
         public Task<List<TTenantDto>> GetTenants()
-            => Get<List<TTenantDto>>($"{BasePath}");
+            => restClient.Get<List<TTenantDto>>($"{BasePath}");
 
         public Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenant)
-            => Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}", tenant);
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}", tenant);
 
         public Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
-            => Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}");
+            => restClient.Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}");
 
         public Task<IdentityUtilsResult> DeleteTenant(Guid id)
-            => Delete<IdentityUtilsResult>($"{BasePath}/{id}");
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}");
 
         public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
-            => Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant);
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant);
 
         public Task<TTenantDto> GetTenantByHostname(string hostname)
-            => Post<TTenantDto>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname });
+            => restClient.Post<TTenantDto>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname });
     }
 }
