@@ -45,8 +45,6 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
             context.IssuedClaims = claims.Union(tenantClaims).ToList();
 
             context.IssuedClaims.Add(new Claim("userId", userId.ToString()));
-            //TODO: current tenantId
-            //context.IssuedClaims.Add(new Claim("tenantId", tenantClaims.First().Value.DeserializeTo ));
         }
 
         public async Task IsActiveAsync(IsActiveContext context)

@@ -13,3 +13,6 @@
 [IdentityUtils.Api.Extensions](./IdentityUtils.Api.Extensions/README.md)
 
 [IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)
+
+
+[IdentityUtils.Demos.IdentityServer4](./IdentityUtils.Demos.IdentityServer4/README.md)

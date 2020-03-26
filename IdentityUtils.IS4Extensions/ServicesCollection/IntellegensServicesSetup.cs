@@ -101,9 +101,9 @@ namespace IdentityUtils.IS4Extensions.ServicesCollection
         }
     }
 
-    public static class IntellegensServicesSetup
+    public static class IdentityUtilsServicesSetup
     {
-        public static IServiceCollection AddIntellegensIs4Extensions(this IServiceCollection services, Action<IdentityUtilsServicesBuilder> builder)
+        public static IServiceCollection AddIdentityUtilsIs4Extensions(this IServiceCollection services, Action<IdentityUtilsServicesBuilder> builder)
         {
             var identityUtilsServicesBuilder = new IdentityUtilsServicesBuilder(services);
             builder(identityUtilsServicesBuilder);
