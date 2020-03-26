@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Commons.Mailing
+namespace IdentityUtils.Commons.Mailing
 {
     public enum EmailTypes { HTML, PLAINTEXT }
 

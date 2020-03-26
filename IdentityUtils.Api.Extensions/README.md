@@ -9,7 +9,7 @@
 Dependencies for this project are:
 - `IndentityUtils.Api.Models` to use required Poco objects to send/receive data from API
 - `IdentityUtils.Core.Contracts` since all classes need to specify desired DTO objects with constraints specified in `Contracts` project
-- `IdentityUtils.Common` since it relies on IntellegensHttpClient
+- `IdentityUtils.Common` since it relies on `RestClient`
 
 Currently supported management APIs:
 - Tenant management

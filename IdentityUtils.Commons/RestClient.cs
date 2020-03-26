@@ -4,9 +4,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Commons
+namespace IdentityUtils.Commons
 {
-    public class IntellegensHttpClient : IDisposable
+    public class RestClient : IDisposable
     {
         protected HttpClient httpClient = new HttpClient();
 

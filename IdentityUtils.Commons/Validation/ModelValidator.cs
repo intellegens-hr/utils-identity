@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Commons.Validation
+namespace IdentityUtils.Commons.Validation
 {
     public static class ModelValidator
     {

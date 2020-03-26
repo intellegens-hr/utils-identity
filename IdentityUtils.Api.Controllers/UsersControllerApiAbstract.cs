@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Commons.Mailing;
 using IdentityUtils.Api.Models.Users;
+using IdentityUtils.Commons.Mailing;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;

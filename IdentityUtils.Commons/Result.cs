@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Commons
+namespace IdentityUtils.Commons
 {
     public class Result
     {

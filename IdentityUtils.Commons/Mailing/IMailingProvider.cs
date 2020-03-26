@@ -1,7 +1,7 @@
 ﻿using System.Net.Mail;
 using System.Threading.Tasks;
 
-namespace Commons.Mailing
+namespace IdentityUtils.Commons.Mailing
 {
     public interface IMailingProvider
     {

@@ -40,67 +40,6 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
                     AllowedScopes = { "openid", "profile", "is4managementapi" }
                 },
 
-                // MVC client using code flow + pkce
-                //new Client
-                //{
-                //    ClientId = "mvc",
-                //    ClientName = "MVC App",
-
-                //    AllowedGrantTypes = GrantTypes.ImplicitAndClientCredentials,
-                //    RequirePkce = true,
-                //    RequireConsent = false,
-
-                //    Claims = new List<Claim>
-                //    {
-                //        new Claim("fixedSetting", "Hardcoded value")
-                //    },
-                //    ClientSecrets = { new Secret("mostsecretsecret".Sha256()) },
-
-                //    //RedirectUris = { "https://localhost:5002/signin-oidc" },
-                //    //FrontChannelLogoutUri = "https://localhost:5002/logout",
-                //    //PostLogoutRedirectUris = { "https://localhost:5002/logout-success" },
-
-                //    RedirectUris = {
-                //        "https://localhost:5005/is4_callback.html" ,
-                //        "https://localhost:5006",
-                //        "https://localhost:5006/index",
-                //        "https://localhost:5006/signin-oidc"
-                //        },
-
-                //    AllowOfflineAccess = true,
-                //    AllowedScopes = { "openid", "profile", "api1"},
-                //    AlwaysSendClientClaims = true
-                //},
-
-                //new Client
-                //{
-                //    ClientId = "mvcflow",
-                //    ClientName = "MVC Flow",
-
-                //    AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
-                //    //RequirePkce = true,
-                //    RequireConsent = false,
-
-                //    Claims = new List<Claim>
-                //    {
-                //        new Claim("fixedSetting", "Hardcoded value")
-                //    },
-                //    ClientSecrets = { new Secret("mostsecretsecret".Sha256()) },
-
-                //    RedirectUris = {
-                //        "https://localhost:5005/is4_callback.html" ,
-                //        "https://localhost:5006",
-                //        "https://localhost:5006/index",
-                //        "https://localhost:5006/signin-oidc"
-                //        },
-                //    //FrontChannelLogoutUri = "https://localhost:5002/logout",
-                //    //PostLogoutRedirectUris = { "https://localhost:5002/logout-success" },
-
-                //    AllowOfflineAccess = true,
-                //    AllowedScopes = { "openid", "profile", "api1"},
-                //    AlwaysSendClientClaims = true
-                //},
-
                 new Client
                 {
                     ClientId = "jsapp",

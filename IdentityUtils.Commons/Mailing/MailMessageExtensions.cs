@@ -1,6 +1,6 @@
 ﻿using System.Net.Mail;
 
-namespace Commons.Mailing
+namespace IdentityUtils.Commons.Mailing
 {
     public static class MailMessageExtensions
     {

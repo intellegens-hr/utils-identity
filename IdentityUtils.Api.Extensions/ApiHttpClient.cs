@@ -1,15 +1,15 @@
 ﻿using IdentityModel.Client;
+using IdentityUtils.Commons;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Commons;
 
 namespace IdentityUtils.Api.Extensions
 {
     /// <summary>
-    /// Inherits IntellegensHttpClient and overrides GetHttpRequestMessage to 
+    /// Inherits RestClient and overrides GetHttpRequestMessage to
     /// fetch authentication token from IS4 and add it to header.
     /// </summary>
-    public abstract class ApiHttpClient : IntellegensHttpClient
+    public abstract class ApiHttpClient : RestClient
     {
         protected abstract string BasePath { get; }
         protected abstract IApiWrapperConfig WrapperConfig { get; }
