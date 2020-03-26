@@ -10,4 +10,6 @@
 
 [IdentityUtils.Api.Models](./IdentityUtils.Api.Models/README.md)
 
+[IdentityUtils.Api.Extensions](./IdentityUtils.Api.Extensions/README.md)
+
 [IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)
