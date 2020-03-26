@@ -15,6 +15,9 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         ]
     internal class Roles
     {
+        [Option(ShortName = "r", LongName = "api-base-route", Description = "Base route roles management API uses (defaults to /api/management/roles)")]
+        internal static string ApiBaseRoute { get; set; }
+
         private int OnExecute(IConsole console)
         {
             console.Error.WriteLine("You must specify an action. See --help for more details.");

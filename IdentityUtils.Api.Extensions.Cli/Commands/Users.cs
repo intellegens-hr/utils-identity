@@ -19,6 +19,9 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         Subcommand(typeof(Update))]
     internal class Users
     {
+        [Option(ShortName = "r", LongName = "api-base-route", Description = "Base route user management API uses (defaults to /api/management/users)")]
+        internal static string ApiBaseRoute { get; set; }
+
         private int OnExecute(IConsole console)
         {
             console.Error.WriteLine("You must specify an action. See --help for more details.");

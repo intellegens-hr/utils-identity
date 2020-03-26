@@ -1,4 +1,5 @@
 ﻿using IdentityManagement.Models.ModelsDto;
+using IdentityUtils.Api.Extensions.Cli.Commands;
 using IdentityUtils.Api.Extensions.Cli.Models;
 using IdentityUtils.Api.Extensions.RestClients;
 using McMaster.Extensions.CommandLineUtils;
@@ -31,6 +32,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
         internal static TenantManagementApi<TenantDto> GetTenantManagementApi(IConsole console)
         {
             var config = GetServicesConfiguration(console);
+
+            if (!string.IsNullOrEmpty(Tenants.ApiBaseRoute))
+                config.TenantManagementBaseRoute = Tenants.ApiBaseRoute;
+
             var client = GetRestClient(config);
             return new TenantManagementApi<TenantDto>(client, config);
         }
@@ -38,6 +43,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
         internal static UserManagementApi<UserDto> GetUserManagementApi(IConsole console)
         {
             var config = GetServicesConfiguration(console);
+
+            if (!string.IsNullOrEmpty(Users.ApiBaseRoute))
+                config.UserManagementBaseRoute = Users.ApiBaseRoute;
+
             var client = GetRestClient(config);
             return new UserManagementApi<UserDto>(client, config);
         }
@@ -45,6 +54,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
         internal static RoleManagementApi<RoleDto> GetRoleManagementApi(IConsole console)
         {
             var config = GetServicesConfiguration(console);
+
+            if (!string.IsNullOrEmpty(Roles.ApiBaseRoute))
+                config.RoleManagementBaseRoute = Roles.ApiBaseRoute;
+
             var client = GetRestClient(config);
             return new RoleManagementApi<RoleDto>(client, config);
         }

@@ -5,9 +5,10 @@ This CLI tools is used to administer users, roles and tenants on IdentityServer 
 CLI tool uses [API extension utils](./IdentityUtils.Api.Extensions/README.md) to communicate with IdentityServer via REST API.
 
 1. [ Authentication ](#auth)
-2. [ Commands - Tenants ](#tenants)
-3. [ Commands - Roles ](#roles)
-4. [ Commands - Users ](#users)
+2. [ Commands ](#commands)
+    1. [ Tenants ](#tenants)
+    2. [ Roles ](#roles)
+    3. [ Users ](#users)
 
 <a name="auth"></a>
 ## Authentication
@@ -46,15 +47,25 @@ CLIENT SECRET: <client-secret>
 SCOPE: <scope>
 ```
 
+<a name="commands"></a>
+## Commands
+
+Similar to authentication parameters, all commands have optional endpoint switch `-r` or `--api-base-route` which specifies base route for management API (eg. `/api/management/users`).
+
+These arguments are optional and default to:
+- Tenants - `/api/management/tenants`
+- Roles - `/api/management/roles`
+- Users - `/api/management/users`
+
 <a name="tenants"></a>
-## Commands - Tenants
+### Tenants
 Available commands:
 - `list` - List all tenants
 - `add` - Add tenant
 - `update` - Update tenant
 - `delete` - Delete tenant
 
-### Examples
+#### Examples
 - List tenants: <br/>
 `Cli.exe tenants list`<br/>
 Optionally, `--id` switch can be used to list only tenant with specified ID
@@ -69,13 +80,13 @@ Optionally, `--id` switch can be used to list only tenant with specified ID
 `Cli.exe tenants delete --id 8c46fde9-d305-425f-8fee-8360b09de2cf`
 
 <a name="roles"></a>
-## Commands - Roles
+### Roles
 Available commands:
 - `list` - List all roles
 - `add` - Add role
 - `delete` - Delete role
 
-### Examples
+#### Examples
 - List roles: <br/>
 `Cli.exe roles list`<br/>
 Optionally, `--id` switch can be used to list only role with specified ID, or `--name` switch to list only role with specified normalized name
@@ -87,7 +98,7 @@ Optionally, `--id` switch can be used to list only role with specified ID, or `-
 `Cli.exe roles delete --id f613404e-f23d-48e2-ae4b-a63bab3d4abe`
 
 <a name="users"></a>
-## Commands - Users
+### Users
 Available commands:
 - `list` - List all users
 - `list-per-role` - List all users per role
@@ -97,7 +108,7 @@ Available commands:
 - `add-to-role` - Add user to role
 - `remove-from-role` - Remove user from role
 
-### Examples
+#### Examples
 - List users: <br/>
 `Cli.exe Cli.exe users list`<br/>
 Optionally, `--id` switch can be used to list only users with specified ID

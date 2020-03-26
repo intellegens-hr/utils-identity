@@ -15,6 +15,9 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 Subcommand(typeof(Update))]
     internal class Tenants
     {
+        [Option(ShortName = "r", LongName = "api-base-route", Description = "Base route tenant management API uses (defaults to /api/management/tenants)")]
+        internal static string ApiBaseRoute { get; set; }
+
         private int OnExecute(IConsole console)
         {
             console.Error.WriteLine("You must specify an action. See --help for more details.");
