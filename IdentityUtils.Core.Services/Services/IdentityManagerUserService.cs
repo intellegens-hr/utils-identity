@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using IdentityManagement.Services;
 using IdentityUtils.Commons.Validation;
+using IdentityUtils.Core.Contracts.Claims;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Context;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
-using IdentityUtils.Core.Services.Extensions;
-using IdentityUtils.Core.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;

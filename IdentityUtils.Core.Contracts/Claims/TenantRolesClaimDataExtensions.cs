@@ -1,7 +1,6 @@
-﻿using IdentityUtils.Core.Services.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace IdentityUtils.Core.Services.Extensions
+namespace IdentityUtils.Core.Contracts.Claims
 {
     public static class TenantRolesClaimDataExtensions
     {

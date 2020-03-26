@@ -1,4 +1,4 @@
-﻿namespace IdentityManagement.Services
+﻿namespace IdentityUtils.Core.Contracts.Claims
 {
     public static class TenantClaimsSchema
     {

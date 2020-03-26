@@ -1,5 +1,4 @@
-﻿using IdentityManagement.Models.ModelsDto;
-using IdentityUtils.Api.Extensions.Cli.Commons;
+﻿using IdentityUtils.Api.Extensions.Cli.Commons;
 using IdentityUtils.Api.Extensions.Cli.Models;
 using IdentityUtils.Api.Extensions.Cli.Utils;
 using McMaster.Extensions.CommandLineUtils;

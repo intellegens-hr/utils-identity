@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IdentityUtils.Core.Services.Models
+namespace IdentityUtils.Core.Contracts.Claims
 {
     public class TenantRolesClaimData
     {

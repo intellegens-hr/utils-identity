@@ -1,6 +1,6 @@
 ﻿using IdentityUtils.Core.Contracts.Users;
 
-namespace IdentityManagement.Models.ModelsDto
+namespace IdentityUtils.Api.Extensions.Cli.Models
 {
     public class UserDto : IdentityManagerUserDtoBase
     {
