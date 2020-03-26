@@ -3,6 +3,7 @@ using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace IdentityUtils.Demos.IdentityServer4.DbContext
 {
@@ -12,6 +13,8 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext
         {
             optionsBuilder
                 .UseSqlite(@"Data Source=Is4Demo.db;");
+
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
         }
     }
 }

@@ -12,6 +12,7 @@ using IdentityUtils.IS4Extensions.ServicesCollection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IdentityUtils.Demos.IdentityServer4
@@ -50,7 +51,7 @@ namespace IdentityUtils.Demos.IdentityServer4
                         .AddIdentity<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant, Is4DemoDbContext>()
                         //This will add authentication to all API calls, first argument is authority - in this case
                         //it's the URL of this instance. Second parameter is Audience for JWT bearer token
-                        .AddAuthentication("https://localhost:5000", "demo-is4-management-api")
+                        .AddAuthentication("https://localhost:5010", "demo-is4-management-api")
                         .AddTenantStore<IdentityManagerTenant, TenantDto>()
                         .AddTenantUserStore<IdentityManagerUser, UserDto, IdentityManagerRole>()
                         .AddRolesStore<IdentityManagerUser, IdentityManagerRole, RoleDto>()

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
+namespace IdentityUtils.Demos.IdentityServer4.Data.Migrations
 {
     public partial class InitialCreate : Migration
     {
@@ -52,8 +52,7 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                 columns: table => new
                 {
                     TenantId = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
-                    Hostname = table.Column<string>(maxLength: 256, nullable: false)
+                    Name = table.Column<string>(maxLength: 128, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -166,6 +165,25 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TenantHosts",
+                columns: table => new
+                {
+                    TenantHostId = table.Column<Guid>(nullable: false),
+                    TenantId = table.Column<Guid>(nullable: false),
+                    Hostname = table.Column<string>(maxLength: 256, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TenantHosts", x => x.TenantHostId);
+                    table.ForeignKey(
+                        name: "FK_TenantHosts_Tenants_TenantId",
+                        column: x => x.TenantId,
+                        principalTable: "Tenants",
+                        principalColumn: "TenantId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -202,6 +220,11 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TenantHosts_TenantId",
+                table: "TenantHosts",
+                column: "TenantId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -222,13 +245,16 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Tenants");
+                name: "TenantHosts");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Tenants");
         }
     }
 }

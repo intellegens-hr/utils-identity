@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace IdentityUtils.Core.Contracts.Tenants
 {
@@ -8,5 +9,6 @@ namespace IdentityUtils.Core.Contracts.Tenants
     public interface IIdentityManagerTenantDto
     {
         public Guid TenantId { get; }
+        public List<string> Hostnames { get; set; }
     }
 }

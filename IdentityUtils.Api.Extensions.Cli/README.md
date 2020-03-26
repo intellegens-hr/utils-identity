@@ -71,10 +71,10 @@ Available commands:
 Optionally, `--id` switch can be used to list only tenant with specified ID
 
 - Add tenant: <br/>
-`Cli.exe tenants add --name "New tenant" --hostname https://localhost:5002`
+`Cli.exe tenants add --name "New tenant" --hostnames https://localhost:5002`
 
 - Update tenant<br/>
-`Cli.exe tenants update --name "New tenant" --hostname https://localhost:5002 --id 8c46fde9-d305-425f-8fee-8360b09de2cf`
+`Cli.exe tenants update --name "New tenant" --hostnames https://localhost:5002 --id 8c46fde9-d305-425f-8fee-8360b09de2cf`
 
 - Delete tenant: <br/>
 `Cli.exe tenants delete --id 8c46fde9-d305-425f-8fee-8360b09de2cf`

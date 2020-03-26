@@ -3,16 +3,14 @@ using System;
 using IdentityUtils.Demos.IdentityServer4.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
+namespace IdentityUtils.Demos.IdentityServer4.Data.Migrations
 {
     [DbContext(typeof(Is4DemoDbContext))]
-    [Migration("20200326104123_InitialCreate")]
-    partial class InitialCreate
+    partial class Is4DemoDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,11 +49,6 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Hostname")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -64,6 +57,27 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                     b.HasKey("TenantId");
 
                     b.ToTable("Tenants");
+                });
+
+            modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenantHost", b =>
+                {
+                    b.Property<Guid>("TenantHostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Hostname")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TenantHostId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("TenantHosts");
                 });
 
             modelBuilder.Entity("IdentityUtils.Core.Contracts.Users.IdentityManagerUser", b =>
@@ -231,6 +245,15 @@ namespace IdentityUtils.Demos.IdentityServer4.DbContext.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenantHost", b =>
+                {
+                    b.HasOne("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenant", "IdentityManagerTenant")
+                        .WithMany("Hosts")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

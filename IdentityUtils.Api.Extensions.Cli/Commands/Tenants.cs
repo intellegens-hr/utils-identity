@@ -5,6 +5,7 @@ using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace IdentityUtils.Api.Extensions.Cli.Commands
 {
@@ -33,7 +34,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             console.WriteLine("--------------------------------------------");
             foreach (var tenant in tenants)
             {
-                console.WriteLine($"{tenant.TenantId}\t\t{tenant.Name}\t\t{tenant.Hostname}");
+                console.WriteLine($"{tenant.TenantId}\t\t{tenant.Name}\t\t{string.Join(';', tenant.Hostnames)}");
             }
         }
 
@@ -78,15 +79,15 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             public string Name { get; }
 
             [Required(ErrorMessage = "Must specify tenant host")]
-            [Option(Description = "Hostname")]
-            public string Hostname { get; }
+            [Option(Description = "Hostnames (separate multiple hosts with ';')")]
+            public string Hostnames { get; }
 
             private void OnExecute(IConsole console)
             {
                 TenantDto tenant = new TenantDto
                 {
                     Name = Name,
-                    Hostname = Hostname
+                    Hostnames = Hostnames.Split(';').ToList()
                 };
 
                 var tenantAddResult = Shared.GetTenantManagementApi(console).AddTenant(tenant).Result;
@@ -106,8 +107,8 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Tenant name")]
             public string Name { get; }
 
-            [Option(Description = "Hostname")]
-            public string Hostname { get; }
+            [Option(Description = "Hostnames (separate multiple hosts with ';')")]
+            public string Hostnames { get; }
 
             private void OnExecute(IConsole console)
             {
@@ -125,8 +126,8 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 if (!string.IsNullOrEmpty(Name))
                     tenant.Name = Name;
 
-                if (!string.IsNullOrEmpty(Hostname))
-                    tenant.Hostname = Hostname;
+                if (!string.IsNullOrEmpty(Hostnames))
+                    tenant.Hostnames = Hostnames.Split(';').ToList();
 
                 var tenantUpdateResult = Shared.GetTenantManagementApi(console).UpdateTenant(tenant).Result;
 

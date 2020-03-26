@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.ValueGeneration;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,7 +18,7 @@ namespace IdentityUtils.Core.Contracts.Tenants
         [Required, StringLength(128, MinimumLength = 6)]
         public virtual string Name { get; set; }
 
-        [Required, StringLength(256, MinimumLength = 6)]
-        public virtual string Hostname { get; set; }
+        [InverseProperty(nameof(IdentityManagerTenant))]
+        public virtual ICollection<IdentityManagerTenantHost> Hosts { get;set;}
     }
 }

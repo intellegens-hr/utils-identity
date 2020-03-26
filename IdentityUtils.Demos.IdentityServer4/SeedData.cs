@@ -28,9 +28,9 @@ namespace IdentityUtils.Demos.IdentityServer4
 
             var tenants = new List<IdentityManagerTenant>
             {
-                new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Hostname = "https://localhost:5005", Name = "Intellegens Exams"},
-                new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Hostname = "https://localhost:5010", Name = "Intellegens Administration"},
-                new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Hostname = "https://localhost:5012", Name = "Cmars Exams"}
+                new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Name = "Intellegens Exams"},
+                new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Name = "Intellegens Administration"},
+                new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Name = "Cmars Exams"}
             };
 
             foreach (var tenant in tenants)
@@ -38,6 +38,20 @@ namespace IdentityUtils.Demos.IdentityServer4
                 var exists = await dbContext.Tenants.AnyAsync(x => x.Name == tenant.Name);
                 if (!exists)
                     dbContext.Tenants.Add(tenant);
+            }
+
+            var hosts = new List<IdentityManagerTenantHost>
+            {
+                new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5005" },
+                new IdentityManagerTenantHost { TenantId = tenants[1].TenantId, Hostname = "https://localhost:5010" },
+                new IdentityManagerTenantHost { TenantId = tenants[2].TenantId, Hostname = "https://localhost:5012" }
+            };
+
+            foreach (var host in hosts)
+            {
+                var exists = await dbContext.TenantHosts.AnyAsync(x => x.Hostname == host.Hostname);
+                if (!exists)
+                    dbContext.TenantHosts.Add(host);
             }
 
             await dbContext.SaveChangesAsync();

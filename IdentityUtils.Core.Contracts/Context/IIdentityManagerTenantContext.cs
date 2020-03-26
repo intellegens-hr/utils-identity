@@ -11,5 +11,6 @@ namespace IdentityUtils.Core.Contracts.Context
         where TTenant : IdentityManagerTenant
     {
         DbSet<TTenant> Tenants { get; set; }
+        DbSet<IdentityManagerTenantHost> TenantHosts { get; set; }
     }
 }
