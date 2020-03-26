@@ -1,28 +1,51 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using IdentityUtils.Api.Extensions;
+using IdentityUtils.Api.Extensions.RestClients;
+using IdentityUtils.Demos.Api.Configuration;
 using IdentityUtils.Demos.Api.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace IdentityUtils.Demos.Api
 {
     public class Startup
     {
+        public IConfigurationRoot Configuration { get; }
+        private AppSettings AppSettings { get; set; }
+
+        public Startup(IWebHostEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+            AppSettings = new AppSettings(Configuration);
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore()
                 .AddAuthorization();
 
+            services.AddSingleton(AppSettings);
+            services.AddSingleton<IApiExtensionsIs4Config, ApiExtensionsConfig>();
+            services.AddSingleton<IApiExtensionsConfig, ApiExtensionsConfig>();
+
             services.AddHttpContextAccessor();
             services.AddScoped<ApiUser>();
-            services.AddScoped<TenantManagementApi<TenantDto>>();
+
+            services.AddScoped<TenantManagementApi<TenantDto>>((collection) =>
+            {
+                var configIs4ApiExtensions = collection.GetRequiredService<IApiExtensionsIs4Config>();
+                var configApiExtensions = collection.GetRequiredService<IApiExtensionsConfig>();
+
+                return new TenantManagementApi<TenantDto>(new Is4ManagementRestClient(configIs4ApiExtensions), configApiExtensions);
+            });
 
             services.AddHealthChecks();
 
@@ -41,8 +64,8 @@ namespace IdentityUtils.Demos.Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = "https://localhost:5010";
-                    options.Audience = "demo-core-api";
+                    options.Authority = AppSettings.Is4Host;
+                    options.Audience = AppSettings.ApiAuthenticationAudience;
                 });
         }
 
