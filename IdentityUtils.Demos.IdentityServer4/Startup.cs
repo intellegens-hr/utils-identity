@@ -109,7 +109,8 @@ namespace IdentityUtils.Demos.IdentityServer4
                 {
                     builder
                         //This will add default clients: is4management and jsapp. One will be used to authorize calls to IS4,
-                        //other one will be used to authorize client apps calls to API apps
+                        //other one will be used to authorize client apps calls to API apps. Client "jsapp" has no defined 
+                        //redirect urls and is used for login via AJAX calls
                         .AddDefaultClientConfiguration()
                         //Profile service will properly load roles data per tenant to tokens provided by IS4
                         .AddIdentityAndProfileService<IdentityManagerUser, UserDto, IdentityManagerRole>();

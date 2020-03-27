@@ -227,27 +227,14 @@ At this moment, everything we need to setup IdentityServer is ready. This is onl
 
 ### Services configuration
 
-Code below contains all important comments.
+To actually use Identity Server 4 with everything that we specified, we need to add following to `ConfigureServices` method in `Startup.cs`:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    services.AddControllersWithViews();
+    ...
 
-    // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
-    services.Configure<IISOptions>(iis =>
-    {
-        iis.AuthenticationDisplayName = "Windows";
-        iis.AutomaticAuthentication = false;
-    });
-
-    // configures IIS in-proc settings
-    services.Configure<IISServerOptions>(iis =>
-    {
-        iis.AuthenticationDisplayName = "Windows";
-        iis.AutomaticAuthentication = false;
-    });
-
+    //Add context we specified early on and mappings for DTO and database models
     services.AddDbContext<Is4DemoDbContext>();
     services.AddAutoMapper(typeof(Is4ModelsMapperProfile));
 
@@ -258,6 +245,7 @@ public void ConfigureServices(IServiceCollection services)
                 .AddIdentity<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant, Is4DemoDbContext>()
                 //This will add authentication to all API calls, first argument is authority - in this case 
                 //it's the URL of this instance. Second parameter is Audience for JWT bearer token
+                //This is enough for testing purposes, for dev/prod this should go to appsettings.json
                 .AddAuthentication("https://localhost:5000", "demo-is4-management-api")
                 .AddTenantStore<IdentityManagerTenant, TenantDto>()
                 .AddTenantUserStore<IdentityManagerUser, UserDto, IdentityManagerRole>()
@@ -276,20 +264,7 @@ public void ConfigureServices(IServiceCollection services)
         });
     });
 
-    //User management requires Mailing provider to send e-mails for password reset
-    services.AddSingleton<IMailingProvider, GoogleMailingProvider>();
-
-    services.AddCors(options =>
-    {
-        // this defines a CORS policy called "default"
-        options.AddPolicy("default", policy =>
-        {
-            policy.AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowAnyOrigin()
-                    .Build();
-        });
-    });
+    ...
 
     var builder = services.AddIdentityServer(options =>
     {
@@ -309,28 +284,5 @@ public void ConfigureServices(IServiceCollection services)
         });
 
     // not recommended for production - you need to store your key material somewhere secure
-    builder.AddDeveloperSigningCredential();
-}
-```
-
-### App configuration
-
-```csharp
-public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-{
-    app.UseDeveloperExceptionPage();
-    app.UseAuthentication();
-
-    app.UseCors("default");
-
-    app.UseStaticFiles();
-
-    app.UseRouting();
-    app.UseAuthorization();
-    app.UseIdentityServer();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapDefaultControllerRoute();
-    });
 }
 ```

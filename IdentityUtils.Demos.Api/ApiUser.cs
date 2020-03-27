@@ -34,8 +34,8 @@ namespace IdentityUtils.Demos.Api
                 UserId = Guid.Parse(claims.First(x => x.Type == "userId").Value);
                 //TODO: current tenant
                 TenantId = tenant.TenantId;
-                Roles = claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList();
                 TenantRoles = claims.Where(x => x.Type == TenantClaimsSchema.TenantRolesData).Select(x => x.Value.DeserializeToTenantRolesClaimData()).ToList();
+                Roles = TenantRoles.First(x => x.TenantId == tenant.TenantId).Roles;
             };
         }
 
