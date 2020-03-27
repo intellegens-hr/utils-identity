@@ -2,6 +2,6 @@
 {
     public static class TenantClaimsSchema
     {
-        public const string TenantRolesData = "/intellegens/tenant/roles";
+        public const string TenantRolesData = "/identityutils/tenant/roles";
     }
 }

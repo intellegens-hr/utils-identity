@@ -1,14 +1,11 @@
 class OidcWrapper {
     constructor() {
-        //public static REDIRECT_PARAMS_SESSION_KEY = "redirect_params";
         this.usermanagerConfig = {
             authority: ConfigAuthorizationAuthority,
             client_id: ConfigAuthorizationClientId,
-            //redirect_uri: 'https://localhost:5010/index.html',
             response_type: 'code',
             scope: ConfigAuthorizationClientScope,
             automaticSilentRenew: true,
-            //expires_in: 5,
             loadUserInfo: false,
             metadata: {
                 issuer: ConfigAuthorizationAuthority,
@@ -109,10 +106,8 @@ class IndexView {
             const data = await AjaxCall(ConfigApiLoginEndpoint, "POST", loginData);
             const token = JSON.parse(data.tokenData);
             const user = new Oidc.User(token);
-            //user.expires_in = token.expires_in;
-            user.expires_in = 30;
+            user.expires_in = token.expires_in;
             console.log(token);
-            window["debug_user"] = user;
             const wrapper = new OidcWrapper();
             wrapper.UserManager.storeUser(user);
             this.LoginCheck();

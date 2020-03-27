@@ -1,4 +1,4 @@
-﻿declare var Oidc: any;
+﻿declare const Oidc: any;
 
 interface RedirectParams {
     successUrl?: string;
@@ -6,16 +6,12 @@ interface RedirectParams {
 }
 
 class OidcWrapper {
-    //public static REDIRECT_PARAMS_SESSION_KEY = "redirect_params";
-
     private usermanagerConfig = {
         authority: ConfigAuthorizationAuthority,
         client_id: ConfigAuthorizationClientId,
-        //redirect_uri: 'https://localhost:5010/index.html',
         response_type: 'code',
         scope: ConfigAuthorizationClientScope,
         automaticSilentRenew: true,
-        //expires_in: 5,
         loadUserInfo: false,
         metadata: {
             issuer: ConfigAuthorizationAuthority,
@@ -40,16 +36,4 @@ class OidcWrapper {
         const user = await this.GetUser();
         return !(user === null)
     }
-
-    //public async Login(settings?: RedirectParams) {
-    //    const defaultSettings: RedirectParams = {
-    //        successUrl: window.location.href,
-    //        errorUrl: "https://localhost:5005/login_failed.html"
-    //    }
-
-    //    settings = Object.assign(defaultSettings, settings);
-
-    //    sessionStorage.setItem(OidcWrapper.REDIRECT_PARAMS_SESSION_KEY, JSON.stringify(settings));
-    //    await this.UserManager.signinRedirect({ state: settings });
-    //}
 }

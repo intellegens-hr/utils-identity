@@ -82,11 +82,9 @@ class IndexView {
 
                 const token = JSON.parse(data.tokenData);
                 const user = new Oidc.User(token);
-                //user.expires_in = token.expires_in;
-                user.expires_in = 30;
+                user.expires_in = token.expires_in;
 
                 console.log(token)
-                window["debug_user"] = user;
 
                 const wrapper = new OidcWrapper();
                 wrapper.UserManager.storeUser(user);

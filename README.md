@@ -16,3 +16,7 @@
 
 
 [IdentityUtils.Demos.IdentityServer4](./IdentityUtils.Demos.IdentityServer4/README.md)
+
+[IdentityUtils.Demos.Api](./IdentityUtils.Demos.Api/README.md)
+
+[IdentityUtils.Demos.Client](./IdentityUtils.Demos.Client/README.md)
