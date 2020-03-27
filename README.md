@@ -32,6 +32,23 @@ Management API is set of abstract API controllers which call services inside `Id
 
 If any project needs to implement management API, it can simply create new controllers which inherit these abstract controllers.
 
+### IdentityUtils API Extension library
+For APIs which implemented `IdentityUtils.Api.Controllers`, other projects can use `IdentityUtils.Api.Extensions` to make requests to it. This project is basically Rest client with predefined routes, methods and types for management API.
+
+### IdentityUtils API Extension CLI
+Identity management CLI enables users to do entire user, role and tenant management via CLI. It uses IdentityUtils API Extension library to achieve this.
+
+### IdentityUtils IS4 Extensions
+This project contains evertything required to easily implement IdentityUtils with Identity Server 4.
+
+## How-to guides
+
+[IdentityUtils.Demos.IdentityServer4](./IdentityUtils.Demos.IdentityServer4/README.md)
+
+[IdentityUtils.Demos.Api](./IdentityUtils.Demos.Api/README.md)
+
+[IdentityUtils.Demos.Client](./IdentityUtils.Demos.Client/README.md)
+
 ## Per project guides
 [IdentityUtils.Commons](./IdentityUtils.Commons/README.md)
 
@@ -46,9 +63,3 @@ If any project needs to implement management API, it can simply create new contr
 [IdentityUtils.Api.Extensions](./IdentityUtils.Api.Extensions/README.md)
 
 [IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)
-
-[IdentityUtils.Demos.IdentityServer4](./IdentityUtils.Demos.IdentityServer4/README.md)
-
-[IdentityUtils.Demos.Api](./IdentityUtils.Demos.Api/README.md)
-
-[IdentityUtils.Demos.Client](./IdentityUtils.Demos.Client/README.md)
