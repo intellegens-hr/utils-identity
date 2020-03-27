@@ -8,7 +8,7 @@ This guide will assume IS4 instance is running on `https://localhost:5010` and A
 
 Once again, create empty web project and name it `IdentityUtils.Demos.Client`. In project settings, set this web app to run on `https://localhost:5020`.
 
-##Configuration - server side
+## Configuration - server side
 Content server in this app will be static, so it's enough to add following to `Startup.cs`
 ```csharp
 public void Configure(IApplicationBuilder app)
@@ -124,8 +124,8 @@ const token = JSON.parse(tokenResponse);
 const user = new Oidc.User(token);
 user.expires_in = token.expires_in;
 
-const wrapper = new OidcWrapper();
-wrapper.UserManager.storeUser(user);
+const oidcWrapper = new OidcWrapper();
+oidcWrapper.UserManager.storeUser(user);
 ```
 
 Now, regardless if user reloads window or closes and reopens browser, his info will be stored in session storage. In token response, two tokens were actually received:
@@ -133,3 +133,11 @@ Now, regardless if user reloads window or closes and reopens browser, his info w
 - refresh token
 
 Refresh token has longer lifespan, and when authentication token expires, OIDC client will automatically request new one.
+
+## Ajax calls which require authorization
+`AjaxCall` function accepts authentication token as argument. To call API which requires authorization, all we need to do is:
+```typescript
+const user = await oidcWrapper.UserManager.getUser();
+const accessToken = user.access_token;
+const data = await AjaxCall<any>("/api/authenticatedendpoint", "GET", null, accessToken);
+```
