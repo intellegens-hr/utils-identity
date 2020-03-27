@@ -42,8 +42,10 @@ namespace IdentityUtils.Demos.IdentityServer4
 
             var hosts = new List<IdentityManagerTenantHost>
             {
-                new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5005" },
-                new IdentityManagerTenantHost { TenantId = tenants[1].TenantId, Hostname = "https://localhost:5010" },
+                new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5020" },
+                new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5010" },
+                new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5015" },
+                new IdentityManagerTenantHost { TenantId = tenants[1].TenantId, Hostname = "https://localhost:5011" },
                 new IdentityManagerTenantHost { TenantId = tenants[2].TenantId, Hostname = "https://localhost:5012" }
             };
 

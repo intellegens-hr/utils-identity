@@ -29,22 +29,19 @@ namespace IdentityUtils.Demos.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var apiExtensionsConfig = new ApiExtensionsConfig(AppSettings);
+
             services.AddMvcCore()
                 .AddAuthorization();
 
             services.AddSingleton(AppSettings);
-            services.AddSingleton<IApiExtensionsIs4Config, ApiExtensionsConfig>();
-            services.AddSingleton<IApiExtensionsConfig, ApiExtensionsConfig>();
 
             services.AddHttpContextAccessor();
             services.AddScoped<ApiUser>();
 
             services.AddScoped<TenantManagementApi<TenantDto>>((collection) =>
             {
-                var configIs4ApiExtensions = collection.GetRequiredService<IApiExtensionsIs4Config>();
-                var configApiExtensions = collection.GetRequiredService<IApiExtensionsConfig>();
-
-                return new TenantManagementApi<TenantDto>(new Is4ManagementRestClient(configIs4ApiExtensions), configApiExtensions);
+                return new TenantManagementApi<TenantDto>(new Is4ManagementRestClient(apiExtensionsConfig), apiExtensionsConfig);
             });
 
             services.AddHealthChecks();
@@ -84,9 +81,7 @@ namespace IdentityUtils.Demos.Api
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }

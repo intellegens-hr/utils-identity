@@ -1,13 +1,14 @@
 ﻿using IdentityModel.Client;
 using IdentityUtils.Demos.Api.Configuration;
 using IdentityUtils.Demos.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Demos.Api.ControllersApi
 {
-    [Route("/api/login")]
+    [Route("/api/authentication")]
     public class AuthenticationControllerApi : ControllerBase
     {
         private readonly AppSettings appSettings;
@@ -18,6 +19,7 @@ namespace IdentityUtils.Demos.Api.ControllersApi
         }
 
         [HttpPost("token/id")]
+        [AllowAnonymous]
         public async Task<JsonResult> GetIdToken([FromBody]LoginModel loginModel)
         {
             using var client = new HttpClient();

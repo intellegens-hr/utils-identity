@@ -16,7 +16,7 @@ namespace IdentityUtils.Demos.Api.ControllersApi
             this.apiUser = apiUser;
         }
 
-        [HttpGet("/api/userprofile")]
+        [HttpGet("status")]
         public async Task<UserProfile> Status()
         {
             var profile = new UserProfile

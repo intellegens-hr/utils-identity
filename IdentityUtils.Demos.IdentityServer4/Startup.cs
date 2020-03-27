@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IdentityUtils.Demos.IdentityServer4
@@ -21,6 +22,18 @@ namespace IdentityUtils.Demos.IdentityServer4
     {
         //This is used only to seed data
         private IServiceCollection services;
+
+        public IConfigurationRoot Configuration { get; }
+        public Startup(IWebHostEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -51,7 +64,7 @@ namespace IdentityUtils.Demos.IdentityServer4
                         .AddIdentity<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant, Is4DemoDbContext>()
                         //This will add authentication to all API calls, first argument is authority - in this case
                         //it's the URL of this instance. Second parameter is Audience for JWT bearer token
-                        .AddAuthentication("https://localhost:5010", "demo-is4-management-api")
+                        .AddAuthentication(Configuration["Is4Host"], Configuration["Is4AuthManagementAudience"])
                         .AddTenantStore<IdentityManagerTenant, TenantDto>()
                         .AddTenantUserStore<IdentityManagerUser, UserDto, IdentityManagerRole>()
                         .AddRolesStore<IdentityManagerUser, IdentityManagerRole, RoleDto>()
@@ -65,7 +78,7 @@ namespace IdentityUtils.Demos.IdentityServer4
                 //demo-is4-management-api resource as one of allowed scopes
                 opt.AddPolicy("Is4ManagementApi", builder =>
                 {
-                    builder.RequireScope("demo-is4-management-api");
+                    builder.RequireScope(Configuration["Is4AuthManagementAudience"]);
                 });
             });
 

@@ -42,6 +42,7 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
                     ClientId = "jsapp",
                     ClientName = "Javascript App",
                     AllowOfflineAccess = true,
+                    RequireClientSecret = false,
                     AllowedGrantTypes = new List<string>{
                         GrantType.AuthorizationCode,
                         GrantType.ResourceOwnerPassword,
@@ -49,15 +50,9 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
                     Enabled = true,
                     RequireConsent = false,
                     RefreshTokenUsage = TokenUsage.ReUse,
-                    //RedirectUris = {
-                    //    "https://localhost:5005/is4_callback.html",
-                    //    "https://localhost:5010/index.html"
-                    //    },
-
-                    //PostLogoutRedirectUris = {
-                    //    "https://localhost:5005/logout.html" ,
-                    //    "https://localhost:5010/logout.html"
-                    //    },
+                    RedirectUris = {
+                        "https://127.0.0.1"
+                    },
 
                     AllowedScopes = { "openid", "profile", "demo-core-api"},
                 }
