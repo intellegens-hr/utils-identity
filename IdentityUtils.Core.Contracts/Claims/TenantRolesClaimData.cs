@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IdentityUtils.Core.Contracts.Claims
 {
-    public class TenantRolesClaimData
+    public class TenantRolesClaimData : IEquatable<TenantRolesClaimData>
     {
         public TenantRolesClaimData()
         {
@@ -22,5 +23,11 @@ namespace IdentityUtils.Core.Contracts.Claims
         public Guid TenantId { get; set; }
 
         public List<string> Roles { get; set; }
+
+        public bool Equals(TenantRolesClaimData other)
+        {
+            return TenantId == other.TenantId
+                && Enumerable.SequenceEqual(Roles, other.Roles);
+        }
     }
 }

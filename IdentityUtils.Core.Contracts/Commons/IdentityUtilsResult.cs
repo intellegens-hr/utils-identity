@@ -7,7 +7,8 @@ namespace IdentityUtils.Core.Contracts.Commons
     /// </summary>
     public class IdentityUtilsResult
     {
-        public static IdentityUtilsResult SuccessResult => new IdentityUtilsResult { Success = true };
+        public static IdentityUtilsResult SuccessResult 
+            => new IdentityUtilsResult { Success = true };
 
         public static IdentityUtilsResult ErrorResult(string errorMessage)
             => new IdentityUtilsResult()
@@ -45,9 +46,6 @@ namespace IdentityUtils.Core.Contracts.Commons
                 Payload = payload
             };
 
-        public static IdentityUtilsResult<T> SuccessResult()
-            => new IdentityUtilsResult<T>() { Success = true };
-
         public static IdentityUtilsResult<T> SuccessResult(T payload)
             => new IdentityUtilsResult<T>(payload) { Success = true };
 
@@ -56,14 +54,6 @@ namespace IdentityUtils.Core.Contracts.Commons
             {
                 Success = false,
                 ErrorMessages = new List<string> { errorMessage }
-            };
-
-        public static IdentityUtilsResult<T> ErrorResult(string errorMessage, T payload)
-            => new IdentityUtilsResult<T>()
-            {
-                Success = false,
-                ErrorMessages = new List<string> { errorMessage },
-                Payload = payload
             };
 
         public static IdentityUtilsResult<T> ErrorResult(List<string> errorMessages)
