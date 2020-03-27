@@ -1,4 +1,4 @@
-# IS4 Demo
+# Identity Server 4 Demo
 
 This guide will show you how to build IdentityServer 4 app from scratch including:
 - setting authorization
@@ -286,3 +286,16 @@ public void ConfigureServices(IServiceCollection services)
     // not recommended for production - you need to store your key material somewhere secure
 }
 ```
+
+## User data
+
+
+
+## Wrapping up
+
+This should be enough to get you going with Identity Server 4 and IdentityUtils extensions. Demo project also includes initial data which can be seeded (by defult to SQLite).
+
+Please, keep in mind following notes:
+- Client and API definitions in this example are stored in memory. For production environments, this should be moved to permanent store.
+- When adding new clients, don't forget to add their hostnames to specific tenant
+- Use `IdentityUtils.Api.Extensions` if you need to access management APIs in other projects (APIs).

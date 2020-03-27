@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace IdentityUtils.Demos.Api
 {
@@ -37,6 +40,7 @@ namespace IdentityUtils.Demos.Api
             services.AddSingleton(AppSettings);
 
             services.AddHttpContextAccessor();
+            services.AddMemoryCache();
             services.AddScoped<ApiUser>();
 
             services.AddScoped<TenantManagementApi<TenantDto>>((collection) =>
@@ -77,6 +81,22 @@ namespace IdentityUtils.Demos.Api
             app.UseRouting();
 
             app.UseAuthentication();
+
+            app.Use(async (context, next) =>
+            {
+                //get API User instance which contains all parsed claimdata
+                var user = context.RequestServices.GetRequiredService<ApiUser>();
+
+                if (user.IsAuthenticated)
+                {
+                    var identity = context.User.Identity as ClaimsIdentity;
+                    var currentTenantRoles = user.Roles.Select(x => new Claim(ClaimTypes.Role, x)).ToList();
+                    identity.AddClaims(currentTenantRoles);
+                }
+
+                await next();
+            });
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
