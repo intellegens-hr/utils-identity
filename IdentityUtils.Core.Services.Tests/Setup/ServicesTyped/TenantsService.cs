@@ -5,9 +5,9 @@ using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 
 namespace IdentityUtils.Core.Services.Tests.Setup.ServicesTyped
 {
-    internal class TenantService : IdentityManagerTenantService<IdentityManagerTenant, TenantDto>
+    internal class TenantsService : IdentityManagerTenantService<IdentityManagerTenant, TenantDto>
     {
-        public TenantService(IIdentityManagerTenantContext<IdentityManagerTenant> dbContext, IMapper mapper) : base(dbContext, mapper)
+        public TenantsService(IIdentityManagerTenantContext<IdentityManagerTenant> dbContext, IMapper mapper) : base(dbContext, mapper)
         {
         }
     }

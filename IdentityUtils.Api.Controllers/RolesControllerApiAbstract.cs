@@ -38,8 +38,7 @@ namespace IdentityUtils.Api.Controllers
         [HttpPost]
         public async Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto roleDto)
         {
-            var roleResult = await rolesService.AddRole(roleDto);
-            return roleResult.ToTypedResult<TRoleDto>(roleDto);
+            return await rolesService.AddRole(roleDto);
         }
 
         [HttpGet("{roleId}")]

@@ -52,17 +52,17 @@ namespace IdentityUtils.Core.Services
             return IdentityUtilsResult<TRoleDto>.SuccessResult(mapper.Map<TRoleDto>(role));
         }
 
-        public async Task<IdentityUtilsResult> AddRole(TRoleDto roleDto)
+        public async Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto roleDto)
         {
             roleDto.Name = roleDto.Name.Trim();
             var role = mapper.Map<TRole>(roleDto);
 
             var roleResult = await roleManager.CreateAsync(role);
             if (!roleResult.Succeeded)
-                return roleResult.ToIdentityUtilsResult();
+                return roleResult.ToIdentityUtilsResult().ToTypedResult<TRoleDto>();
 
             mapper.Map(role, roleDto);
-            return IdentityUtilsResult.SuccessResult;
+            return IdentityUtilsResult<TRoleDto>.SuccessResult(roleDto);
         }
 
         public async Task<IdentityUtilsResult> DeleteRole(Guid id)
