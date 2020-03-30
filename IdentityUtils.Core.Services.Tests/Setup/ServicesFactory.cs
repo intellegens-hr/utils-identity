@@ -4,6 +4,7 @@ using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
+using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IdentityUtils.Core.Services.Tests.Setup
@@ -15,7 +16,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup
         static ServicesFactory()
         {
             var servicesCollection = new ServiceCollection();
-            servicesCollection.AddDbContext<TestDbContext>();
+            servicesCollection.AddScoped<TestDbContext>();
 
             servicesCollection.AddIdentity<IdentityManagerUser, IdentityManagerRole>()
              .AddEntityFrameworkStores<TestDbContext>();
@@ -23,20 +24,36 @@ namespace IdentityUtils.Core.Services.Tests.Setup
             servicesCollection
                 .AddLogging()
                 .AddAutoMapper(typeof(MapperProfile))
-                .AddTransient<IIdentityManagerTenantContext<IdentityManagerTenant>, TestDbContext>()
-                .AddTransient<IIdentityManagerUserContext<IdentityManagerUser>, TestDbContext>()
-                .AddTransient<IdentityManagerRolesService<IdentityManagerUser, IdentityManagerRole, RoleDto>>()
-                .AddTransient<IdentityManagerTenantService<IdentityManagerTenant, TenantDto>>()
-                .AddTransient<IdentityManagerUserService<IdentityManagerUser, UserDto, IdentityManagerRole>>();
+                .AddScoped<IIdentityManagerTenantContext<IdentityManagerTenant>, TestDbContext>()
+                .AddScoped<IIdentityManagerUserContext<IdentityManagerUser>, TestDbContext>()
+                .AddScoped<IdentityManagerRolesService<IdentityManagerUser, IdentityManagerRole, RoleDto>>()
+                .AddScoped<TenantService>()
+                .AddScoped<IdentityManagerUserService<IdentityManagerUser, UserDto, IdentityManagerRole>>();
 
             services = servicesCollection.BuildServiceProvider();
         }
 
-        internal static IdentityManagerRolesService<IdentityManagerUser, IdentityManagerRole, RoleDto> RolesService
-            => services.GetRequiredService<IdentityManagerRolesService<IdentityManagerUser, IdentityManagerRole, RoleDto>>();
+        internal static IdentityManagerRolesService<IdentityManagerUser, IdentityManagerRole, RoleDto> GetRolesService()
+        {
+            //var context = services.GetRequiredService<TestDbContext>();
+            //var a = context.Tenants.ToListAsync().Result;
+            //context.Database.Migrate();
+            //a = context.Tenants.ToListAsync().Result;
 
-        internal static IdentityManagerTenantService<IdentityManagerTenant, TenantDto> TenantService
-            => services.GetRequiredService<IdentityManagerTenantService<IdentityManagerTenant, TenantDto>>();
+            return services.GetRequiredService<IdentityManagerRolesService<IdentityManagerUser, IdentityManagerRole, RoleDto>>();
+        }
+
+        internal static DisposableContextService<TenantService> GetTenantService()
+        {
+            var mapper = services.GetRequiredService<IMapper>();
+
+            TenantService TenantServiceBuilder(TestDbContext dbContext)
+            {
+                return new TenantService(dbContext, mapper);
+            }
+
+            return new DisposableContextService<TenantService>(TenantServiceBuilder);
+        }
 
         internal static IdentityManagerUserService<IdentityManagerUser, UserDto, IdentityManagerRole> UserService
             => services.GetRequiredService<IdentityManagerUserService<IdentityManagerUser, UserDto, IdentityManagerRole>>();

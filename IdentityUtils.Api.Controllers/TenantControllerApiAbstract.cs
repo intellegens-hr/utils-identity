@@ -52,7 +52,7 @@ namespace IdentityUtils.Api.Controllers
             => await tenantService.DeleteTenant(tenantId);
 
         [HttpPost("byhostname")]
-        public async Task<TTenantDto> GetByHostname([FromBody]TenantRequest tenantRequest)
+        public async Task<IdentityUtilsResult<TTenantDto>> GetByHostname([FromBody]TenantRequest tenantRequest)
         {
             return await tenantService.GetTenantByHostname(tenantRequest.Hostname);
         }

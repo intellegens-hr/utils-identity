@@ -39,7 +39,7 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
             => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant);
 
-        public Task<TTenantDto> GetTenantByHostname(string hostname)
-            => restClient.Post<TTenantDto>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname });
+        public Task<IdentityUtilsResult<TTenantDto>> GetTenantByHostname(string hostname)
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname });
     }
 }

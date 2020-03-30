@@ -27,29 +27,6 @@ namespace IdentityUtils.Core.Services
             this.mapper = mapper;
         }
 
-        private Task LoadHostsToTenant(TTenantDto tenant)
-            => LoadHostsToTenant(new List<TTenantDto> { tenant });
-
-        private async Task LoadHostsToTenant(List<TTenantDto> tenants)
-        {
-            var tenantIds = tenants.Select(x => x.TenantId).ToList();
-
-            var hosts = await dbContext
-                .TenantHosts
-                .Where(x => tenantIds.Contains(x.TenantId))
-                .Select(x => new
-                {
-                    x.TenantId,
-                    x.Hostname
-                })
-                .ToListAsync();
-
-            tenants.ForEach(x =>
-            {
-                x.Hostnames = hosts.Where(x => x.TenantId == x.TenantId).Select(x => x.Hostname).ToList();
-            });
-        }
-
         private TTenantDto ToDto(TTenant tenant)
         {
             var tenantDto = mapper.Map<TTenantDto>(tenant);
@@ -73,7 +50,7 @@ namespace IdentityUtils.Core.Services
                 .ToList();
         }
 
-        public async Task<TTenantDto> GetTenantByHostname(string hostname)
+        public async Task<IdentityUtilsResult<TTenantDto>> GetTenantByHostname(string hostname)
         {
             var tenant = await dbContext
                 .Tenants
@@ -81,7 +58,9 @@ namespace IdentityUtils.Core.Services
                 .Include(x => x.Hosts)
                 .FirstOrDefaultAsync();
 
-            return ToDto(tenant);
+            return tenant == null
+                ? IdentityUtilsResult<TTenantDto>.ErrorResult("Not found")
+                : IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenant));
         }
 
         private async Task<IdentityUtilsResult<TTenant>> GetTenantDb(Guid id, bool includeHosts = true)
@@ -116,6 +95,14 @@ namespace IdentityUtils.Core.Services
         {
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
+            var hostsAlreadyExist = await dbContext.TenantHosts
+                .Where(x => x.TenantId != tenantDto.TenantId)
+                .Where(x => tenantDto.Hostnames.Contains(x.Hostname))
+                .AnyAsync();
+
+            if (hostsAlreadyExist)
+                return IdentityUtilsResult<TTenantDto>.ErrorResult("Hostname already assigned to different tenant");
+
             var currentHosts = dbContext.TenantHosts.Where(x => x.TenantId == tenantDto.TenantId);
             dbContext.TenantHosts.RemoveRange(currentHosts);
             await dbContext.SaveChangesAsync();
@@ -149,6 +136,15 @@ namespace IdentityUtils.Core.Services
 
         public async Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenantDto)
         {
+            tenantDto.Hostnames ??= new List<string>();
+
+            var hostsAlreadyExist = await dbContext.TenantHosts
+                .Where(x => tenantDto.Hostnames.Contains(x.Hostname))
+                .AnyAsync();
+
+            if (hostsAlreadyExist)
+                return IdentityUtilsResult<TTenantDto>.ErrorResult("Hostname already assigned to different tenant");
+
             var tenant = mapper.Map<TTenant>(tenantDto);
             tenant.Hosts = tenantDto.Hostnames
                 .Select(x => new IdentityManagerTenantHost

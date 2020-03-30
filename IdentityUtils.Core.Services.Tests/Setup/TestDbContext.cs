@@ -4,6 +4,7 @@ using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Core.Services.Tests.Setup
 {
@@ -12,7 +13,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlite(@"Data Source=Tests.db;");
+                .UseSqlite(@"Data Source=:memory:");
 
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
         }
