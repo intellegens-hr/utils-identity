@@ -53,8 +53,7 @@ namespace IdentityUtils.Api.Controllers
         [HttpPost()]
         public async Task<IdentityUtilsResult<TUserDto>> CreateUser([FromBody]TUserDto userDto)
         {
-            var result = await userManager.CreateUser(userDto);
-            return result.ToTypedResult(userDto);
+            return await userManager.CreateUser(userDto);
         }
 
         [HttpPost("{id}")]
@@ -78,10 +77,11 @@ namespace IdentityUtils.Api.Controllers
             if (!userResult.Success)
                 return userResult.ToTypedResult<PasswordForgottenResponse>();
 
-            var user = userResult.Payload;
-            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var resetTokenResult = await userManager.GeneratePasswordResetTokenAsync(passwordForgottenRequest.Username);
+            if (!resetTokenResult.Success)
+                return resetTokenResult.ToTypedResult<PasswordForgottenResponse>();
 
-            var mailMessage = new MailMessageSimple("intellegensdemo@gmail.com", user.Email, "Your password reset request", resetToken);
+            var mailMessage = new MailMessageSimple("intellegensdemo@gmail.com", userResult.Payload.Email, "Your password reset request", resetTokenResult.Payload);
 
             try
             {
@@ -94,8 +94,8 @@ namespace IdentityUtils.Api.Controllers
 
             var passwordResponse = new PasswordForgottenResponse
             {
-                Username = user.UserName,
-                Token = resetToken
+                Username = userResult.Payload.UserName,
+                Token = resetTokenResult.Payload
             };
 
             return IdentityUtilsResult<PasswordForgottenResponse>.SuccessResult(passwordResponse);
@@ -104,8 +104,7 @@ namespace IdentityUtils.Api.Controllers
         [HttpPost("passwordreset/newpassword")]
         public async Task<IdentityUtilsResult> SetNewPasswordAfterReset([FromBody]PasswordForgottenNewPassword newPassword)
         {
-            var user = await userManager.FindByNameAsync(newPassword.Username);
-            return await userManager.ResetPasswordAsync(user.Payload, newPassword.Token, newPassword.Password);
+            return await userManager.ResetPasswordAsync(newPassword.Username, newPassword.Token, newPassword.Password);
         }
 
         [HttpGet("roles/listusers/{roleId}/{tenantId}")]

@@ -8,9 +8,9 @@ namespace IdentityUtils.Core.Contracts.Users
     public interface IIdentityManagerUserDto
     {
         Guid Id { get; }
-        string UserName { get; set; }
+        string Username { get; set; }
         string Email { get; set; }
-        string Password { get; }
+        string Password { get; set; }
         string AdditionalDataJson { get; set; }
     }
 

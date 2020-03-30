@@ -5,7 +5,7 @@
         /// <summary>
         /// GMail username
         /// </summary>
-        public string UserName { get; }
+        public string Username { get; }
 
         /// <summary>
         /// DON'T USE YOUR PASSWORD HERE

@@ -4,11 +4,11 @@ using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using System.Threading.Tasks;
 
 namespace IdentityUtils.Core.Services.Tests.Setup
 {
-    public class TestDbContext : IdentityManagerDbContext<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant>
+    public class TestDbContext :
+        IdentityManagerDbContext<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant>
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -1,5 +1,6 @@
 ﻿using IdentityModel;
 using IdentityServer4;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
@@ -96,10 +97,10 @@ namespace IdentityUtils.Demos.IdentityServer4
                 var alice = new UserDto
                 {
                     Id = guidValueGenerator.Next(null),
-                    UserName = "alice",
+                    Username = "alice",
                     Password = "Pass123$"
                 };
-                var result = tenantUserService.CreateUser(alice).Result;
+                IdentityUtilsResult result = tenantUserService.CreateUser(alice).Result;
                 if (!result.Success)
                 {
                     throw new Exception(result.ErrorMessages.First());
@@ -138,10 +139,10 @@ namespace IdentityUtils.Demos.IdentityServer4
                 var bob = new UserDto
                 {
                     Id = guidValueGenerator.Next(null),
-                    UserName = "bob",
+                    Username = "bob",
                     Password = "Pass123$"
                 };
-                var result = tenantUserService.CreateUser(bob).Result;
+                IdentityUtilsResult result = tenantUserService.CreateUser(bob).Result;
                 if (!result.Success)
                 {
                     throw new Exception(result.ErrorMessages.First());

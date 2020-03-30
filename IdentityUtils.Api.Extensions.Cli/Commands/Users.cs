@@ -36,7 +36,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             console.WriteLine("--------------------------------------------");
             foreach (var user in users)
             {
-                console.WriteLine($"{user.Id}\t\t{user.UserName}\t\t{user.Email}\t\t{user.AdditionalDataJson}");
+                console.WriteLine($"{user.Id}\t\t{user.Username}\t\t{user.Email}\t\t{user.AdditionalDataJson}");
             }
         }
 
@@ -146,7 +146,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
 
                         foreach (var user in usersResult.Payload)
                         {
-                            console.WriteLine($"{user.Id} - {user.UserName}");
+                            console.WriteLine($"{user.Id} - {user.Username}");
                         }
 
                         if (usersResult.Payload.Count == 0)
@@ -180,7 +180,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             {
                 UserDto user = new UserDto
                 {
-                    UserName = Username,
+                    Username = Username,
                     Email = Email,
                     Password = Password
                 };

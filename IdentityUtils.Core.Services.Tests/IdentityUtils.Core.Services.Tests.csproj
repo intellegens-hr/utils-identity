@@ -24,4 +24,8 @@
     <ProjectReference Include="..\IdentityUtils.Core.Services\IdentityUtils.Core.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Setup\Migrations\" />
+  </ItemGroup>
+
 </Project>

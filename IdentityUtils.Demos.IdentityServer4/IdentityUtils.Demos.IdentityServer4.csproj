@@ -21,4 +21,8 @@
     <ProjectReference Include="..\IdentityUtils.IS4Extensions\IdentityUtils.IS4Extensions.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
+  </ItemGroup>
+
 </Project>

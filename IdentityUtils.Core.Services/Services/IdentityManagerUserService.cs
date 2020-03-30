@@ -91,20 +91,23 @@ namespace IdentityUtils.Core.Services
             return IdentityUtilsResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Payload));
         }
 
-        public async Task<IdentityUtilsResult> CreateUser(TUserDto user)
+        public async Task<IdentityUtilsResult<TUserDto>> CreateUser(TUserDto user)
         {
             var userDb = mapper.Map<TUser>(user);
 
             var result = ModelValidator.ValidateDataAnnotations(userDb).ToIdentityUtilsResult();
             if (!result.Success)
-                return result;
+                return result.ToTypedResult<TUserDto>();
 
-            result = (await userManager.CreateAsync(userDb, user.Password)).ToIdentityUtilsResult();
+            result = (await userManager.CreateAsync(userDb, user.Password ?? "")).ToIdentityUtilsResult();
 
             if (result.Success)
+            {
+                user.Password = null;
                 mapper.Map(userDb, user);
+            }
 
-            return result;
+            return result.ToTypedResult(user);
         }
 
         public async Task<IdentityUtilsResult> UpdateUser(TUserDto user)
@@ -134,12 +137,28 @@ namespace IdentityUtils.Core.Services
             return identityResult.ToIdentityUtilsResult();
         }
 
-        public Task<string> GeneratePasswordResetTokenAsync(TUser user)
-            => userManager.GeneratePasswordResetTokenAsync(user);
-
-        public async Task<IdentityUtilsResult> ResetPasswordAsync(TUser user, string token, string newPassword)
+        public async Task<IdentityUtilsResult<string>> GeneratePasswordResetTokenAsync(string username)
         {
-            var result = await userManager.ResetPasswordAsync(user, token, newPassword);
+            var userResult = await FindByNameAsync(username);
+            var result = userResult.ToTypedResult<string>();
+
+            if (result.Success)
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(userResult.Payload);
+                result.Payload = token;
+            }
+
+            return result;
+        }
+
+        public async Task<IdentityUtilsResult> ResetPasswordAsync(string username, string token, string newPassword)
+        {
+            var userResult = await FindByNameAsync(username);
+
+            if (!userResult.Success)
+                return userResult;
+
+            var result = await userManager.ResetPasswordAsync(userResult.Payload, token, newPassword);
             return result.ToIdentityUtilsResult();
         }
 
@@ -167,7 +186,7 @@ namespace IdentityUtils.Core.Services
             return result.ToIdentityUtilsResult();
         }
 
-        public async Task<Claim> GetUserTenantRolesClaims(Guid userId, Guid tenantId)
+        private async Task<Claim> GetUserTenantRolesClaims(Guid userId, Guid tenantId)
         {
             var claims = await GetUserTenantRolesClaims(userId);
             return claims
@@ -192,12 +211,6 @@ namespace IdentityUtils.Core.Services
                 result = await userManager.AddClaimAsync(userResult.Payload, newTenantRolesClaim);
 
             return result.ToIdentityUtilsResult();
-        }
-
-        public async Task<IEnumerable<TenantRolesClaimData>> GetTenantRolesListAsync(Guid userId)
-        {
-            var claims = await GetUserTenantRolesClaims(userId);
-            return claims.Select(x => x.Value.DeserializeToTenantRolesClaimData());
         }
 
         public async Task<IdentityUtilsResult> AddToRoleAsync(Guid userId, Guid tenantId, Guid roleId)
@@ -246,7 +259,7 @@ namespace IdentityUtils.Core.Services
         public async Task<IdentityUtilsResult> RemoveFromRoleAsync(Guid userId, Guid tenantId, Guid roleId)
         {
             var role = await roleManager.FindByIdAsync(roleId.ToString());
-            TenantRolesClaimData tenantClaimData = new TenantRolesClaimData(tenantId, role.NormalizedName);
+            TenantRolesClaimData tenantClaimData = new TenantRolesClaimData(tenantId, new List<string>());
 
             var tenantRolesClaim = (await GetUserTenantRolesClaims(userId, tenantId));
             if (tenantRolesClaim != null)

@@ -9,7 +9,7 @@ namespace IdentityUtils.Core.Contracts.Users
     public abstract class IdentityManagerUserDtoBase : IIdentityManagerUserDto
     {
         public virtual Guid Id { get; set; }
-        public virtual string UserName { get; set; }
+        public virtual string Username { get; set; }
         public virtual string Email { get; set; }
         public virtual string Password { get; set; }
         public virtual string AdditionalDataJson { get; set; }

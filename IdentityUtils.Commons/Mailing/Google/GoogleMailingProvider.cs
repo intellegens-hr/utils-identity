@@ -26,7 +26,7 @@ namespace IdentityUtils.Commons.Mailing.Google
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential()
                 {
-                    UserName = mailingProviderConfig.UserName,
+                    UserName = mailingProviderConfig.Username,
                     Password = mailingProviderConfig.Password,
                 },
                 DeliveryMethod = SmtpDeliveryMethod.Network,

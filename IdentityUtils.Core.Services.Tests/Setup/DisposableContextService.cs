@@ -5,6 +5,7 @@ using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -27,17 +28,19 @@ namespace IdentityUtils.Core.Services.Tests.Setup
             var servicesCollection = new ServiceCollection();
 
             servicesCollection.AddIdentity<IdentityManagerUser, IdentityManagerRole>()
-             .AddEntityFrameworkStores<TestDbContext>();
+             .AddEntityFrameworkStores<TestDbContext>()
+             .AddDefaultTokenProviders();
 
             servicesCollection
                 .AddLogging()
                 .AddAutoMapper(typeof(MapperProfile))
                 .AddScoped<IIdentityManagerTenantContext<IdentityManagerTenant>>(x => TestDbContext)
-                .AddScoped<IIdentityManagerUserContext<IdentityManagerUser>, TestDbContext>()
-                .AddScoped<TestDbContext>(x => TestDbContext)
+                .AddScoped<IIdentityManagerUserContext<IdentityManagerUser>>(x => TestDbContext)
+                .AddScoped<IdentityManagerDbContext<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant>>(x => TestDbContext)
+                .AddScoped(x => TestDbContext)
                 .AddScoped<RolesService>()
                 .AddScoped<TenantsService>()
-                .AddScoped<IdentityManagerUserService<IdentityManagerUser, UserDto, IdentityManagerRole>>();
+                .AddScoped<UsersService>();
 
             serviceProvider = servicesCollection.BuildServiceProvider();
 

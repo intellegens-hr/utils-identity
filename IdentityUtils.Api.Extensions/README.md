@@ -29,7 +29,7 @@ UserManagementApi<UserDto> userManagement = ...
 ```csharp
 var user = new UserDto{
     Email = "ex@ample.com"
-    UserName = "testuser"
+    Username = "testuser"
 }
 ```
 - call method for user creation
