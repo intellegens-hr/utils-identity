@@ -20,8 +20,7 @@ namespace IdentityUtils.Api.Extensions.RestClients
 
         private async Task<string> GetToken()
         {
-            var client = new HttpClient();
-            var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
+            var tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
                 Address = $"{is4Config.Hostname}/connect/token",
                 ClientId = is4Config.ClientId,

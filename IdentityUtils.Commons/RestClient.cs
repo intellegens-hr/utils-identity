@@ -34,10 +34,12 @@ namespace IdentityUtils.Commons
             return JsonConvert.DeserializeObject<T>(content);
         }
 
-        public virtual async Task<T> Post<T>(string url, object dataToSend)
+        public virtual async Task<T> Post<T>(string url, object dataToSend = null)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Post, url);
-            message.Content = new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json");
+
+            if (dataToSend != null)
+                message.Content = new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json");
 
             var response = await httpClient.SendAsync(message);
 

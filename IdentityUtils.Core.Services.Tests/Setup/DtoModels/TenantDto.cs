@@ -15,7 +15,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
         {
             return TenantId == other.TenantId
                 && Name == other.Name
-                && Enumerable.SequenceEqual(Hostnames, other.Hostnames);
+                && Enumerable.SequenceEqual(Hostnames.OrderBy(x => x), other.Hostnames.OrderBy(x => x));
         }
     }
 }

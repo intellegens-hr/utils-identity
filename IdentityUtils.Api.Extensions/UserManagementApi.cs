@@ -4,6 +4,7 @@ using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Users;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions
@@ -40,7 +41,7 @@ namespace IdentityUtils.Api.Extensions
            => restClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto);
 
         public Task<IdentityUtilsResult<TUserDto>> GetUserByUsername(string username)
-            => restClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{username}"); //TODO: encode
+            => restClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/by/{WebUtility.UrlEncode(username)}"); 
 
         public Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken(PasswordForgottenRequest passwordForgottenRequest)
             => restClient.Post<IdentityUtilsResult<PasswordForgottenResponse>>($"{BasePath}/passwordreset", passwordForgottenRequest);
@@ -48,13 +49,16 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult> SetNewPasswordAfterReset(PasswordForgottenNewPassword newPassword)
             => restClient.Post<IdentityUtilsResult>($"{BasePath}/passwordreset/newpassword", newPassword);
 
-        public Task<IdentityUtilsResult<List<TUserDto>>> RoleUsersPerTenant(Guid roleId, Guid tenantId)
-            => restClient.Get<IdentityUtilsResult<List<TUserDto>>>($"{BasePath}/roles/listusers/{roleId}/{tenantId}");
+        public Task<IdentityUtilsResult<List<TUserDto>>> RoleUsersPerTenant(Guid tenantId, Guid roleId)
+            => restClient.Get<IdentityUtilsResult<List<TUserDto>>>($"{BasePath}/roles/listusers/{tenantId}/{roleId}");
 
-        public Task<IdentityUtilsResult> AddToRole(Guid userId, Guid roleId, Guid tenantId)
-            => restClient.Get<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{roleId}/{tenantId}");
+        public Task<IdentityUtilsResult<IList<string>>> GetUserRoles(Guid userId, Guid tenantId)
+            => restClient.Get<IdentityUtilsResult<IList<string>>>($"{BasePath}/{userId}/roles/{tenantId}");
 
-        public Task<IdentityUtilsResult> RemoveFromRole(Guid userId, Guid roleId, Guid tenantId)
-            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{roleId}/{tenantId}");
+        public Task<IdentityUtilsResult> AddToRole(Guid userId, Guid tenantId, Guid roleId)
+            => restClient.Post<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{tenantId}/{roleId}");
+
+        public Task<IdentityUtilsResult> RemoveFromRole(Guid userId, Guid tenantId, Guid roleId)
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{tenantId}/{roleId}");
     }
 }

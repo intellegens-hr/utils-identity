@@ -12,6 +12,11 @@ using System;
 
 namespace IdentityUtils.Core.Services.Tests.Setup
 {
+    /// <summary>
+    /// SQLite in memory provider keeps schema and data as long the database connection is open. 
+    /// This can be challenging when using DI and using multiple services.
+    /// This class is used to fetch required services and keep connection open until disposal.
+    /// </summary>
     internal class DisposableContextService : IDisposable
     {
         private readonly ServiceProvider serviceProvider;

@@ -136,7 +136,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     {
                         console.WriteLine($"ROLE: {role.Name} (ID: {role.Id})");
 
-                        var usersResult = Shared.GetUserManagementApi(console).RoleUsersPerTenant(role.Id, tenant.TenantId).Result;
+                        var usersResult = Shared.GetUserManagementApi(console).RoleUsersPerTenant(tenant.TenantId, role.Id).Result;
 
                         if (!usersResult.Success)
                         {
@@ -269,7 +269,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var roleGuid = Guid.Parse(RoleId);
                 var tenantGuid = Guid.Parse(TenantId);
 
-                var userRoleAddResult = Shared.GetUserManagementApi(console).AddToRole(userGuid, roleGuid, tenantGuid).Result;
+                var userRoleAddResult = Shared.GetUserManagementApi(console).AddToRole(userGuid, tenantGuid, roleGuid).Result;
                 userRoleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
@@ -298,7 +298,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var roleGuid = Guid.Parse(RoleId);
                 var tenantGuid = Guid.Parse(TenantId);
 
-                var userRoleRemoveResult = Shared.GetUserManagementApi(console).RemoveFromRole(userGuid, roleGuid, tenantGuid).Result;
+                var userRoleRemoveResult = Shared.GetUserManagementApi(console).RemoveFromRole(userGuid, tenantGuid, roleGuid).Result;
                 userRoleRemoveResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }

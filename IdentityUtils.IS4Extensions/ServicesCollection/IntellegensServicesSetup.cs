@@ -8,6 +8,7 @@ using IdentityUtils.IS4Extensions.ProfileServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using System;
 
 namespace IdentityUtils.IS4Extensions.ServicesCollection

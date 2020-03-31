@@ -8,6 +8,7 @@ using IdentityUtils.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Controllers
@@ -68,7 +69,7 @@ namespace IdentityUtils.Api.Controllers
 
         [HttpGet("by/{username}")]
         public async Task<IdentityUtilsResult<TUserDto>> GetUserByUsername([FromRoute]string username)
-            => await userManager.FindByNameAsync<TUserDto>(username);
+            => await userManager.FindByNameAsync<TUserDto>(WebUtility.UrlDecode(username));
 
         [HttpPost("passwordreset")]
         public async Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken([FromBody]PasswordForgottenRequest passwordForgottenRequest)
@@ -107,16 +108,23 @@ namespace IdentityUtils.Api.Controllers
             return await userManager.ResetPasswordAsync(newPassword.Username, newPassword.Token, newPassword.Password);
         }
 
-        [HttpGet("roles/listusers/{roleId}/{tenantId}")]
-        public async Task<IdentityUtilsResult<List<TUserDto>>> GetRoleById([FromRoute]Guid roleId, [FromRoute]Guid tenantId)
+        [HttpGet("roles/listusers/{tenantId}/{roleId}")]
+        public async Task<IdentityUtilsResult<List<TUserDto>>> GetRoleById([FromRoute]Guid tenantId, [FromRoute]Guid roleId)
             => await userManager.RoleUsersPerTenant(roleId, tenantId);
 
-        [HttpGet("{userId}/roles/{roleId}/{tenantId}")]
-        public async Task<IdentityUtilsResult> AddUserToRole([FromRoute]Guid userId, [FromRoute]Guid roleId, [FromRoute]Guid tenantId)
+        [HttpGet("{userId}/roles/{tenantId}")]
+        public async Task<IdentityUtilsResult<IList<string>>> GetUserRoles([FromRoute]Guid userId, [FromRoute]Guid tenantId)
+        { 
+            var userRoles = await userManager.GetRolesAsync(userId, tenantId);
+            return IdentityUtilsResult<IList<string>>.SuccessResult(userRoles);
+        }
+
+        [HttpPost("{userId}/roles/{tenantId}/{roleId}")]
+        public async Task<IdentityUtilsResult> AddUserToRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
             => await userManager.AddToRoleAsync(userId, tenantId, roleId);
 
-        [HttpDelete("{userId}/roles/{roleId}/{tenantId}")]
-        public async Task<IdentityUtilsResult> RemoveUserFromRole([FromRoute]Guid userId, [FromRoute]Guid roleId, [FromRoute]Guid tenantId)
+        [HttpDelete("{userId}/roles/{tenantId}/{roleId}")]
+        public async Task<IdentityUtilsResult> RemoveUserFromRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
             => await userManager.RemoveFromRoleAsync(userId, tenantId, roleId);
     }
 }

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <None Remove="Is4Demo.db-shm" />
+    <None Remove="Is4Demo.db-wal" />
   </ItemGroup>
 
   <ItemGroup>
