@@ -21,7 +21,8 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
 
         private void StartServer()
         {
-            //Wait till server is started
+            //Wait till server is started, otherwise multiple webhosts could be started,
+            //all on same port which would cause error
             lock (lockObject)
                 if (webHost == null)
                 {
