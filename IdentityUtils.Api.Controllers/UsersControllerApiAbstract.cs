@@ -82,6 +82,7 @@ namespace IdentityUtils.Api.Controllers
             var passwordResponse = new PasswordForgottenResponse
             {
                 Username = userResult.Payload.UserName,
+                Email = userResult.Payload.Email,
                 Token = resetTokenResult.Payload
             };
 
