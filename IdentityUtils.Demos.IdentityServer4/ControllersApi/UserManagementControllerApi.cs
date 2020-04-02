@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using IdentityUtils.Api.Controllers;
-using IdentityUtils.Commons.Mailing;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services;
@@ -17,9 +16,8 @@ namespace IdentityUtils.Demos.IdentityServer4.ControllersApi
     {
         public UserManagementControllerApi(
             IdentityManagerUserService<IdentityManagerUser, UserDto, IdentityManagerRole> userManager,
-            IMailingProvider mailingProvider,
             IMapper mapper)
-        : base(userManager, mailingProvider, mapper)
+        : base(userManager, mapper)
         {
         }
     }

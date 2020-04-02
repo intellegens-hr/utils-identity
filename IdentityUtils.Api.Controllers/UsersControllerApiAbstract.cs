@@ -26,39 +26,36 @@ namespace IdentityUtils.Api.Controllers
         where TUserDto : class, IIdentityManagerUserDto
     {
         private readonly IdentityManagerUserService<TUser, TUserDto, TRole> userManager;
-        private readonly IMailingProvider mailingProvider;
         private readonly IMapper mapper;
 
         public UsersControllerApiAbstract(
             IdentityManagerUserService<TUser, TUserDto, TRole> userManager,
-            IMailingProvider mailingProvider,
             IMapper mapper)
         {
             this.userManager = userManager;
-            this.mailingProvider = mailingProvider;
             this.mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<List<TUserDto>> GetAllUsers()
+        public virtual async Task<List<TUserDto>> GetAllUsers()
             => mapper.Map<List<TUser>, List<TUserDto>>(await userManager.GetAllUsers());
 
         [HttpGet("{id}")]
-        public async Task<IdentityUtilsResult<TUserDto>> GetUserById([FromRoute]Guid id)
+        public virtual async Task<IdentityUtilsResult<TUserDto>> GetUserById([FromRoute]Guid id)
             => await userManager.FindByIdAsync<TUserDto>(id);
 
         [HttpDelete("{id}")]
-        public async Task<IdentityUtilsResult> DeleteUser([FromRoute]Guid id)
+        public virtual async Task<IdentityUtilsResult> DeleteUser([FromRoute]Guid id)
             => await userManager.DeleteUser(id);
 
         [HttpPost()]
-        public async Task<IdentityUtilsResult<TUserDto>> CreateUser([FromBody]TUserDto userDto)
+        public virtual async Task<IdentityUtilsResult<TUserDto>> CreateUser([FromBody]TUserDto userDto)
         {
             return await userManager.CreateUser(userDto);
         }
 
         [HttpPost("{id}")]
-        public async Task<IdentityUtilsResult<TUserDto>> UpdateUser([FromRoute]Guid id, [FromBody]TUserDto userDto)
+        public virtual async Task<IdentityUtilsResult<TUserDto>> UpdateUser([FromRoute]Guid id, [FromBody]TUserDto userDto)
         {
             if (id != userDto.Id)
                 throw new UnauthorizedAccessException();
@@ -68,11 +65,11 @@ namespace IdentityUtils.Api.Controllers
         }
 
         [HttpGet("by/{username}")]
-        public async Task<IdentityUtilsResult<TUserDto>> GetUserByUsername([FromRoute]string username)
+        public virtual async Task<IdentityUtilsResult<TUserDto>> GetUserByUsername([FromRoute]string username)
             => await userManager.FindByNameAsync<TUserDto>(WebUtility.UrlDecode(username));
 
         [HttpPost("passwordreset")]
-        public async Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken([FromBody]PasswordForgottenRequest passwordForgottenRequest)
+        public virtual async Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken([FromBody]PasswordForgottenRequest passwordForgottenRequest)
         {
             var userResult = await userManager.FindByNameAsync(passwordForgottenRequest.Username);
             if (!userResult.Success)
@@ -81,17 +78,6 @@ namespace IdentityUtils.Api.Controllers
             var resetTokenResult = await userManager.GeneratePasswordResetTokenAsync(passwordForgottenRequest.Username);
             if (!resetTokenResult.Success)
                 return resetTokenResult.ToTypedResult<PasswordForgottenResponse>();
-
-            var mailMessage = new MailMessageSimple("intellegensdemo@gmail.com", userResult.Payload.Email, "Your password reset request", resetTokenResult.Payload);
-
-            try
-            {
-                await mailingProvider.SendEmailMessage(mailMessage);
-            }
-            catch
-            {
-                return IdentityUtilsResult<PasswordForgottenResponse>.ErrorResult("Error sending e-mail");
-            }
 
             var passwordResponse = new PasswordForgottenResponse
             {
@@ -103,28 +89,28 @@ namespace IdentityUtils.Api.Controllers
         }
 
         [HttpPost("passwordreset/newpassword")]
-        public async Task<IdentityUtilsResult> SetNewPasswordAfterReset([FromBody]PasswordForgottenNewPassword newPassword)
+        public virtual async Task<IdentityUtilsResult> SetNewPasswordAfterReset([FromBody]PasswordForgottenNewPassword newPassword)
         {
             return await userManager.ResetPasswordAsync(newPassword.Username, newPassword.Token, newPassword.Password);
         }
 
         [HttpGet("roles/listusers/{tenantId}/{roleId}")]
-        public async Task<IdentityUtilsResult<List<TUserDto>>> GetRoleById([FromRoute]Guid tenantId, [FromRoute]Guid roleId)
+        public virtual async Task<IdentityUtilsResult<List<TUserDto>>> GetRoleById([FromRoute]Guid tenantId, [FromRoute]Guid roleId)
             => await userManager.RoleUsersPerTenant(roleId, tenantId);
 
         [HttpGet("{userId}/roles/{tenantId}")]
-        public async Task<IdentityUtilsResult<IList<string>>> GetUserRoles([FromRoute]Guid userId, [FromRoute]Guid tenantId)
-        { 
+        public virtual async Task<IdentityUtilsResult<IList<string>>> GetUserRoles([FromRoute]Guid userId, [FromRoute]Guid tenantId)
+        {
             var userRoles = await userManager.GetRolesAsync(userId, tenantId);
             return IdentityUtilsResult<IList<string>>.SuccessResult(userRoles);
         }
 
         [HttpPost("{userId}/roles/{tenantId}/{roleId}")]
-        public async Task<IdentityUtilsResult> AddUserToRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
+        public virtual async Task<IdentityUtilsResult> AddUserToRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
             => await userManager.AddToRoleAsync(userId, tenantId, roleId);
 
         [HttpDelete("{userId}/roles/{tenantId}/{roleId}")]
-        public async Task<IdentityUtilsResult> RemoveUserFromRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
+        public virtual async Task<IdentityUtilsResult> RemoveUserFromRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
             => await userManager.RemoveFromRoleAsync(userId, tenantId, roleId);
     }
 }

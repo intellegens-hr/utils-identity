@@ -27,19 +27,19 @@ namespace IdentityUtils.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IList<TTenantDto>> GetTenants()
+        public virtual async Task<IList<TTenantDto>> GetTenants()
             => await tenantService.GetTenants();
 
         [HttpPost]
-        public async Task<IdentityUtilsResult<TTenantDto>> AddTenant([FromBody]TTenantDto tenant)
+        public virtual async Task<IdentityUtilsResult<TTenantDto>> AddTenant([FromBody]TTenantDto tenant)
             => await tenantService.AddTenant(tenant);
 
         [HttpGet("{tenantId}")]
-        public async Task<IdentityUtilsResult<TTenantDto>> GetTenant([FromRoute]Guid tenantId)
+        public virtual async Task<IdentityUtilsResult<TTenantDto>> GetTenant([FromRoute]Guid tenantId)
             => await tenantService.GetTenant(tenantId);
 
         [HttpPost("{tenantId}")]
-        public async Task<IdentityUtilsResult<TTenantDto>> UpdateTenant([FromRoute]Guid tenantId, [FromBody]TTenantDto tenant)
+        public virtual async Task<IdentityUtilsResult<TTenantDto>> UpdateTenant([FromRoute]Guid tenantId, [FromBody]TTenantDto tenant)
         {
             if (tenantId != tenant.TenantId)
                 return IdentityUtilsResult<TTenantDto>.ErrorResult("Id specified in route and payload are not the same!");
@@ -48,11 +48,11 @@ namespace IdentityUtils.Api.Controllers
         }
 
         [HttpDelete("{tenantId}")]
-        public async Task<IdentityUtilsResult> DeleteTenant([FromRoute]Guid tenantId)
+        public virtual async Task<IdentityUtilsResult> DeleteTenant([FromRoute]Guid tenantId)
             => await tenantService.DeleteTenant(tenantId);
 
         [HttpPost("byhostname")]
-        public async Task<IdentityUtilsResult<TTenantDto>> GetByHostname([FromBody]TenantRequest tenantRequest)
+        public virtual async Task<IdentityUtilsResult<TTenantDto>> GetByHostname([FromBody]TenantRequest tenantRequest)
         {
             return await tenantService.GetTenantByHostname(tenantRequest.Hostname);
         }

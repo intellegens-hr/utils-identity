@@ -84,10 +84,6 @@ namespace IdentityUtils.Demos.IdentityServer4
                 });
             });
 
-            //User management requires Mailing provider to send e-mails for password reset
-            services.AddSingleton<IGoogleMailingProviderConfig, MasterConfig>();
-            services.AddSingleton<IMailingProvider, GoogleMailingProvider>();
-
             services.AddCors(options =>
             {
                 // this defines a CORS policy called "default"
