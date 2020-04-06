@@ -8,7 +8,17 @@ namespace IdentityUtils.Commons
 {
     public class RestClient : IDisposable
     {
-        protected HttpClient httpClient = new HttpClient();
+        protected HttpClient httpClient;
+
+        public RestClient(HttpClient httpClient)
+        {
+            this.httpClient = httpClient;
+        }
+
+        public RestClient()
+        {
+            this.httpClient = new HttpClient();
+        }
 
         protected virtual async Task<HttpRequestMessage> GetHttpRequestMessage(HttpMethod method, string url)
         {
