@@ -50,7 +50,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var resultCreated2 = await roleManagementApi.AddRole(GetUniqueTestRole);
 
             var roles = await roleManagementApi.GetRoles();
-            var count = roles.Where(x => x.Id == resultCreated1.Payload.Id || x.Id == resultCreated2.Payload.Id).Count();
+            var count = roles.Payload.Where(x => x.Id == resultCreated1.Payload.Id || x.Id == resultCreated2.Payload.Id).Count();
 
             Assert.True(resultCreated1.Success);
             Assert.True(resultCreated2.Success);

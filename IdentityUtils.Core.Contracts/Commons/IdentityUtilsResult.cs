@@ -7,7 +7,7 @@ namespace IdentityUtils.Core.Contracts.Commons
     /// </summary>
     public class IdentityUtilsResult
     {
-        public static IdentityUtilsResult SuccessResult 
+        public static IdentityUtilsResult SuccessResult
             => new IdentityUtilsResult { Success = true };
 
         public static IdentityUtilsResult ErrorResult(string errorMessage)
@@ -36,9 +36,16 @@ namespace IdentityUtils.Core.Contracts.Commons
     /// Common result with payload
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class IdentityUtilsResult<T> : IdentityUtilsResult where T : class
+    public class IdentityUtilsResult<T> : IdentityUtilsResult
     {
-        public static IdentityUtilsResult<T> FromNonTypedResult(IdentityUtilsResult result, T payload = null)
+        public static IdentityUtilsResult<T> FromNonTypedResult(IdentityUtilsResult result)
+            => new IdentityUtilsResult<T>
+            {
+                Success = result.Success,
+                ErrorMessages = result.ErrorMessages
+            };
+
+        public static IdentityUtilsResult<T> FromNonTypedResult(IdentityUtilsResult result, T payload)
             => new IdentityUtilsResult<T>
             {
                 Success = result.Success,

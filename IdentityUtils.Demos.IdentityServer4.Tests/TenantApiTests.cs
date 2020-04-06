@@ -93,6 +93,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
 
             var tenants = await tenantManagementApi.GetTenants();
             var count = tenants
+                .Payload
                 .Where(x => x.TenantId == result1.Payload.TenantId || x.TenantId == result2.Payload.TenantId)
                 .Count();
 

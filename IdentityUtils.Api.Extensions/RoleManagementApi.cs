@@ -24,19 +24,22 @@ namespace IdentityUtils.Api.Extensions
             this.restClient = restClient;
         }
 
-        public Task<List<TRoleDto>> GetRoles()
-            => restClient.Get<List<TRoleDto>>($"{BasePath}");
+        public async Task<IdentityUtilsResult<List<TRoleDto>>> GetRoles()
+        { 
+            var response = await restClient.Get<List<TRoleDto>>($"{BasePath}");
+            return response.ToIdentityResult();
+        }
 
         public Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto role)
-            => restClient.Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}", role);
+            => restClient.Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}", role).ParseRestResultTask();
 
         public Task<IdentityUtilsResult> DeleteRole(Guid id)
-            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}");
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TRoleDto>> GetRoleById(Guid id)
-            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}");
+            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TRoleDto>> GetRoleByNormalizedName(string roleName)
-            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}");
+            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}").ParseRestResultTask();
     }
 }

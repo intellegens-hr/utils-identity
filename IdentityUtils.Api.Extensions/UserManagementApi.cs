@@ -25,40 +25,43 @@ namespace IdentityUtils.Api.Extensions
             this.restClient = restClient;
         }
 
-        public Task<List<TUserDto>> GetAllUsers()
-            => restClient.Get<List<TUserDto>>($"{BasePath}");
+        public async Task<IdentityUtilsResult<List<TUserDto>>> GetAllUsers()
+        {
+            var response = await restClient.Get<List<TUserDto>>($"{BasePath}");
+            return response.ToIdentityResult();
+        }
 
         public Task<IdentityUtilsResult<TUserDto>> GetUserById(Guid id)
-            => restClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{id}");
+            => restClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult> DeleteUser(Guid id)
-            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}");
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TUserDto>> CreateUser(TUserDto userDto)
-            => restClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}", userDto);
+            => restClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}", userDto).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TUserDto>> UpdateUser(TUserDto userDto)
-           => restClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto);
+           => restClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TUserDto>> GetUserByUsername(string username)
-            => restClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/by/{WebUtility.UrlEncode(username)}"); 
+            => restClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/by/{WebUtility.UrlEncode(username)}").ParseRestResultTask(); 
 
         public Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken(PasswordForgottenRequest passwordForgottenRequest)
-            => restClient.Post<IdentityUtilsResult<PasswordForgottenResponse>>($"{BasePath}/passwordreset", passwordForgottenRequest);
+            => restClient.Post<IdentityUtilsResult<PasswordForgottenResponse>>($"{BasePath}/passwordreset", passwordForgottenRequest).ParseRestResultTask();
 
         public Task<IdentityUtilsResult> SetNewPasswordAfterReset(PasswordForgottenNewPassword newPassword)
-            => restClient.Post<IdentityUtilsResult>($"{BasePath}/passwordreset/newpassword", newPassword);
+            => restClient.Post<IdentityUtilsResult>($"{BasePath}/passwordreset/newpassword", newPassword).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<List<TUserDto>>> RoleUsersPerTenant(Guid tenantId, Guid roleId)
-            => restClient.Get<IdentityUtilsResult<List<TUserDto>>>($"{BasePath}/roles/listusers/{tenantId}/{roleId}");
+            => restClient.Get<IdentityUtilsResult<List<TUserDto>>>($"{BasePath}/roles/listusers/{tenantId}/{roleId}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult<IList<string>>> GetUserRoles(Guid userId, Guid tenantId)
-            => restClient.Get<IdentityUtilsResult<IList<string>>>($"{BasePath}/{userId}/roles/{tenantId}");
+            => restClient.Get<IdentityUtilsResult<IList<string>>>($"{BasePath}/{userId}/roles/{tenantId}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult> AddToRole(Guid userId, Guid tenantId, Guid roleId)
-            => restClient.Post<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{tenantId}/{roleId}");
+            => restClient.Post<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{tenantId}/{roleId}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult> RemoveFromRole(Guid userId, Guid tenantId, Guid roleId)
-            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{tenantId}/{roleId}");
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{tenantId}/{roleId}").ParseRestResultTask();
     }
 }

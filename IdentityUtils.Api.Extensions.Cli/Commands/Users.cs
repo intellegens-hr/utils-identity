@@ -66,7 +66,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    users.AddRange(Shared.GetUserManagementApi(console).GetAllUsers().Result);
+                    users.AddRange(Shared.GetUserManagementApi(console).GetAllUsers().Result.Payload);
                 }
 
                 ConsoleOutputUsers(console, users);
@@ -104,7 +104,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result;
+                    var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result.Payload;
                     roles.AddRange(rolesList);
                 }
 
@@ -124,7 +124,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result);
+                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Payload);
                 }
 
                 foreach (var tenant in tenants)

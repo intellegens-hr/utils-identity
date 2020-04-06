@@ -77,7 +77,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    roles.AddRange(Shared.GetRoleManagementApi(console).GetRoles().Result);
+                    roles.AddRange(Shared.GetRoleManagementApi(console).GetRoles().Result.Payload);
                 }
 
                 ConsoleOutputRoles(console, roles);

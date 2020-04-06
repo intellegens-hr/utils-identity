@@ -52,8 +52,11 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
 
         private async Task LoadTenantsAndRoles()
         {
-            var roles = await roleManagementApi.GetRoles();
-            var tenants = await tenantManagementApi.GetTenants();
+            var rolesResult = await roleManagementApi.GetRoles();
+            var tenantsResult = await tenantManagementApi.GetTenants();
+
+            var roles = rolesResult.Payload;
+            var tenants = tenantsResult.Payload;
 
             if (!roles.Any(x => x.Name == Role1.Name))
             {

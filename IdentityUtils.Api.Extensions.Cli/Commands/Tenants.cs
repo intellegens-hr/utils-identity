@@ -64,7 +64,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result);
+                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Payload);
                 }
 
                 ConsoleOutputTenants(console, tenants);

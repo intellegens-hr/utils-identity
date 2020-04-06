@@ -24,22 +24,25 @@ namespace IdentityUtils.Api.Extensions
             this.restClient = restClient;
         }
 
-        public Task<List<TTenantDto>> GetTenants()
-            => restClient.Get<List<TTenantDto>>($"{BasePath}");
+        public async Task<IdentityUtilsResult<List<TTenantDto>>> GetTenants()
+        { 
+            var response = await restClient.Get<List<TTenantDto>>($"{BasePath}");
+            return response.ToIdentityResult();
+        }
 
         public Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenant)
-            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}", tenant);
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}", tenant).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
-            => restClient.Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}");
+            => restClient.Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult> DeleteTenant(Guid id)
-            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}");
+            => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
-            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant);
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TTenantDto>> GetTenantByHostname(string hostname)
-            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname });
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname }).ParseRestResultTask();
     }
 }

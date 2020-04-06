@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,25 +27,41 @@ namespace IdentityUtils.Commons
             return message;
         }
 
-        public virtual async Task<T> Get<T>(string url)
+        private async Task<RestResult<T>> GetResponseResult<T>(HttpResponseMessage responseMessage)
+        {
+            string content = await responseMessage.Content.ReadAsStringAsync();
+
+            if (responseMessage.StatusCode != HttpStatusCode.OK)
+            {
+                string errorMessage = responseMessage.StatusCode.ToString();
+                if (!string.IsNullOrEmpty(content))
+                    errorMessage = $"{errorMessage}: {content}";
+
+                return RestResult<T>.ErrorResult(errorMessage);
+            }
+
+            return RestResult<T>.SuccessResult(JsonConvert.DeserializeObject<T>(content));
+        }
+
+        public virtual async Task<RestResult<T>> Get<T>(string url)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Get, url);
             var response = await httpClient.SendAsync(message);
 
-            string content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(content);
+            return await GetResponseResult<T>(response);
         }
 
-        public virtual async Task<T> Delete<T>(string url)
+        public virtual async Task<RestResult<T>> Delete<T>(string url)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Delete, url);
             var response = await httpClient.SendAsync(message);
 
             string content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(content);
+
+            return await GetResponseResult<T>(response);
         }
 
-        public virtual async Task<T> Post<T>(string url, object dataToSend = null)
+        public virtual async Task<RestResult<T>> Post<T>(string url, object dataToSend = null)
         {
             var message = await GetHttpRequestMessage(HttpMethod.Post, url);
 
@@ -53,8 +70,7 @@ namespace IdentityUtils.Commons
 
             var response = await httpClient.SendAsync(message);
 
-            string content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(content);
+            return await GetResponseResult<T>(response);
         }
 
         public void Dispose()
