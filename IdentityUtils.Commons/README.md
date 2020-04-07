@@ -9,9 +9,9 @@ This project contains all utility and helper classes which can be used in any ot
 <a name="httpclient"></a>
 ## Intellegens HttpClient - IdentityUtils.Commons.RestClient
 HttpClient serves as wrapper class around System.Net.HttpClient. To make REST calls easier, following methods are used
-- `async Task<T> Get<T>(string url)`
-- `async Task<T> Delete<T>(string url)`
-- `async Task<T> Post<T>(string url, object dataToSend)`
+- `async Task<RestResult<T>> Get<T>(string url)`
+- `async Task<RestResult<T>> Delete<T>(string url)`
+- `async Task<RestResult<T>> Post<T>(string url, object dataToSend)`
 
 Each method above uses protected method `GetHttpRequestMessage(HttpMethod method, string url)` to build Request message. This method may be overriden in case additional headers (or any other property) needs to be set.
 

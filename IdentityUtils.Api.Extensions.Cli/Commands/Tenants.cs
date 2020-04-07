@@ -60,11 +60,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    tenants.Add(result.Payload);
+                    tenants.Add(result.Data);
                 }
                 else
                 {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Payload);
+                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Data);
                 }
 
                 ConsoleOutputTenants(console, tenants);
@@ -93,7 +93,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var tenantAddResult = Shared.GetTenantManagementApi(console).AddTenant(tenant).Result;
 
                 tenantAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputTenants(console, tenantAddResult.Payload);
+                ConsoleOutputTenants(console, tenantAddResult.Data);
             }
         }
 
@@ -121,7 +121,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     return;
                 }
 
-                var tenant = tenantResult.Payload;
+                var tenant = tenantResult.Data;
 
                 if (!string.IsNullOrEmpty(Name))
                     tenant.Name = Name;
@@ -134,7 +134,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 tenantUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
 
                 if (tenantUpdateResult.Success)
-                    ConsoleOutputTenants(console, tenantUpdateResult.Payload);
+                    ConsoleOutputTenants(console, tenantUpdateResult.Data);
             }
         }
 

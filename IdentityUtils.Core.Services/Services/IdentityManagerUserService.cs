@@ -68,7 +68,7 @@ namespace IdentityUtils.Core.Services
             var user = await FindByIdAsync(id);
 
             return user.Success
-                ? IdentityUtilsResult<TDto>.SuccessResult(mapper.Map<TDto>(user.Payload))
+                ? IdentityUtilsResult<TDto>.SuccessResult(mapper.Map<TDto>(user.Data))
                 : IdentityUtilsResult<TDto>.ErrorResult(user.ErrorMessages);
         }
 
@@ -88,7 +88,7 @@ namespace IdentityUtils.Core.Services
             if (!userResult.Success)
                 return IdentityUtilsResult<TUserDto>.ErrorResult(userResult.ErrorMessages);
 
-            return IdentityUtilsResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Payload));
+            return IdentityUtilsResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Data));
         }
 
         public async Task<IdentityUtilsResult<TUserDto>> CreateUser(TUserDto user)
@@ -117,13 +117,13 @@ namespace IdentityUtils.Core.Services
             if (!userDbResult.Success)
                 return IdentityUtilsResult.ErrorResult(userDbResult.ErrorMessages);
 
-            mapper.Map(user, userDbResult.Payload);
-            var result = await userManager.UpdateAsync(userDbResult.Payload);
+            mapper.Map(user, userDbResult.Data);
+            var result = await userManager.UpdateAsync(userDbResult.Data);
 
             if (!result.Succeeded)
                 return result.ToIdentityUtilsResult();
 
-            mapper.Map(userDbResult.Payload, user);
+            mapper.Map(userDbResult.Data, user);
             return IdentityUtilsResult.SuccessResult;
         }
 
@@ -133,7 +133,7 @@ namespace IdentityUtils.Core.Services
             if (!userResult.Success)
                 return userResult;
 
-            var identityResult = await userManager.DeleteAsync(userResult.Payload);
+            var identityResult = await userManager.DeleteAsync(userResult.Data);
             return identityResult.ToIdentityUtilsResult();
         }
 
@@ -144,8 +144,8 @@ namespace IdentityUtils.Core.Services
 
             if (result.Success)
             {
-                var token = await userManager.GeneratePasswordResetTokenAsync(userResult.Payload);
-                result.Payload = token;
+                var token = await userManager.GeneratePasswordResetTokenAsync(userResult.Data);
+                result.Data = token;
             }
 
             return result;
@@ -158,7 +158,7 @@ namespace IdentityUtils.Core.Services
             if (!userResult.Success)
                 return userResult;
 
-            var result = await userManager.ResetPasswordAsync(userResult.Payload, token, newPassword);
+            var result = await userManager.ResetPasswordAsync(userResult.Data, token, newPassword);
             return result.ToIdentityUtilsResult();
         }
 
@@ -182,7 +182,7 @@ namespace IdentityUtils.Core.Services
             if (!userResult.Success)
                 return userResult;
 
-            var result = await userManager.AddClaimsAsync(userResult.Payload, claims);
+            var result = await userManager.AddClaimsAsync(userResult.Data, claims);
             return result.ToIdentityUtilsResult();
         }
 
@@ -205,10 +205,10 @@ namespace IdentityUtils.Core.Services
                 return userResult;
 
             if (oldTenantRolesClaim != null)
-                result = await userManager.RemoveClaimAsync(userResult.Payload, oldTenantRolesClaim);
+                result = await userManager.RemoveClaimAsync(userResult.Data, oldTenantRolesClaim);
 
             if (result.Succeeded)
-                result = await userManager.AddClaimAsync(userResult.Payload, newTenantRolesClaim);
+                result = await userManager.AddClaimAsync(userResult.Data, newTenantRolesClaim);
 
             return result.ToIdentityUtilsResult();
         }

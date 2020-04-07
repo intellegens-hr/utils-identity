@@ -11,7 +11,7 @@ namespace IdentityUtils.Api.Extensions
             return new IdentityUtilsResult<T>
             {
                 Success = restResult.Success,
-                Payload = restResult.Data,
+                Data = restResult.ResponseData,
                 ErrorMessages = restResult.ErrorMessages
             };
         }
@@ -23,7 +23,7 @@ namespace IdentityUtils.Api.Extensions
             if (!restResult.Success)
                 return IdentityUtilsResult.ErrorResult(restResult.ErrorMessages);
 
-            return restResult.Data;
+            return restResult.ResponseData;
         }
 
         internal async static Task<IdentityUtilsResult<T>> ParseRestResultTask<T>(this Task<RestResult<IdentityUtilsResult<T>>> restResultTask)
@@ -33,7 +33,7 @@ namespace IdentityUtils.Api.Extensions
             if (!restResult.Success)
                 return IdentityUtilsResult<T>.ErrorResult(restResult.ErrorMessages);
 
-            return restResult.Data;
+            return restResult.ResponseData;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,16 +30,34 @@ namespace IdentityUtils.Commons
         {
             string content = await responseMessage.Content.ReadAsStringAsync();
 
-            if (responseMessage.StatusCode != HttpStatusCode.OK)
+            var result = new RestResult<T>()
+            {
+                StatusCode = (int)responseMessage.StatusCode,
+                ResponseDataRaw = content
+            };
+
+            if (result.Success)
+            {
+                try
+                {
+                    result.ResponseData = JsonConvert.DeserializeObject<T>(content);
+                }
+                catch (Exception ex)
+                {
+                    result.StatusCode = 0;
+                    result.ErrorMessages.Add("Rest client - error parsing JSON: " + ex.Message);
+                }
+            }
+            else
             {
                 string errorMessage = responseMessage.StatusCode.ToString();
                 if (!string.IsNullOrEmpty(content))
                     errorMessage = $"{errorMessage}: {content}";
 
-                return RestResult<T>.ErrorResult(errorMessage);
+                result.ErrorMessages.Add(errorMessage);
             }
 
-            return RestResult<T>.SuccessResult(JsonConvert.DeserializeObject<T>(content));
+            return result;
         }
 
         public virtual async Task<RestResult<T>> Get<T>(string url)
@@ -55,8 +72,6 @@ namespace IdentityUtils.Commons
         {
             var message = await GetHttpRequestMessage(HttpMethod.Delete, url);
             var response = await httpClient.SendAsync(message);
-
-            string content = await response.Content.ReadAsStringAsync();
 
             return await GetResponseResult<T>(response);
         }

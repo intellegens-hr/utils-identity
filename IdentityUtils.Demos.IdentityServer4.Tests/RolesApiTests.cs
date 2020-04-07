@@ -29,18 +29,18 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var resultCreated = await roleManagementApi.AddRole(roleDto);
 
             Assert.True(resultCreated.Success);
-            Assert.Equal(roleDto.Name, resultCreated.Payload.Name);
+            Assert.Equal(roleDto.Name, resultCreated.Data.Name);
         }
 
         [Fact]
         public async Task Created_dto_should_match_fetched_dto()
         {
             var resultCreated = await roleManagementApi.AddRole(GetUniqueTestRole);
-            var resultFetch = await roleManagementApi.GetRoleById(resultCreated.Payload.Id);
+            var resultFetch = await roleManagementApi.GetRoleById(resultCreated.Data.Id);
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetch.Success);
-            Assert.Equal(resultCreated.Payload, resultFetch.Payload);
+            Assert.Equal(resultCreated.Data, resultFetch.Data);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var resultCreated2 = await roleManagementApi.AddRole(GetUniqueTestRole);
 
             var roles = await roleManagementApi.GetRoles();
-            var count = roles.Payload.Where(x => x.Id == resultCreated1.Payload.Id || x.Id == resultCreated2.Payload.Id).Count();
+            var count = roles.Data.Where(x => x.Id == resultCreated1.Data.Id || x.Id == resultCreated2.Data.Id).Count();
 
             Assert.True(resultCreated1.Success);
             Assert.True(resultCreated2.Success);
@@ -74,18 +74,18 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         {
             var role = new RoleDto { Name = "strange Name" };
             var resultCreated = await roleManagementApi.AddRole(role);
-            var resultFetched = await roleManagementApi.GetRoleByNormalizedName(resultCreated.Payload.NormalizedName);
+            var resultFetched = await roleManagementApi.GetRoleByNormalizedName(resultCreated.Data.NormalizedName);
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(resultCreated.Payload, resultFetched.Payload);
+            Assert.Equal(resultCreated.Data, resultFetched.Data);
         }
 
         [Fact]
         public async Task Existing_role_should_be_deleted()
         {
             var resultCreated = await roleManagementApi.AddRole(GetUniqueTestRole);
-            var deleteResult = await roleManagementApi.DeleteRole(resultCreated.Payload.Id);
+            var deleteResult = await roleManagementApi.DeleteRole(resultCreated.Data.Id);
 
             Assert.True(resultCreated.Success);
             Assert.True(deleteResult.Success);

@@ -39,8 +39,8 @@ namespace IdentityUtils.Core.Services.Tests
             var result = await tenantsService.AddTenant(tenantDto);
 
             Assert.True(result.Success);
-            Assert.Equal(tenantDto.Name, result.Payload.Name);
-            Assert.Equal(tenantDto.Hostnames, result.Payload.Hostnames);
+            Assert.Equal(tenantDto.Name, result.Data.Name);
+            Assert.Equal(tenantDto.Hostnames, result.Data.Hostnames);
         }
 
         [Fact]
@@ -74,10 +74,10 @@ namespace IdentityUtils.Core.Services.Tests
             var tenantDto = TestTenant1;
 
             var resultCreated = await tenantsService.AddTenant(tenantDto);
-            var resultFetched = await tenantsService.GetTenant(resultCreated.Payload.TenantId);
+            var resultFetched = await tenantsService.GetTenant(resultCreated.Data.TenantId);
 
-            var createdTenant = resultCreated.Payload;
-            var fetchedTenant = resultFetched.Payload;
+            var createdTenant = resultCreated.Data;
+            var fetchedTenant = resultFetched.Data;
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
@@ -110,7 +110,7 @@ namespace IdentityUtils.Core.Services.Tests
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(resultCreated.Payload.TenantId, resultFetched.Payload.TenantId);
+            Assert.Equal(resultCreated.Data.TenantId, resultFetched.Data.TenantId);
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task Updated_dto_should_match_original_dto()
         {
             var tenantCreatedResult = await tenantsService.AddTenant(TestTenant1);
-            var tenant = tenantCreatedResult.Payload;
+            var tenant = tenantCreatedResult.Data;
 
             tenant.Name += " UPDATED";
             tenant.Hostnames.Add("new-hostname-for-tenant");
@@ -134,7 +134,7 @@ namespace IdentityUtils.Core.Services.Tests
 
             Assert.True(tenantCreatedResult.Success);
             Assert.True(tenantUpdatedResult.Success);
-            Assert.Equal(tenant, tenantUpdatedResult.Payload);
+            Assert.Equal(tenant, tenantUpdatedResult.Data);
         }
 
         [Fact]
@@ -143,8 +143,8 @@ namespace IdentityUtils.Core.Services.Tests
             var tenantCreatedResult1 = await tenantsService.AddTenant(TestTenant1);
             var tenantCreatedResult2 = await tenantsService.AddTenant(TestTenant2);
 
-            var tenant = tenantCreatedResult1.Payload;
-            tenant.Hostnames.AddRange(tenantCreatedResult2.Payload.Hostnames);
+            var tenant = tenantCreatedResult1.Data;
+            tenant.Hostnames.AddRange(tenantCreatedResult2.Data.Hostnames);
 
             var tenantUpdatedResult = await tenantsService.UpdateTenant(tenant);
 
@@ -165,7 +165,7 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task Deleting_tenant_should_work()
         {
             var createdResult = await tenantsService.AddTenant(TestTenant1);
-            var deleteResult = await tenantsService.DeleteTenant(createdResult.Payload.TenantId);
+            var deleteResult = await tenantsService.DeleteTenant(createdResult.Data.TenantId);
 
             Assert.True(createdResult.Success);
             Assert.True(deleteResult.Success);

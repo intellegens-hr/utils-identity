@@ -34,11 +34,11 @@ namespace IdentityUtils.Core.Services.Tests
             var role1Result = await rolesService.AddRole(Role1);
             var role2Result = await rolesService.AddRole(Role2);
 
-            Tenant1 = tenant1Result.Payload;
-            Tenant2 = tenant2Result.Payload;
+            Tenant1 = tenant1Result.Data;
+            Tenant2 = tenant2Result.Data;
 
-            Role1 = role1Result.Payload;
-            Role2 = role2Result.Payload;
+            Role1 = role1Result.Data;
+            Role2 = role2Result.Data;
         }
 
         private TenantDto Tenant1 { get; set; } = new TenantDto
@@ -93,11 +93,11 @@ namespace IdentityUtils.Core.Services.Tests
         {
             var createdResult = await usersService.CreateUser(TestUser1);
 
-            var fetchResultDb1 = await usersService.FindByIdAsync(createdResult.Payload.Id);
-            var fetchResultDb2 = await usersService.FindByNameAsync(createdResult.Payload.Username);
+            var fetchResultDb1 = await usersService.FindByIdAsync(createdResult.Data.Id);
+            var fetchResultDb2 = await usersService.FindByNameAsync(createdResult.Data.Username);
 
-            var fetchResult1 = await usersService.FindByIdAsync<UserDto>(createdResult.Payload.Id);
-            var fetchResult2 = await usersService.FindByNameAsync<UserDto>(createdResult.Payload.Username);
+            var fetchResult1 = await usersService.FindByIdAsync<UserDto>(createdResult.Data.Id);
+            var fetchResult2 = await usersService.FindByNameAsync<UserDto>(createdResult.Data.Username);
 
             Assert.True(createdResult.Success);
             Assert.True(fetchResultDb1.Success);
@@ -112,31 +112,31 @@ namespace IdentityUtils.Core.Services.Tests
             var createdResult = await usersService.CreateUser(TestUser1);
 
             Assert.True(createdResult.Success);
-            Assert.Equal(TestUser1.Email, createdResult.Payload.Email);
-            Assert.Equal(TestUser1.Username, createdResult.Payload.Username);
-            Assert.Equal(TestUser1.AdditionalDataJson, createdResult.Payload.AdditionalDataJson);
+            Assert.Equal(TestUser1.Email, createdResult.Data.Email);
+            Assert.Equal(TestUser1.Username, createdResult.Data.Username);
+            Assert.Equal(TestUser1.AdditionalDataJson, createdResult.Data.AdditionalDataJson);
         }
 
         [Fact]
         public async Task Created_user_dto_should_match_fetched_by_id_dto()
         {
             var createdResult = await usersService.CreateUser(TestUser1);
-            var fetchResult = await usersService.FindByIdAsync<UserDto>(createdResult.Payload.Id);
+            var fetchResult = await usersService.FindByIdAsync<UserDto>(createdResult.Data.Id);
 
             Assert.True(createdResult.Success);
             Assert.True(fetchResult.Success);
-            Assert.Equal(createdResult.Payload, fetchResult.Payload);
+            Assert.Equal(createdResult.Data, fetchResult.Data);
         }
 
         [Fact]
         public async Task Created_user_dto_should_match_fetched_by_username_dto()
         {
             var createdResult = await usersService.CreateUser(TestUser1);
-            var fetchResult = await usersService.FindByNameAsync<UserDto>(createdResult.Payload.Username);
+            var fetchResult = await usersService.FindByNameAsync<UserDto>(createdResult.Data.Username);
 
             Assert.True(createdResult.Success);
             Assert.True(fetchResult.Success);
-            Assert.Equal(createdResult.Payload, fetchResult.Payload);
+            Assert.Equal(createdResult.Data, fetchResult.Data);
         }
 
         [Theory]
@@ -151,7 +151,7 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task User_should_be_updated()
         {
             var createdResult = await usersService.CreateUser(TestUser1);
-            var userDto = createdResult.Payload;
+            var userDto = createdResult.Data;
 
             userDto.Email = "changed@email.com";
             var updatedResult = await usersService.UpdateUser(userDto);
@@ -161,14 +161,14 @@ namespace IdentityUtils.Core.Services.Tests
             Assert.True(createdResult.Success);
             Assert.True(updatedResult.Success);
             Assert.True(fetchResult.Success);
-            Assert.Equal(userDto.Email, fetchResult.Payload.Email);
+            Assert.Equal(userDto.Email, fetchResult.Data.Email);
         }
 
         [Fact]
         public async Task User_should_be_deleted()
         {
             var createdResult = await usersService.CreateUser(TestUser1);
-            var deleteResult = await usersService.DeleteUser(createdResult.Payload.Id);
+            var deleteResult = await usersService.DeleteUser(createdResult.Data.Id);
 
             Assert.True(createdResult.Success);
             Assert.True(deleteResult.Success);
@@ -178,8 +178,8 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task User_should_be_able_to_change_password()
         {
             var createdResult = await usersService.CreateUser(TestUser1);
-            var tokenResult = await usersService.GeneratePasswordResetTokenAsync(createdResult.Payload.Username);
-            var changePasswordResult = await usersService.ResetPasswordAsync(createdResult.Payload.Username, tokenResult.Payload, "NewStrong1324Pa55!");
+            var tokenResult = await usersService.GeneratePasswordResetTokenAsync(createdResult.Data.Username);
+            var changePasswordResult = await usersService.ResetPasswordAsync(createdResult.Data.Username, tokenResult.Data, "NewStrong1324Pa55!");
 
             Assert.True(createdResult.Success);
             Assert.True(tokenResult.Success);
@@ -200,7 +200,7 @@ namespace IdentityUtils.Core.Services.Tests
             var userResult = await usersService.CreateUser(TestUser1);
 
             await LoadTenantsAndRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
+            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
 
             Assert.True(userResult.Success);
             Assert.True(roleAddResult.Success);
@@ -212,10 +212,10 @@ namespace IdentityUtils.Core.Services.Tests
             var userResult = await usersService.CreateUser(TestUser1);
 
             await LoadTenantsAndRoles();
-            var role1AddResult = await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            var role2AddResult = await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
+            var role1AddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var role2AddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Payload.Id, Tenant1.TenantId);
+            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id, Tenant1.TenantId);
 
             Assert.True(userResult.Success);
             Assert.True(role1AddResult.Success);
@@ -230,9 +230,9 @@ namespace IdentityUtils.Core.Services.Tests
             await LoadTenantsAndRoles();
 
             var rolesToAdd = new List<Guid> { Role1.Id, Role2.Id };
-            var roleAddResult = await usersService.AddToRolesAsync(userResult.Payload.Id, Tenant1.TenantId, rolesToAdd);
+            var roleAddResult = await usersService.AddToRolesAsync(userResult.Data.Id, Tenant1.TenantId, rolesToAdd);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Payload.Id, Tenant1.TenantId);
+            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id, Tenant1.TenantId);
 
             Assert.True(userResult.Success);
             Assert.True(roleAddResult.Success);
@@ -245,10 +245,10 @@ namespace IdentityUtils.Core.Services.Tests
             var userResult = await usersService.CreateUser(TestUser1);
 
             await LoadTenantsAndRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
+            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Payload.Id, Tenant1.TenantId);
+            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id, Tenant1.TenantId);
 
             Assert.True(userResult.Success);
             Assert.True(roleAddResult.Success);
@@ -263,14 +263,14 @@ namespace IdentityUtils.Core.Services.Tests
 
             await LoadTenantsAndRoles();
 
-            await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role2.Id);
-            await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role2.Id);
-            await usersService.RemoveFromRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            await usersService.RemoveFromRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role2.Id);
-            await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
+            await usersService.RemoveFromRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            await usersService.RemoveFromRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Payload.Id, Tenant1.TenantId);
+            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id, Tenant1.TenantId);
 
             Assert.Equal(1, userRoles.Count);
         }
@@ -281,8 +281,8 @@ namespace IdentityUtils.Core.Services.Tests
             var userResult = await usersService.CreateUser(TestUser1);
 
             await LoadTenantsAndRoles();
-            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            var userRoles = await usersService.GetRolesAsync(userResult.Payload.Id, Tenant1.TenantId);
+            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id, Tenant1.TenantId);
 
             Assert.True(userResult.Success);
             Assert.True(roleRemoveResult.Success);
@@ -295,8 +295,8 @@ namespace IdentityUtils.Core.Services.Tests
             var userResult = await usersService.CreateUser(TestUser1);
 
             await LoadTenantsAndRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            var isUserInRole = await usersService.IsInRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.NormalizedName);
+            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var isUserInRole = await usersService.IsInRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.NormalizedName);
 
             Assert.True(userResult.Success);
             Assert.True(roleAddResult.Success);
@@ -309,8 +309,8 @@ namespace IdentityUtils.Core.Services.Tests
             var userResult = await usersService.CreateUser(TestUser1);
 
             await LoadTenantsAndRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            var isUserInRole = await usersService.IsInRoleAsync(userResult.Payload.Id, Tenant1.TenantId, Role2.NormalizedName);
+            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var isUserInRole = await usersService.IsInRoleAsync(userResult.Data.Id, Tenant1.TenantId, Role2.NormalizedName);
 
             Assert.True(userResult.Success);
             Assert.True(roleAddResult.Success);
@@ -324,15 +324,15 @@ namespace IdentityUtils.Core.Services.Tests
             var userCreatedResult1 = await usersService.CreateUser(TestUser1);
             var userCreatedResult2 = await usersService.CreateUser(TestUser2);
 
-            await usersService.AddToRoleAsync(userCreatedResult1.Payload.Id, Tenant1.TenantId, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult1.Payload.Id, Tenant2.TenantId, Role2.Id);
-            await usersService.AddToRoleAsync(userCreatedResult2.Payload.Id, Tenant2.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userCreatedResult1.Data.Id, Tenant1.TenantId, Role1.Id);
+            await usersService.AddToRoleAsync(userCreatedResult1.Data.Id, Tenant2.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userCreatedResult2.Data.Id, Tenant2.TenantId, Role2.Id);
 
             var usersInRoleResult1 = await usersService.RoleUsersPerTenant(Role1.Id, Tenant1.TenantId);
             var usersInRoleResult2 = await usersService.RoleUsersPerTenant(Role2.Id, Tenant2.TenantId);
 
-            Assert.Single(usersInRoleResult1.Payload);
-            Assert.Equal(2, usersInRoleResult2.Payload.Count);
+            Assert.Single(usersInRoleResult1.Data);
+            Assert.Equal(2, usersInRoleResult2.Data.Count);
         }
 
         [Fact]
@@ -345,8 +345,8 @@ namespace IdentityUtils.Core.Services.Tests
                 new Claim("testclaim3", "testvalue")
             };
 
-            var resultAdding1 = await usersService.AddClaimAsync(userCreatedResult.Payload.Id, new Claim("testclaim1", "testvalue"));
-            var resultAdding2 = await usersService.AddClaimsAsync(userCreatedResult.Payload.Id, claimsToAdd);
+            var resultAdding1 = await usersService.AddClaimAsync(userCreatedResult.Data.Id, new Claim("testclaim1", "testvalue"));
+            var resultAdding2 = await usersService.AddClaimsAsync(userCreatedResult.Data.Id, claimsToAdd);
 
             Assert.True(resultAdding1.Success);
             Assert.True(resultAdding2.Success);
@@ -358,11 +358,11 @@ namespace IdentityUtils.Core.Services.Tests
             var userCreatedResult = await usersService.CreateUser(TestUser1);
             await LoadTenantsAndRoles();
 
-            await usersService.AddToRoleAsync(userCreatedResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult.Payload.Id, Tenant2.TenantId, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult.Payload.Id, Tenant2.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Tenant2.TenantId, Role1.Id);
+            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Tenant2.TenantId, Role2.Id);
 
-            var userTenantClaims = await usersService.GetUserTenantRolesClaims(userCreatedResult.Payload.Id);
+            var userTenantClaims = await usersService.GetUserTenantRolesClaims(userCreatedResult.Data.Id);
 
             Assert.Equal(2, userTenantClaims.ToList().Count);
         }
@@ -373,11 +373,11 @@ namespace IdentityUtils.Core.Services.Tests
             var userCreatedResult = await usersService.CreateUser(TestUser1);
             await LoadTenantsAndRoles();
 
-            await usersService.AddToRoleAsync(userCreatedResult.Payload.Id, Tenant1.TenantId, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult.Payload.Id, Tenant2.TenantId, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult.Payload.Id, Tenant2.TenantId, Role2.Id);
+            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Tenant2.TenantId, Role1.Id);
+            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Tenant2.TenantId, Role2.Id);
 
-            var userTenantClaims = await usersService.GetUserTenantRolesClaims(userCreatedResult.Payload.Id);
+            var userTenantClaims = await usersService.GetUserTenantRolesClaims(userCreatedResult.Data.Id);
             
             var userTenantClaimsParsed = userTenantClaims.Select(x => x.Value.DeserializeToTenantRolesClaimData()).ToList();
 

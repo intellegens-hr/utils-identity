@@ -45,16 +45,16 @@ namespace IdentityUtils.Core.Contracts.Commons
                 ErrorMessages = result.ErrorMessages
             };
 
-        public static IdentityUtilsResult<T> FromNonTypedResult(IdentityUtilsResult result, T payload)
+        public static IdentityUtilsResult<T> FromNonTypedResult(IdentityUtilsResult result, T data)
             => new IdentityUtilsResult<T>
             {
                 Success = result.Success,
                 ErrorMessages = result.ErrorMessages,
-                Payload = payload
+                Data = data
             };
 
-        public static IdentityUtilsResult<T> SuccessResult(T payload)
-            => new IdentityUtilsResult<T>(payload) { Success = true };
+        public static IdentityUtilsResult<T> SuccessResult(T data)
+            => new IdentityUtilsResult<T>(data) { Success = true };
 
         public static IdentityUtilsResult<T> ErrorResult(string errorMessage)
             => new IdentityUtilsResult<T>()
@@ -74,11 +74,11 @@ namespace IdentityUtils.Core.Contracts.Commons
         {
         }
 
-        public IdentityUtilsResult(T payload) : base()
+        public IdentityUtilsResult(T data) : base()
         {
-            Payload = payload;
+            Data = data;
         }
 
-        public T Payload { get; set; }
+        public T Data { get; set; }
     }
 }

@@ -62,11 +62,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    users.Add(result.Payload);
+                    users.Add(result.Data);
                 }
                 else
                 {
-                    users.AddRange(Shared.GetUserManagementApi(console).GetAllUsers().Result.Payload);
+                    users.AddRange(Shared.GetUserManagementApi(console).GetAllUsers().Result.Data);
                 }
 
                 ConsoleOutputUsers(console, users);
@@ -100,11 +100,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    roles.Add(roleResult.Payload);
+                    roles.Add(roleResult.Data);
                 }
                 else
                 {
-                    var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result.Payload;
+                    var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result.Data;
                     roles.AddRange(rolesList);
                 }
 
@@ -120,11 +120,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    tenants.Add(tenantResult.Payload);
+                    tenants.Add(tenantResult.Data);
                 }
                 else
                 {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Payload);
+                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Data);
                 }
 
                 foreach (var tenant in tenants)
@@ -144,12 +144,12 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                             return;
                         }
 
-                        foreach (var user in usersResult.Payload)
+                        foreach (var user in usersResult.Data)
                         {
                             console.WriteLine($"{user.Id} - {user.Username}");
                         }
 
-                        if (usersResult.Payload.Count == 0)
+                        if (usersResult.Data.Count == 0)
                             console.WriteLine($"No user in role for tenant {tenant.TenantId}");
 
                         console.WriteLine("");
@@ -188,7 +188,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var userAddResult = Shared.GetUserManagementApi(console).CreateUser(user).Result;
 
                 userAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputUsers(console, userAddResult.Payload);
+                ConsoleOutputUsers(console, userAddResult.Data);
             }
         }
 
@@ -215,7 +215,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     return;
                 }
 
-                var user = userResult.Payload;
+                var user = userResult.Data;
 
                 if (!string.IsNullOrEmpty(Email))
                     user.Email = Email;
@@ -225,7 +225,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 userUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
 
                 if (userUpdateResult.Success)
-                    ConsoleOutputUsers(console, userUpdateResult.Payload);
+                    ConsoleOutputUsers(console, userUpdateResult.Data);
             }
         }
 

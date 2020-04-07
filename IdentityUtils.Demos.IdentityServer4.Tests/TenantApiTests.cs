@@ -32,8 +32,8 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var result = await tenantManagementApi.AddTenant(tenantDto);
 
             Assert.True(result.Success);
-            Assert.Equal(tenantDto.Name, result.Payload.Name);
-            Assert.Equal(tenantDto.Hostnames, result.Payload.Hostnames);
+            Assert.Equal(tenantDto.Name, result.Data.Name);
+            Assert.Equal(tenantDto.Hostnames, result.Data.Hostnames);
         }
 
         [Fact]
@@ -67,10 +67,10 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var tenantDto = GetUniqueTestTenant;
 
             var resultCreated = await tenantManagementApi.AddTenant(tenantDto);
-            var resultFetched = await tenantManagementApi.GetTenant(resultCreated.Payload.TenantId);
+            var resultFetched = await tenantManagementApi.GetTenant(resultCreated.Data.TenantId);
 
-            var createdTenant = resultCreated.Payload;
-            var fetchedTenant = resultFetched.Payload;
+            var createdTenant = resultCreated.Data;
+            var fetchedTenant = resultFetched.Data;
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
@@ -93,8 +93,8 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
 
             var tenants = await tenantManagementApi.GetTenants();
             var count = tenants
-                .Payload
-                .Where(x => x.TenantId == result1.Payload.TenantId || x.TenantId == result2.Payload.TenantId)
+                .Data
+                .Where(x => x.TenantId == result1.Data.TenantId || x.TenantId == result2.Data.TenantId)
                 .Count();
 
             Assert.Equal(2, count);
@@ -104,11 +104,11 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         public async Task Service_should_find_tenant_by_hostname()
         {
             var resultCreated = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var resultFetched = await tenantManagementApi.GetTenantByHostname(resultCreated.Payload.Hostnames[0]);
+            var resultFetched = await tenantManagementApi.GetTenantByHostname(resultCreated.Data.Hostnames[0]);
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(resultCreated.Payload.TenantId, resultFetched.Payload.TenantId);
+            Assert.Equal(resultCreated.Data.TenantId, resultFetched.Data.TenantId);
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         public async Task Updated_dto_should_match_original_dto()
         {
             var tenantCreatedResult = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var tenant = tenantCreatedResult.Payload;
+            var tenant = tenantCreatedResult.Data;
 
             tenant.Name += " UPDATED";
             tenant.Hostnames.Add("new-hostname-for-tenant");
@@ -132,7 +132,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
 
             Assert.True(tenantCreatedResult.Success);
             Assert.True(tenantUpdatedResult.Success);
-            Assert.Equal(tenant, tenantUpdatedResult.Payload);
+            Assert.Equal(tenant, tenantUpdatedResult.Data);
         }
 
         [Fact]
@@ -141,8 +141,8 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var tenantCreatedResult1 = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
             var tenantCreatedResult2 = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
 
-            var tenant = tenantCreatedResult1.Payload;
-            tenant.Hostnames.AddRange(tenantCreatedResult2.Payload.Hostnames);
+            var tenant = tenantCreatedResult1.Data;
+            tenant.Hostnames.AddRange(tenantCreatedResult2.Data.Hostnames);
 
             var tenantUpdatedResult = await tenantManagementApi.UpdateTenant(tenant);
 
@@ -163,7 +163,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         public async Task Deleting_tenant_should_work()
         {
             var createdResult = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var deleteResult = await tenantManagementApi.DeleteTenant(createdResult.Payload.TenantId);
+            var deleteResult = await tenantManagementApi.DeleteTenant(createdResult.Data.TenantId);
 
             Assert.True(createdResult.Success);
             Assert.True(deleteResult.Success);

@@ -29,7 +29,7 @@ namespace IdentityUtils.Demos.Api
                 entry.SetAbsoluteExpiration(DateTimeOffset.UtcNow.AddMinutes(5));
 
                 var tenant = tenantManagementApi.GetTenantByHostname(originHost).Result;
-                return tenant.Payload.TenantId;
+                return tenant.Data.TenantId;
             });
         }
 

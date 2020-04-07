@@ -34,18 +34,18 @@ namespace IdentityUtils.Core.Services.Tests
             var resultCreated = await rolesService.AddRole(TestRole1);
 
             Assert.True(resultCreated.Success);
-            Assert.Equal(TestRole1.Name, resultCreated.Payload.Name);
+            Assert.Equal(TestRole1.Name, resultCreated.Data.Name);
         }
 
         [Fact]
         public async Task Created_dto_should_match_fetched_dto()
         {
             var resultCreated = await rolesService.AddRole(TestRole1);
-            var resultFetch = await rolesService.GetRole(resultCreated.Payload.Id);
+            var resultFetch = await rolesService.GetRole(resultCreated.Data.Id);
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetch.Success);
-            Assert.Equal(resultCreated.Payload, resultFetch.Payload);
+            Assert.Equal(resultCreated.Data, resultFetch.Data);
         }
 
         [Fact]
@@ -76,18 +76,18 @@ namespace IdentityUtils.Core.Services.Tests
         {
             var role = new RoleDto { Name = "strange Name" };
             var resultCreated = await rolesService.AddRole(role);
-            var resultFetched = await rolesService.GetRole(resultCreated.Payload.NormalizedName);
+            var resultFetched = await rolesService.GetRole(resultCreated.Data.NormalizedName);
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(resultCreated.Payload, resultFetched.Payload);
+            Assert.Equal(resultCreated.Data, resultFetched.Data);
         }
 
         [Fact]
         public async Task Existing_role_should_be_deleted()
         {
             var resultCreated = await rolesService.AddRole(TestRole1);
-            var deleteResult = await rolesService.DeleteRole(resultCreated.Payload.Id);
+            var deleteResult = await rolesService.DeleteRole(resultCreated.Data.Id);
 
             Assert.True(resultCreated.Success);
             Assert.True(deleteResult.Success);

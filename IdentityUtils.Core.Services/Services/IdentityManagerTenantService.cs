@@ -85,7 +85,7 @@ namespace IdentityUtils.Core.Services
             var tenantResult = await GetTenantDb(id);
 
             var result = tenantResult.Success
-                ? IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenantResult.Payload))
+                ? IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenantResult.Data))
                 : IdentityUtilsResult<TTenantDto>.ErrorResult(tenantResult.ErrorMessages);
 
             return result;
@@ -111,7 +111,7 @@ namespace IdentityUtils.Core.Services
             if (!tenantDbResult.Success)
                 return IdentityUtilsResult<TTenantDto>.ErrorResult(tenantDbResult.ErrorMessages);
 
-            var tenant = tenantDbResult.Payload;
+            var tenant = tenantDbResult.Data;
             mapper.Map(tenantDto, tenant);
             var hosts = tenantDto.Hostnames
                 .Select(x => new IdentityManagerTenantHost
@@ -172,7 +172,7 @@ namespace IdentityUtils.Core.Services
             var hostsToDelete = dbContext.TenantHosts.Where(x => x.TenantId == id);
 
             dbContext.TenantHosts.RemoveRange(hostsToDelete);
-            dbContext.Tenants.Remove(tenantDbResult.Payload);
+            dbContext.Tenants.Remove(tenantDbResult.Data);
             await dbContext.SaveChangesAsync();
 
             return IdentityUtilsResult.SuccessResult;

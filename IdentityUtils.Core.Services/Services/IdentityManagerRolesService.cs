@@ -40,7 +40,7 @@ namespace IdentityUtils.Core.Services
         public async Task<IdentityUtilsResult<TRoleDto>> GetRole(Guid roleId)
         {
             var roleResult = await GetRoleById(roleId);
-            return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Payload));
+            return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Data));
         }
 
         public async Task<IdentityUtilsResult<TRoleDto>> GetRole(string roleNameNormalized)
@@ -71,7 +71,7 @@ namespace IdentityUtils.Core.Services
             if (!roleResult.Success)
                 return roleResult;
 
-            var deleteResult = await roleManager.DeleteAsync(roleResult.Payload);
+            var deleteResult = await roleManager.DeleteAsync(roleResult.Data);
             return deleteResult.ToIdentityUtilsResult();
         }
     }

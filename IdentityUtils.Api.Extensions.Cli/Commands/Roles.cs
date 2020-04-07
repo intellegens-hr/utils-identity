@@ -62,7 +62,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    roles.Add(result.Payload);
+                    roles.Add(result.Data);
                 }
                 else if (!string.IsNullOrEmpty(Name))
                 {
@@ -73,11 +73,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    roles.Add(result.Payload);
+                    roles.Add(result.Data);
                 }
                 else
                 {
-                    roles.AddRange(Shared.GetRoleManagementApi(console).GetRoles().Result.Payload);
+                    roles.AddRange(Shared.GetRoleManagementApi(console).GetRoles().Result.Data);
                 }
 
                 ConsoleOutputRoles(console, roles);
@@ -101,7 +101,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var roleAddResult = Shared.GetRoleManagementApi(console).AddRole(role).Result;
 
                 roleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputRoles(console, roleAddResult.Payload);
+                ConsoleOutputRoles(console, roleAddResult.Data);
             }
         }
 

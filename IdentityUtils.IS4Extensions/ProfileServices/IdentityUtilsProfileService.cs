@@ -33,7 +33,7 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
             var userId = Guid.Parse(context.Subject.GetSubjectId());
 
             var userResult = await tenantUserService.FindByIdAsync(userId);
-            var user = userResult.Payload;
+            var user = userResult.Data;
             var principal = await claimsFactory.CreateAsync(user);
 
             var claims = principal.Claims
