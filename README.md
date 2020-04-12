@@ -2,6 +2,7 @@
 
 IdentityUtils are set of libraries intended to solve problem with `ASP.NET Identity` management in multitenant environments. It extends `ASP.NET Identity` with new models and features.
 
+
 ## Project structure
 
 Project has 5 logic parts:
@@ -63,3 +64,21 @@ This project contains evertything required to easily implement IdentityUtils wit
 [IdentityUtils.Api.Extensions](./IdentityUtils.Api.Extensions/README.md)
 
 [IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)
+
+
+## Reporting issues
+
+When reporting issues, please keep to provided templates.
+
+Before reporting issues, please read: [GitHub Work-Flow](https://github.com/ofzza/onboarding/blob/master/CONTRIBUTING/github.md)
+
+
+## Contributing
+
+For work-flow and general etiquette when contributing, please see:
+- [Git Source-Control Work-Flow](https://github.com/ofzza/onboarding/blob/master/CONTRIBUTING/git.md)
+- [GitHub Work-Flow](https://github.com/ofzza/onboarding/blob/master/CONTRIBUTING/github.md)
+
+Please accompany any work, fix or feature with their own issue, in it's own branch (see [Git Source-Control Work-Flow](https://github.com/ofzza/onboarding/blob/master/CONTRIBUTING/git.md) for branch naming conventions), and once done, request merge via pull request.
+
+When creating issues and PRs, please keep to provided templates.
