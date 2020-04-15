@@ -48,29 +48,29 @@ This project contains everything required to easily implement authentication int
 
 ## How-to guides
 
-[IdentityUtils.Demos.IdentityServer4](./server/IdentityUtils.Demos.IdentityServer4/README.md)
+[server/IdentityUtils.Demos.IdentityServer4](./server/IdentityUtils.Demos.IdentityServer4/README.md)
 
-[IdentityUtils.Demos.Api](./server/IdentityUtils.Demos.Api/README.md)
+[server/IdentityUtils.Demos.Api](./server/IdentityUtils.Demos.Api/README.md)
 
-[IdentityUtils.Demos.Client](./server/IdentityUtils.Demos.Client/README.md)
+[server/IdentityUtils.Demos.Client](./server/IdentityUtils.Demos.Client/README.md)
 
 ## Per project guides
 
-[IdentityUtils.Commons](./server/IdentityUtils.Commons/README.md)
+[server/IdentityUtils.Commons](./server/IdentityUtils.Commons/README.md)
 
-[IdentityUtils.Core.Contracts](./server/IdentityUtils.Core.Contracts/README.md)
+[server/IdentityUtils.Core.Contracts](./server/IdentityUtils.Core.Contracts/README.md)
 
-[IdentityUtils.Core.Services](./server/IdentityUtils.Core.Services/README.md)
+[server/IdentityUtils.Core.Services](./server/IdentityUtils.Core.Services/README.md)
 
-[IdentityUtils.Api.Controllers](./server/IdentityUtils.Api.Controllers/README.md)
+[server/IdentityUtils.Api.Controllers](./server/IdentityUtils.Api.Controllers/README.md)
 
-[IdentityUtils.Api.Models](./server/IdentityUtils.Api.Models/README.md)
+[server/IdentityUtils.Api.Models](./server/IdentityUtils.Api.Models/README.md)
 
-[IdentityUtils.Api.Extensions](./server/IdentityUtils.Api.Extensions/README.md)
+[server/IdentityUtils.Api.Extensions](./server/IdentityUtils.Api.Extensions/README.md)
 
-[IdentityUtils.Api.Extensions.Cli](./server/IdentityUtils.Api.Extensions.Cli/README.md)
+[server/IdentityUtils.Api.Extensions.Cli](./server/IdentityUtils.Api.Extensions.Cli/README.md)
 
-[IdentityUtils.Api.Extensions.Cli](./webclient-ngx/README.md)
+[webclient-ngx](./webclient-ngx/README.md)
 
 ## Reporting issues
 
