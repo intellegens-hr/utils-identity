@@ -16,7 +16,7 @@ Project has 5 logic parts:
 - IdentityUtils API Extension CLI
 - IdentityUtils IS4 Extensions
 
-![Dependency graph](./Docs/Images/DependencyGraph.PNG)
+![Dependency graph](./docs/images/dependency-graph.png)
 
 ### IdentityUtils Identity management
 Idea behind IdentityUtils services is to have separate database and DTO (domain-transfer) objects. `Contracts` project defines entities which can be overriden if needed, required interfaces for DTO objects and DbContext.
@@ -40,31 +40,37 @@ For APIs which implemented `IdentityUtils.Api.Controllers`, other projects can u
 Identity management CLI enables users to do entire user, role and tenant management via CLI. It uses IdentityUtils API Extension library to achieve this.
 
 ### IdentityUtils IS4 Extensions
-This project contains evertything required to easily implement IdentityUtils with Identity Server 4.
+This project contains everything required to easily implement IdentityUtils with Identity Server 4.
+
+### IdentityUtils Angular web client library
+This project contains everything required to easily implement authentication into your Angular web client
+
 
 ## How-to guides
 
-[IdentityUtils.Demos.IdentityServer4](./IdentityUtils.Demos.IdentityServer4/README.md)
+[IdentityUtils.Demos.IdentityServer4](./server/IdentityUtils.Demos.IdentityServer4/README.md)
 
-[IdentityUtils.Demos.Api](./IdentityUtils.Demos.Api/README.md)
+[IdentityUtils.Demos.Api](./server/IdentityUtils.Demos.Api/README.md)
 
-[IdentityUtils.Demos.Client](./IdentityUtils.Demos.Client/README.md)
+[IdentityUtils.Demos.Client](./server/IdentityUtils.Demos.Client/README.md)
 
 ## Per project guides
-[IdentityUtils.Commons](./IdentityUtils.Commons/README.md)
 
-[IdentityUtils.Core.Contracts](./IdentityUtils.Core.Contracts/README.md)
+[IdentityUtils.Commons](./server/IdentityUtils.Commons/README.md)
 
-[IdentityUtils.Core.Services](./IdentityUtils.Core.Services/README.md)
+[IdentityUtils.Core.Contracts](./server/IdentityUtils.Core.Contracts/README.md)
 
-[IdentityUtils.Api.Controllers](./IdentityUtils.Api.Controllers/README.md)
+[IdentityUtils.Core.Services](./server/IdentityUtils.Core.Services/README.md)
 
-[IdentityUtils.Api.Models](./IdentityUtils.Api.Models/README.md)
+[IdentityUtils.Api.Controllers](./server/IdentityUtils.Api.Controllers/README.md)
 
-[IdentityUtils.Api.Extensions](./IdentityUtils.Api.Extensions/README.md)
+[IdentityUtils.Api.Models](./server/IdentityUtils.Api.Models/README.md)
 
-[IdentityUtils.Api.Extensions.Cli](./IdentityUtils.Api.Extensions.Cli/README.md)
+[IdentityUtils.Api.Extensions](./server/IdentityUtils.Api.Extensions/README.md)
 
+[IdentityUtils.Api.Extensions.Cli](./server/IdentityUtils.Api.Extensions.Cli/README.md)
+
+[IdentityUtils.Api.Extensions.Cli](./webclient-ngx/README.md)
 
 ## Reporting issues
 
