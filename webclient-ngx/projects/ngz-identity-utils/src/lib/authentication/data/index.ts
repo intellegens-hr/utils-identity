@@ -2,4 +2,5 @@
 // ----------------------------------------------------------------------------
 
 // (Re)export data models
-export * from './login';
+export * from './Login';
+export * from './User';
