@@ -70,7 +70,7 @@ This project contains everything required to easily implement authentication int
 
 [IdentityUtils.Api.Extensions.Cli](./server/IdentityUtils.Api.Extensions.Cli/README.md)
 
-[IdentityUtils.Api.Extensions.Cli](./webclient-ngx/README.md)
+[ngz-identity-utils](./webclient-ngx/README.md)
 
 ## Reporting issues
 
