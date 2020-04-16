@@ -1,4 +1,4 @@
-// User data-model
+// Role data model
 // ----------------------------------------------------------------------------
 
 // Import dependencies
@@ -6,13 +6,11 @@ import { EnTT, Validate } from 'entt-rxjs';
 import * as Yup from 'yup';
 
 /**
- * User data-model
+ * Role data model
  */
-export class UserModel extends EnTT {
+export class RoleModel extends EnTT {
   constructor () { super(); super.entt(); }
 
-  // @Validate({ provider: Yup.string().required().email() })
-  @Validate({ provider: Yup.string().required() })
-  public username = undefined as string;
+  // TODO: ... define model
 
 }

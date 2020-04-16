@@ -1,4 +1,4 @@
-// Login data-models
+// Login data models
 // ----------------------------------------------------------------------------
 
 // Import dependencies
@@ -6,13 +6,12 @@ import { EnTT, Serializable, Validate } from 'entt-rxjs';
 import * as Yup from 'yup';
 
 /**
- * Login request data-model
+ * Login request data model
  */
 export class LoginRequestModel extends EnTT {
   constructor () { super(); super.entt(); }
 
-  // @Validate({ provider: Yup.string().required().email() })
-  @Validate({ provider: Yup.string().required() })
+  @Validate({ provider: Yup.string().required().email() })
   public username = undefined as string;
 
   @Validate({ provider: Yup.string().required().min(6) })
@@ -21,9 +20,9 @@ export class LoginRequestModel extends EnTT {
 }
 
 /**
- * Login response token data-model
+ * Login token data model
  */
-export class LoginResponseToken extends EnTT {
+export class LoginAuthenticationToken extends EnTT {
   constructor () { super(); super.entt(); }
 
   @Serializable({ alias: 'access_token' })

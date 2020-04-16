@@ -1,6 +1,6 @@
 # IdentityUtils.NGX
 
-Angular library containing reusable data-models for use with Identity-Utils' server and API.
+Angular library containing reusable data models for use with Identity-Utils' server and API.
 
 
 ## How to

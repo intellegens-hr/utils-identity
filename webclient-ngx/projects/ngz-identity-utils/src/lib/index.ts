@@ -3,17 +3,10 @@
 
 // Import and (re)export modules
 import { NgModule } from '@angular/core';
-import { AuthenticationModule } from './authentication';
-export * from './authentication';
-const imports = [
-  AuthenticationModule
-];
+export * from './data';
 
 /**
  * Authentication module
  */
-@NgModule({
-  imports,
-  exports: [ ...imports ]
-})
+@NgModule({})
 export class IdentityServerUtilsModule { }
