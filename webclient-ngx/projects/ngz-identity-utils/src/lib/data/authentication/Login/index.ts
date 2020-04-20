@@ -2,7 +2,7 @@
 // ----------------------------------------------------------------------------
 
 // Import dependencies
-import { EnTT, Serializable, Validate } from 'entt-rxjs';
+import { EnTT, Serializable, Validate } from '@ofzza/entt-rxjs';
 import * as Yup from 'yup';
 
 /**

@@ -2,7 +2,7 @@
 // ----------------------------------------------------------------------------
 
 // Import dependencies
-import { EnTT, Validate } from 'entt-rxjs';
+import { EnTT, Validate } from '@ofzza/entt-rxjs';
 import * as Yup from 'yup';
 
 /**
