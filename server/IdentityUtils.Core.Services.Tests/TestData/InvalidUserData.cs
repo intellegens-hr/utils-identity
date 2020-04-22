@@ -56,6 +56,16 @@ namespace IdentityUtils.Core.Services.Tests.TestData
             yield return new object[] {
                 new UserDto
                 {
+                  Username = $"okemail{new string('X', 300)}@intellegens.hr",
+                  DisplayName = "test@intellegens.hr",
+                  Password = "FairlyOkPassword34#!",
+                  Email = "okemail@intellegens.hr"
+                }
+            };
+
+            yield return new object[] {
+                new UserDto
+                {
                   Username = "okemail@intellegens.hr",
                   DisplayName = $"{new string('X', 200)}@intellegens.hr",
                   Password = "FairlyOkPassword34#!",

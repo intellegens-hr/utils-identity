@@ -14,7 +14,6 @@ namespace IdentityUtils.Core.Services.Tests
     public abstract class TestAbstract: IDisposable
     {
         protected string GetUniqueId() => Guid.NewGuid().ToString().Replace(" - ", "");
-       // protected readonly DisposableContextService serviceProviderDisposable = new DisposableContextService();
 
         private readonly ServiceProvider serviceProvider;
         private readonly TestDbContext testDbContext;

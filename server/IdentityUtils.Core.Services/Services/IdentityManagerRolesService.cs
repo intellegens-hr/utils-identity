@@ -62,6 +62,10 @@ namespace IdentityUtils.Core.Services
             if (!result.Success)
                 return result.ToTypedResult<TRoleDto>();
 
+            var managerValidationResult = await new RoleValidator<TRole>().ValidateAsync(roleManager, role);
+            if (!managerValidationResult.Succeeded)
+                return managerValidationResult.ToIdentityUtilsResult().ToTypedResult<TRoleDto>();
+
             var roleResult = await roleManager.CreateAsync(role);
             if (!roleResult.Succeeded)
                 return roleResult.ToIdentityUtilsResult().ToTypedResult<TRoleDto>();
