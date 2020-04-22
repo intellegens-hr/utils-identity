@@ -8,6 +8,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
     {
         public Guid Id { get; set; }
         public string Username { get; set; }
+        public string DisplayName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public string AdditionalDataJson { get; set; }
@@ -16,6 +17,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
         {
             return Id == other.Id
                 && Username == other.Username
+                && DisplayName == other.DisplayName
                 && Email == other.Email
                 && Password == other.Password
                 && AdditionalDataJson == other.AdditionalDataJson;

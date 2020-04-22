@@ -16,7 +16,50 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.3");
 
-            modelBuilder.Entity("IdentityUtils.Core.Contracts.Roles.IdentityManagerRole", b =>
+            modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenant", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(128);
+
+                    b.HasKey("TenantId");
+
+                    b.ToTable("Tenants");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityManagerTenant");
+                });
+
+            modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenantHost", b =>
+                {
+                    b.Property<Guid>("TenantHostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Hostname")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(256);
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TenantHostId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("TenantHosts");
+                });
+
+            modelBuilder.Entity("IdentityUtils.Core.Services.Tests.Setup.DbModels.RoleDb", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,44 +86,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenant", b =>
-                {
-                    b.Property<Guid>("TenantId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(128);
-
-                    b.HasKey("TenantId");
-
-                    b.ToTable("Tenants");
-                });
-
-            modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenantHost", b =>
-                {
-                    b.Property<Guid>("TenantHostId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Hostname")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasMaxLength(256);
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("TenantHostId");
-
-                    b.HasIndex("TenantId");
-
-                    b.ToTable("TenantHosts");
-                });
-
-            modelBuilder.Entity("IdentityUtils.Core.Contracts.Users.IdentityManagerUser", b =>
+            modelBuilder.Entity("IdentityUtils.Core.Services.Tests.Setup.DbModels.UserDb", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -95,6 +101,10 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("TEXT")
+                        .HasMaxLength(128);
 
                     b.Property<string>("Email")
                         .HasColumnType("TEXT")
@@ -247,6 +257,15 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("IdentityUtils.Core.Services.Tests.Setup.DbModels.TenantDb", b =>
+                {
+                    b.HasBaseType("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenant");
+
+                    b.ToTable("Tenants");
+
+                    b.HasDiscriminator().HasValue("TenantDb");
+                });
+
             modelBuilder.Entity("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenantHost", b =>
                 {
                     b.HasOne("IdentityUtils.Core.Contracts.Tenants.IdentityManagerTenant", "IdentityManagerTenant")
@@ -258,7 +277,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
-                    b.HasOne("IdentityUtils.Core.Contracts.Roles.IdentityManagerRole", null)
+                    b.HasOne("IdentityUtils.Core.Services.Tests.Setup.DbModels.RoleDb", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -267,7 +286,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
                 {
-                    b.HasOne("IdentityUtils.Core.Contracts.Users.IdentityManagerUser", null)
+                    b.HasOne("IdentityUtils.Core.Services.Tests.Setup.DbModels.UserDb", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -276,7 +295,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
-                    b.HasOne("IdentityUtils.Core.Contracts.Users.IdentityManagerUser", null)
+                    b.HasOne("IdentityUtils.Core.Services.Tests.Setup.DbModels.UserDb", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -285,13 +304,13 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
-                    b.HasOne("IdentityUtils.Core.Contracts.Roles.IdentityManagerRole", null)
+                    b.HasOne("IdentityUtils.Core.Services.Tests.Setup.DbModels.RoleDb", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("IdentityUtils.Core.Contracts.Users.IdentityManagerUser", null)
+                    b.HasOne("IdentityUtils.Core.Services.Tests.Setup.DbModels.UserDb", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -300,7 +319,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
-                    b.HasOne("IdentityUtils.Core.Contracts.Users.IdentityManagerUser", null)
+                    b.HasOne("IdentityUtils.Core.Services.Tests.Setup.DbModels.UserDb", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
