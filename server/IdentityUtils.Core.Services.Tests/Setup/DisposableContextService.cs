@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
 using IdentityUtils.Core.Contracts.Context;
-using IdentityUtils.Core.Contracts.Roles;
-using IdentityUtils.Core.Contracts.Tenants;
-using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services.Tests.Setup.DbModels;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
@@ -14,7 +11,7 @@ using System;
 namespace IdentityUtils.Core.Services.Tests.Setup
 {
     /// <summary>
-    /// SQLite in memory provider keeps schema and data as long the database connection is open. 
+    /// SQLite in memory provider keeps schema and data as long the database connection is open.
     /// This can be challenging when using DI and using multiple services.
     /// This class is used to fetch required services and keep connection open until disposal.
     /// </summary>

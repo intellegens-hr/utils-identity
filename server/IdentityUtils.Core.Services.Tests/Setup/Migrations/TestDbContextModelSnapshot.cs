@@ -29,7 +29,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasMaxLength(128);
+                        .HasMaxLength(32);
 
                     b.HasKey("TenantId");
 
@@ -71,7 +71,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(32);
 
                     b.Property<string>("NormalizedName")
                         .HasColumnType("TEXT")
@@ -108,7 +108,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
                     b.Property<string>("Email")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(128);
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");

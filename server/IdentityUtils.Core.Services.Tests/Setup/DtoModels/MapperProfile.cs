@@ -1,9 +1,5 @@
 ﻿using AutoMapper;
-using IdentityUtils.Core.Contracts.Roles;
-using IdentityUtils.Core.Contracts.Tenants;
-using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services.Tests.Setup.DbModels;
-using System.Collections.Generic;
 
 namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
 {

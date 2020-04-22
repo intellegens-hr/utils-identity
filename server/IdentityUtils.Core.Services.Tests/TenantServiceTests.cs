@@ -47,7 +47,6 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task Creating_tenant_with_invalid_parameters_should_fail_gracefully()
         {
            var tenantDto = new TenantDto();
-
             var result = await tenantsService.AddTenant(tenantDto);
 
             Assert.False(result.Success);

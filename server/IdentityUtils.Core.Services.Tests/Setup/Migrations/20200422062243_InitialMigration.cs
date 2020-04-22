@@ -14,7 +14,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true),
-                    Name = table.Column<string>(maxLength: 256, nullable: true)
+                    Name = table.Column<string>(maxLength: 32, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -41,7 +41,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     AdditionalDataJson = table.Column<string>(nullable: true),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     DisplayName = table.Column<string>(maxLength: 128, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true)
+                    Email = table.Column<string>(maxLength: 128, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -53,7 +53,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                 columns: table => new
                 {
                     TenantId = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
+                    Name = table.Column<string>(maxLength: 32, nullable: false),
                     Discriminator = table.Column<string>(nullable: false)
                 },
                 constraints: table =>

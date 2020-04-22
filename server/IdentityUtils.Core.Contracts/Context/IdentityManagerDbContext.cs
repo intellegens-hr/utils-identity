@@ -32,7 +32,7 @@ namespace IdentityUtils.Core.Contracts.Context
         {
         }
 
-        public DbSet<TTenant> Tenants { get; set; }
-        public DbSet<IdentityManagerTenantHost> TenantHosts { get; set; }
+        public virtual DbSet<TTenant> Tenants { get; set; }
+        public virtual DbSet<IdentityManagerTenantHost> TenantHosts { get; set; }
     }
 }
