@@ -117,11 +117,18 @@ namespace IdentityUtils.Core.Services
             if (!userDbResult.Success)
                 return IdentityUtilsResult.ErrorResult(userDbResult.ErrorMessages);
 
-            mapper.Map(user, userDbResult.Data);
-            var result = await userManager.UpdateAsync(userDbResult.Data);
+            var userDb = userDbResult.Data;
 
-            if (!result.Succeeded)
-                return result.ToIdentityUtilsResult();
+            mapper.Map(user, userDb);
+
+            var result = ModelValidator.ValidateDataAnnotations(userDb).ToIdentityUtilsResult();
+            if (!result.Success)
+                return result.ToTypedResult<TUserDto>();
+
+            var identityResult = await userManager.UpdateAsync(userDb);
+
+            if (!identityResult.Succeeded)
+                return identityResult.ToIdentityUtilsResult();
 
             mapper.Map(userDbResult.Data, user);
             return IdentityUtilsResult.SuccessResult;

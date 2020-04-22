@@ -1,46 +1,40 @@
-﻿using IdentityUtils.Core.Services.Tests.Setup;
-using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
+﻿using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace IdentityUtils.Core.Services.Tests
 {
-    public class RolesServiceTests : IDisposable
+    public class RolesServiceTests : TestAbstract
     {
-        private readonly DisposableContextService serviceProviderDisposable = new DisposableContextService();
-
         private readonly RolesService rolesService;
 
-        public RolesServiceTests()
+        public RolesServiceTests() : base()
         {
-            rolesService = serviceProviderDisposable.GetService<RolesService>();
+            rolesService = GetService<RolesService>();
         }
 
-        private RoleDto TestRole1 => new RoleDto
+        private RoleDto TestRole => new RoleDto
         {
-            Name = "ROLE1"
-        };
-
-        private RoleDto TestRole2 => new RoleDto
-        {
-            Name = "ROLE2"
+            Name = $"ROLE{GetUniqueId()}"
         };
 
         [Fact]
         public async Task Created_dto_should_match_original_dto()
         {
-            var resultCreated = await rolesService.AddRole(TestRole1);
+            var testRole = TestRole;
+            var resultCreated = await rolesService.AddRole(testRole);
 
             Assert.True(resultCreated.Success);
-            Assert.Equal(TestRole1.Name, resultCreated.Data.Name);
+            Assert.Equal(testRole.Name, resultCreated.Data.Name);
         }
 
         [Fact]
         public async Task Created_dto_should_match_fetched_dto()
         {
-            var resultCreated = await rolesService.AddRole(TestRole1);
+            var resultCreated = await rolesService.AddRole(TestRole);
             var resultFetch = await rolesService.GetRole(resultCreated.Data.Id);
 
             Assert.True(resultCreated.Success);
@@ -51,21 +45,28 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Service_should_return_all_roles()
         {
-            var resultCreated1 = await rolesService.AddRole(TestRole1);
-            var resultCreated2 = await rolesService.AddRole(TestRole2);
+            var resultCreated1 = await rolesService.AddRole(TestRole);
+            var resultCreated2 = await rolesService.AddRole(TestRole);
 
             var roles = await rolesService.GetAllRoles();
+            var roleIds = roles.Select(x => x.Id);
 
             Assert.True(resultCreated1.Success);
             Assert.True(resultCreated2.Success);
-            Assert.Equal(2, roles.Count);
+            Assert.Contains(resultCreated1.Data.Id, roleIds);
+            Assert.Contains(resultCreated2.Data.Id, roleIds);
         }
 
         [Fact]
         public async Task Role_name_should_be_unique()
         {
-            var resultCreated1 = await rolesService.AddRole(TestRole1);
-            var resultCreated2 = await rolesService.AddRole(TestRole1);
+            var testRole1 = TestRole;
+            var testRole2 = TestRole;
+
+            testRole2.Name = testRole1.Name;
+
+            var resultCreated1 = await rolesService.AddRole(testRole1);
+            var resultCreated2 = await rolesService.AddRole(testRole2);
 
             Assert.True(resultCreated1.Success);
             Assert.False(resultCreated2.Success);
@@ -74,7 +75,7 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Role_should_be_fetched_by_normalized_name()
         {
-            var role = new RoleDto { Name = "strange Name" };
+            var role = new RoleDto { Name = $"strange Name{Guid.NewGuid()}" };
             var resultCreated = await rolesService.AddRole(role);
             var resultFetched = await rolesService.GetRole(resultCreated.Data.NormalizedName);
 
@@ -84,9 +85,20 @@ namespace IdentityUtils.Core.Services.Tests
         }
 
         [Fact]
+        public async Task Role_with_invalid_data_shoulndt_be_saved()
+        {
+            var role = TestRole;
+            role.Name = $"{new string('X', 100)}";
+
+            var resultCreated = await rolesService.AddRole(role);
+
+            Assert.False(resultCreated.Success);
+        }
+
+        [Fact]
         public async Task Existing_role_should_be_deleted()
         {
-            var resultCreated = await rolesService.AddRole(TestRole1);
+            var resultCreated = await rolesService.AddRole(TestRole);
             var deleteResult = await rolesService.DeleteRole(resultCreated.Data.Id);
 
             Assert.True(resultCreated.Success);
@@ -98,11 +110,6 @@ namespace IdentityUtils.Core.Services.Tests
         {
             var deleteResult = await rolesService.DeleteRole(Guid.NewGuid());
             Assert.False(deleteResult.Success);
-        }
-
-        public void Dispose()
-        {
-            serviceProviderDisposable.Dispose();
         }
     }
 }

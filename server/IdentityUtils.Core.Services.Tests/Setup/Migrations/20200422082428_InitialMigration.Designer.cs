@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 {
     [DbContext(typeof(TestDbContext))]
-    [Migration("20200422062243_InitialMigration")]
+    [Migration("20200422082428_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT")
-                        .HasMaxLength(32);
+                        .HasMaxLength(50);
 
                     b.HasKey("TenantId");
 
@@ -73,11 +73,11 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(32);
+                        .HasMaxLength(50);
 
                     b.Property<string>("NormalizedName")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(256);
+                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 
@@ -110,7 +110,7 @@ namespace IdentityUtils.Core.Services.Tests.Setup.Migrations
 
                     b.Property<string>("Email")
                         .HasColumnType("TEXT")
-                        .HasMaxLength(128);
+                        .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");

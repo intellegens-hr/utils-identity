@@ -19,21 +19,21 @@ namespace IdentityUtils.Core.Services.Tests.Setup
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlite(@"Data Source=:memory:");
+                .UseSqlite(@"Data Source=:memory:;foreign keys=true;");
 
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
+
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<UserDb>().Property(x => x.DisplayName).HasMaxLength(128);
-            builder.Entity<UserDb>().Property(x => x.Email).HasMaxLength(128);
+            builder.Entity<TenantDb>().Property(x => x.Name).HasMaxLength(50);
 
-            builder.Entity<TenantDb>().Property(x => x.Name).HasMaxLength(32);
-
-            builder.Entity<RoleDb>().Property(x => x.Name).HasMaxLength(32);
+            builder.Entity<RoleDb>().Property(x => x.Name).HasMaxLength(50);
+            builder.Entity<RoleDb>().Property(x => x.NormalizedName).HasMaxLength(50);
         }
     }
 }

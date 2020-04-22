@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using IdentityUtils.Commons.Validation;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
 using Microsoft.AspNetCore.Identity;
@@ -56,6 +57,10 @@ namespace IdentityUtils.Core.Services
         {
             roleDto.Name = roleDto.Name.Trim();
             var role = mapper.Map<TRole>(roleDto);
+
+            var result = ModelValidator.ValidateDataAnnotations(role).ToIdentityUtilsResult();
+            if (!result.Success)
+                return result.ToTypedResult<TRoleDto>();
 
             var roleResult = await roleManager.CreateAsync(role);
             if (!roleResult.Succeeded)

@@ -1,4 +1,3 @@
-using IdentityUtils.Core.Services.Tests.Setup;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
 using System;
@@ -8,33 +7,25 @@ using Xunit;
 
 namespace IdentityUtils.Core.Services.Tests
 {
-    public class TenantServiceTests: IDisposable
+    public class TenantServiceTests : TestAbstract
     {
-        private readonly DisposableContextService serviceProviderDisposable = new DisposableContextService();
-
         private readonly TenantsService tenantsService;
 
-        public TenantServiceTests()
+        public TenantServiceTests() : base()
         {
-            tenantsService = serviceProviderDisposable.GetService<TenantsService>();
+            tenantsService = GetService<TenantsService>();
         }
 
-        private TenantDto TestTenant1 => new TenantDto
+        private TenantDto TestTenant => new TenantDto
         {
-            Name = "Test tenant",
-            Hostnames = new List<string> { "host1", "host2" }
-        };
-
-        private TenantDto TestTenant2 => new TenantDto
-        {
-            Name = "Another test tenant",
-            Hostnames = new List<string> { "host3", "host4" }
+            Name = $"Test tenant{GetUniqueId()}",
+            Hostnames = new List<string> { $"host1{GetUniqueId()}", $"host2{GetUniqueId()}" }
         };
 
         [Fact]
         public async Task Created_dto_should_match_original_dto()
         {
-            var tenantDto = TestTenant1;
+            var tenantDto = TestTenant;
 
             var result = await tenantsService.AddTenant(tenantDto);
 
@@ -46,17 +37,22 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Creating_tenant_with_invalid_parameters_should_fail_gracefully()
         {
-           var tenantDto = new TenantDto();
-            var result = await tenantsService.AddTenant(tenantDto);
+            var tenantDto1 = new TenantDto();
+            var result1 = await tenantsService.AddTenant(tenantDto1);
 
-            Assert.False(result.Success);
+            var tenantDto2 = TestTenant;
+            tenantDto2.Name = new string('X', 200);
+            var result2 = await tenantsService.AddTenant(tenantDto2);
+
+            Assert.False(result1.Success);
+            Assert.False(result2.Success);
         }
 
         [Fact]
         public async Task Creating_tenant_with_already_assigned_host_should_fail_gracefully()
         {
-            var tenantDto1 = TestTenant1;
-            var tenantDto2 = TestTenant2;
+            var tenantDto1 = TestTenant;
+            var tenantDto2 = TestTenant;
 
             tenantDto2.Hostnames = tenantDto1.Hostnames;
 
@@ -70,7 +66,7 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Created_dto_should_match_fetched_dto()
         {
-            var tenantDto = TestTenant1;
+            var tenantDto = TestTenant;
 
             var resultCreated = await tenantsService.AddTenant(tenantDto);
             var resultFetched = await tenantsService.GetTenant(resultCreated.Data.TenantId);
@@ -94,8 +90,8 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Service_should_return_all_created_tenants()
         {
-            await tenantsService.AddTenant(TestTenant1);
-            await tenantsService.AddTenant(TestTenant2);
+            await tenantsService.AddTenant(TestTenant);
+            await tenantsService.AddTenant(TestTenant);
 
             var tenants = await tenantsService.GetTenants();
             Assert.Equal(2, tenants.Count);
@@ -104,8 +100,9 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Service_should_find_tenant_by_hostname()
         {
-            var resultCreated = await tenantsService.AddTenant(TestTenant1);
-            var resultFetched = await tenantsService.GetTenantByHostname("host1");
+            var tenant = TestTenant;
+            var resultCreated = await tenantsService.AddTenant(tenant);
+            var resultFetched = await tenantsService.GetTenantByHostname(tenant.Hostnames[0]);
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
@@ -123,7 +120,7 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Updated_dto_should_match_original_dto()
         {
-            var tenantCreatedResult = await tenantsService.AddTenant(TestTenant1);
+            var tenantCreatedResult = await tenantsService.AddTenant(TestTenant);
             var tenant = tenantCreatedResult.Data;
 
             tenant.Name += " UPDATED";
@@ -139,8 +136,8 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Adding_already_assigned_hostname_should_fail_gracefully()
         {
-            var tenantCreatedResult1 = await tenantsService.AddTenant(TestTenant1);
-            var tenantCreatedResult2 = await tenantsService.AddTenant(TestTenant2);
+            var tenantCreatedResult1 = await tenantsService.AddTenant(TestTenant);
+            var tenantCreatedResult2 = await tenantsService.AddTenant(TestTenant);
 
             var tenant = tenantCreatedResult1.Data;
             tenant.Hostnames.AddRange(tenantCreatedResult2.Data.Hostnames);
@@ -155,7 +152,7 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Deleting_nonexisting_tenant_should_fail_gracefully()
         {
-           var deleteResult = await tenantsService.DeleteTenant(Guid.NewGuid());
+            var deleteResult = await tenantsService.DeleteTenant(Guid.NewGuid());
 
             Assert.False(deleteResult.Success);
         }
@@ -163,16 +160,11 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Deleting_tenant_should_work()
         {
-            var createdResult = await tenantsService.AddTenant(TestTenant1);
+            var createdResult = await tenantsService.AddTenant(TestTenant);
             var deleteResult = await tenantsService.DeleteTenant(createdResult.Data.TenantId);
 
             Assert.True(createdResult.Success);
             Assert.True(deleteResult.Success);
-        }
-
-        public void Dispose()
-        {
-            serviceProviderDisposable.Dispose();
         }
     }
 }
