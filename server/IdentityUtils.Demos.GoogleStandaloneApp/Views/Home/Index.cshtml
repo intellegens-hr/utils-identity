@@ -1,0 +1,25 @@
+﻿@using System.Security.Claims
+@{
+    ViewData["Title"] = "Home Page";
+
+    var claimUser = User.Identity as ClaimsIdentity;
+}
+
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <h3>Name:</h3>
+    @Json.Serialize(claimUser.Name)
+
+    <h3>Claims</h3>
+    <ul>
+        @foreach (var claim in @claimUser.Claims.ToList())
+        {
+            <li><b>@claim.Type:</b> @claim.Value</li>
+        }
+    </ul>
+
+</div>
