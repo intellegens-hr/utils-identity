@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\Ajax.ts" />
+    <Content Remove="wwwroot\Configuration\ApiConfigurationDeclarations.ts" />
+    <Content Remove="wwwroot\index.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="TypescriptLibs\OidcWrapper.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="TypescriptLibs\OidcWrapper.ts" />
+    <TypeScriptCompile Include="wwwroot\Ajax.ts" />
+    <TypeScriptCompile Include="wwwroot\Configuration\ApiConfigurationDeclarations.ts" />
+    <TypeScriptCompile Include="wwwroot\index.ts" />
+  </ItemGroup>
+
+
+</Project>

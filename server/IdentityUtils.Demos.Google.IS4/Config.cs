@@ -64,22 +64,24 @@ namespace IdentityUtils.Demos.Google.IS4
                     ClientName = "SPA Client",
                     ClientUri = "http://identityserver.io",
 
-                    AllowedGrantTypes = GrantTypes.Code,
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
+
                     RequirePkce = true,
                     RequireClientSecret = false,
 
                     RedirectUris =
                     {
-                        "http://localhost:5002/index.html",
-                        "http://localhost:5002/callback.html",
-                        "http://localhost:5002/silent.html",
-                        "http://localhost:5002/popup.html",
+                        "https://localhost:5002/index.html",
+                        "https://localhost:5002/login_callback.html",
+                        //"https://localhost:5002/silent.html",
+                        //"https://localhost:5002/popup.html",
                     },
 
-                    PostLogoutRedirectUris = { "http://localhost:5002/index.html" },
-                    AllowedCorsOrigins = { "http://localhost:5002" },
-
-                    AllowedScopes = { "openid", "profile", "api1" }
+                    PostLogoutRedirectUris = { "https://localhost:5002/index.html" },
+                    AllowedCorsOrigins = { "https://localhost:5002" },
+                    
+                    AllowedScopes = { "openid", "profile" }
                 }
             };
     }

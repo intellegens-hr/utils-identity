@@ -41,11 +41,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.Identit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Google-StandaloneApp", "Google-StandaloneApp", "{01C847C4-948B-4F63-AD9A-A4D8C8506818}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityUtils.Demos.GoogleStandaloneApp", "IdentityUtils.Demos.GoogleStandaloneApp\IdentityUtils.Demos.GoogleStandaloneApp.csproj", "{138DE227-9EC6-430D-BCFF-4CF852BEDD5B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.GoogleStandaloneApp", "IdentityUtils.Demos.GoogleStandaloneApp\IdentityUtils.Demos.GoogleStandaloneApp.csproj", "{138DE227-9EC6-430D-BCFF-4CF852BEDD5B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Google-IS4", "Google-IS4", "{97FFD146-2B4A-4B61-9535-93D727BF8230}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.Google.IS4", "IdentityUtils.Demos.Google.IS4\IdentityUtils.Demos.Google.IS4.csproj", "{EDDE0A5E-B2F3-4B1A-A948-18BAA4D7412B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityUtils.Demos.Google.ClientWithRedirect", "IdentityUtils.Demos.Google.ClientWithRedirect\IdentityUtils.Demos.Google.ClientWithRedirect.csproj", "{9051AB6E-AA8A-4730-9FA3-5981F55B098F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +115,10 @@ Global
 		{EDDE0A5E-B2F3-4B1A-A948-18BAA4D7412B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EDDE0A5E-B2F3-4B1A-A948-18BAA4D7412B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EDDE0A5E-B2F3-4B1A-A948-18BAA4D7412B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9051AB6E-AA8A-4730-9FA3-5981F55B098F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9051AB6E-AA8A-4730-9FA3-5981F55B098F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9051AB6E-AA8A-4730-9FA3-5981F55B098F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9051AB6E-AA8A-4730-9FA3-5981F55B098F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -134,6 +140,7 @@ Global
 		{138DE227-9EC6-430D-BCFF-4CF852BEDD5B} = {01C847C4-948B-4F63-AD9A-A4D8C8506818}
 		{97FFD146-2B4A-4B61-9535-93D727BF8230} = {B3032E9A-8A85-4A73-B297-D59FE4B20366}
 		{EDDE0A5E-B2F3-4B1A-A948-18BAA4D7412B} = {97FFD146-2B4A-4B61-9535-93D727BF8230}
+		{9051AB6E-AA8A-4730-9FA3-5981F55B098F} = {97FFD146-2B4A-4B61-9535-93D727BF8230}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {37ABF11B-08BA-4A66-9A8B-AA337179D9C7}

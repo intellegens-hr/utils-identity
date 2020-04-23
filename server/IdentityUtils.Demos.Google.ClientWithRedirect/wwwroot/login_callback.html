@@ -1,0 +1,8 @@
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/oidc-client/1.10.1/oidc-client.js" integrity="sha256-vflLAdyboVZUB6YigEWvXiKm19HdvrsBDAhYZtU+hsQ=" crossorigin="anonymous"></script>
+<script>
+    new Oidc.UserManager().signinRedirectCallback().then(function () {
+        window.location = "index.html";
+    }).catch(function (e) {
+        console.error(e);
+    });
+</script>
