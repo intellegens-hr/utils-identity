@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -55,6 +56,18 @@ namespace IdentityServer4.Quickstart.UI
         {
             // build a model so we know what to show on the login page
             var vm = await BuildLoginViewModelAsync(returnUrl);
+
+            // if return url contains provider parameter - do immediate redirect
+            var qs = HttpUtility.ParseQueryString(returnUrl);
+            var provider = qs["provider"];
+
+            if (provider != null)
+            {
+                if (vm.ExternalProviders.Any(x => x.DisplayName == provider))
+                {
+                    return RedirectToAction("Challenge", "External", new { provider, returnUrl });
+                }
+            }
 
             if (vm.IsExternalLoginOnly)
             {

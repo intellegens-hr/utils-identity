@@ -42,10 +42,9 @@ class IndexView {
             const user = await this.oidcWrapper.UserManager.getUser();
             this.LogHeader("User profile");
             this.Log(JSON.stringify(user.profile));
-            AjaxCall("/api/profile", "GET", null, user.access_token).then((claims) => {
-                this.LogHeader("Claims");
-                this.Log(JSON.stringify(claims));
-            });
+            const claims = await AjaxCall("/api/profile", "GET", null, user.access_token);
+            this.LogHeader("Claims");
+            this.Log(JSON.stringify(claims));
         }
         else {
             statusH2.innerHTML = "You are not logged-in";
@@ -59,8 +58,21 @@ class IndexView {
         document
             .getElementById("btnLogin")
             .addEventListener("click", async () => {
-            const result = await this.Logout();
-            this.oidcWrapper.UserManager.signinRedirect();
+            this.oidcWrapper.UserManager.signinRedirect({
+                extraQueryParams: {
+                    foo: 'bar',
+                    batz: 'quux',
+                },
+            });
+        });
+        document
+            .getElementById("btnLoginGoogle")
+            .addEventListener("click", async () => {
+            this.oidcWrapper.UserManager.signinRedirect({
+                extraQueryParams: {
+                    provider: 'Google'
+                },
+            });
         });
     }
     SetupLogout() {

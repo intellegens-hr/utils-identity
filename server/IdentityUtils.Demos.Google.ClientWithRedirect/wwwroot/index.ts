@@ -38,7 +38,7 @@ class IndexView {
             this.LogHeader("User profile");
             this.Log(JSON.stringify(user.profile));
 
-            const claims = await AjaxCall("/api/profile", "GET", null, user.access_token;
+            const claims = await AjaxCall("/api/profile", "GET", null, user.access_token);
             this.LogHeader("Claims");
             this.Log(JSON.stringify(claims));
         }
@@ -57,9 +57,22 @@ class IndexView {
         document
             .getElementById("btnLogin")
             .addEventListener("click", async () => {
-                const result = await this.Logout();
+                this.oidcWrapper.UserManager.signinRedirect({
+                    extraQueryParams: { //your params go here
+                        foo: 'bar',
+                        batz: 'quux',
+                    },
+                });
+            });
 
-                this.oidcWrapper.UserManager.signinRedirect();
+        document
+            .getElementById("btnLoginGoogle")
+            .addEventListener("click", async () => {
+                this.oidcWrapper.UserManager.signinRedirect({
+                    extraQueryParams: { //your params go here
+                        provider: 'Google'
+                    },
+                });
             })
     }
 
