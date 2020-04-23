@@ -1,8 +1,5 @@
 ﻿using AutoMapper;
-using IdentityUtils.Core.Contracts.Roles;
-using IdentityUtils.Core.Contracts.Tenants;
-using IdentityUtils.Core.Contracts.Users;
-using System.Collections.Generic;
+using IdentityUtils.Core.Services.Tests.Setup.DbModels;
 
 namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
 {
@@ -10,17 +7,17 @@ namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
     {
         public MapperProfile()
         {
-            CreateMap<IdentityManagerUser, UserDto>();
-            CreateMap<UserDto, IdentityManagerUser>();
-            CreateMap<List<IdentityManagerUser>, List<UserDto>>();
+            CreateMap<UserDb, UserDto>();
+            CreateMap<UserDto, UserDb>();
+            //CreateMap<List<IdentityManagerUser>, List<UserDto>>();
 
-            CreateMap<IdentityManagerRole, RoleDto>();
-            CreateMap<RoleDto, IdentityManagerRole>();
-            CreateMap<List<IdentityManagerRole>, List<RoleDto>>();
+            CreateMap<RoleDb, RoleDto>();
+            CreateMap<RoleDto, RoleDb>();
+            //CreateMap<List<IdentityManagerRole>, List<RoleDto>>();
 
-            CreateMap<IdentityManagerTenant, TenantDto>();
-            CreateMap<TenantDto, IdentityManagerTenant>();
-            CreateMap<List<IdentityManagerTenant>, List<TenantDto>>();
+            CreateMap<TenantDb, TenantDto>();
+            CreateMap<TenantDto, TenantDb>();
+            //CreateMap<List<IdentityManagerTenant>, List<TenantDto>>();
         }
     }
 }
