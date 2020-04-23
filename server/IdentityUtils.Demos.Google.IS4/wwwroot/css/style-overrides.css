@@ -1,0 +1,12 @@
+﻿table {
+    width: 100%;
+}
+
+    table thead tr th {
+        background-color: lightgrey;
+        padding: 5px !important;
+    }
+
+    table tbody tr td {
+        padding: 5px !important;
+    }
