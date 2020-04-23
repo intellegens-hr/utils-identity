@@ -24,19 +24,28 @@ class IndexView {
         return JSON.stringify(object, undefined, 2);
     }
 
-    private LoginCheck() {
-        this.oidcWrapper.IsUserLoggedIn().then(isLoggedIn => {
-            const statusH2: HTMLHeadingElement = window["loginStatus"];
+    private async LoginCheck() {
+        const isLoggedIn = await this.oidcWrapper.IsUserLoggedIn();
 
-            if (isLoggedIn) {
-                statusH2.innerHTML = "You are logged-in";
-                statusH2.style.color = "green";
-            }
-            else {
-                statusH2.innerHTML = "You are not logged-in";
-                statusH2.style.color = "red";
-            }
-        })
+        const statusH2: HTMLHeadingElement = window["loginStatus"];
+
+        if (isLoggedIn) {
+            statusH2.innerHTML = "You are logged-in";
+            statusH2.style.color = "green";
+
+            const user = await this.oidcWrapper.UserManager.getUser();
+
+            this.LogHeader("User profile");
+            this.Log(JSON.stringify(user.profile));
+
+            const claims = await AjaxCall("/api/profile", "GET", null, user.access_token;
+            this.LogHeader("Claims");
+            this.Log(JSON.stringify(claims));
+        }
+        else {
+            statusH2.innerHTML = "You are not logged-in";
+            statusH2.style.color = "red";
+        }
     }
 
     private async Logout() {

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace IdentityUtils.Demos.Google.ClientWithRedirect.Controllers
+namespace IdentityUtils.Demos.Google.ClientWithoutRedirect.Controllers
 {
     [ApiController]
     [Route("[controller]")]

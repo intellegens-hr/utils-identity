@@ -1,6 +1,6 @@
 using System;
 
-namespace IdentityUtils.Demos.Google.ClientWithRedirect
+namespace IdentityUtils.Demos.Google.ClientWithoutRedirect
 {
     public class WeatherForecast
     {

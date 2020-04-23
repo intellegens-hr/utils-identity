@@ -67,6 +67,8 @@ namespace IdentityUtils.Demos.Google.IS4
                     AllowedGrantTypes = GrantTypes.Implicit,
                     AllowAccessTokensViaBrowser = true,
 
+                    RequireConsent = false,
+
                     RequirePkce = true,
                     RequireClientSecret = false,
 
@@ -81,7 +83,7 @@ namespace IdentityUtils.Demos.Google.IS4
                     PostLogoutRedirectUris = { "https://localhost:5002/index.html" },
                     AllowedCorsOrigins = { "https://localhost:5002" },
                     
-                    AllowedScopes = { "openid", "profile" }
+                    AllowedScopes = { "openid", "profile", "api1" }
                 }
             };
     }
