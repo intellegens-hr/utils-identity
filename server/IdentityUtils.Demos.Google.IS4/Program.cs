@@ -47,9 +47,7 @@ namespace IdentityUtils.Demos.Google.IS4
                 if (seed)
                 {
                     Log.Information("Seeding database...");
-                    var config = host.Services.GetRequiredService<IConfiguration>();
-                    var connectionString = config.GetConnectionString("DefaultConnection");
-                    SeedData.EnsureSeedData(connectionString);
+                    SeedData.EnsureSeedData();
                     Log.Information("Done seeding database.");
                     return 0;
                 }

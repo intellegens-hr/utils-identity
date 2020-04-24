@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 
 namespace IdentityUtils.Demos.Google.IS4
 {
@@ -43,8 +42,9 @@ namespace IdentityUtils.Demos.Google.IS4
                 iis.AutomaticAuthentication = false;
             });
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddEntityFrameworkNpgsql();
+            //services.AddDbContext<ApplicationDbContextSqLite>();
+            services.AddDbContext<ApplicationDbContext, ApplicationDbContextPostgres>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -72,7 +72,8 @@ namespace IdentityUtils.Demos.Google.IS4
                     options.ClientSecret = "_HBVa5EHeu6G864bc_Sza7NX";
 
                     var events = options.Events;
-                    events.OnTicketReceived = async (ctx) => {
+                    events.OnTicketReceived = async (ctx) =>
+                    {
                         var context = ctx.HttpContext.RequestServices.GetService<ApplicationDbContext>();
                         var users = await context.Users.ToListAsync();
                         // new user is not in DB yet, this is Callback() method of ExternalController class
@@ -82,7 +83,7 @@ namespace IdentityUtils.Demos.Google.IS4
 
         public void Configure(IApplicationBuilder app)
         {
-            SeedData.EnsureSeedData(Configuration.GetConnectionString("DefaultConnection"));
+            SeedData.EnsureSeedData();
 
             if (Environment.IsDevelopment())
             {
