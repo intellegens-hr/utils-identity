@@ -1,4 +1,4 @@
-# IdentityUtils
+# Intellegens Utils: Identity, Angular
 
 IdentityUtils are set of libraries intended to solve problem with `ASP.NET Identity` management in multitenant environments. It extends `ASP.NET Identity` with new models and features.
 
@@ -16,7 +16,7 @@ Project has 5 logic parts:
 - IdentityUtils API Extension CLI
 - IdentityUtils IS4 Extensions
 
-![Dependency graph](./docs/images/dependency-graph.png)
+![Dependency graph](./.docs/images/dependency-graph.png)
 
 ### IdentityUtils Identity management
 Idea behind IdentityUtils services is to have separate database and DTO (domain-transfer) objects. `Contracts` project defines entities which can be overriden if needed, required interfaces for DTO objects and DbContext.
@@ -48,29 +48,29 @@ This project contains everything required to easily implement authentication int
 
 ## How-to guides
 
-[IdentityUtils.Demos.IdentityServer4](./server/IdentityUtils.Demos.IdentityServer4/README.md)
+[IdentityUtils.Demos.IdentityServer4](./dotnetcore/IdentityUtils.Demos.IdentityServer4/README.md)
 
-[IdentityUtils.Demos.Api](./server/IdentityUtils.Demos.Api/README.md)
+[IdentityUtils.Demos.Api](./dotnetcore/IdentityUtils.Demos.Api/README.md)
 
-[IdentityUtils.Demos.Client](./server/IdentityUtils.Demos.Client/README.md)
+[IdentityUtils.Demos.Client](./dotnetcore/IdentityUtils.Demos.Client/README.md)
 
 ## Per project guides
 
-[IdentityUtils.Commons](./server/IdentityUtils.Commons/README.md)
+[IdentityUtils.Commons](./dotnetcore/IdentityUtils.Commons/README.md)
 
-[IdentityUtils.Core.Contracts](./server/IdentityUtils.Core.Contracts/README.md)
+[IdentityUtils.Core.Contracts](./dotnetcore/IdentityUtils.Core.Contracts/README.md)
 
-[IdentityUtils.Core.Services](./server/IdentityUtils.Core.Services/README.md)
+[IdentityUtils.Core.Services](./dotnetcore/IdentityUtils.Core.Services/README.md)
 
-[IdentityUtils.Api.Controllers](./server/IdentityUtils.Api.Controllers/README.md)
+[IdentityUtils.Api.Controllers](./dotnetcore/IdentityUtils.Api.Controllers/README.md)
 
-[IdentityUtils.Api.Models](./server/IdentityUtils.Api.Models/README.md)
+[IdentityUtils.Api.Models](./dotnetcore/IdentityUtils.Api.Models/README.md)
 
-[IdentityUtils.Api.Extensions](./server/IdentityUtils.Api.Extensions/README.md)
+[IdentityUtils.Api.Extensions](./dotnetcore/IdentityUtils.Api.Extensions/README.md)
 
-[IdentityUtils.Api.Extensions.Cli](./server/IdentityUtils.Api.Extensions.Cli/README.md)
+[IdentityUtils.Api.Extensions.Cli](./dotnetcore/IdentityUtils.Api.Extensions.Cli/README.md)
 
-[ngz-identity-utils](./webclient-ngx/README.md)
+[ngz-identity-utils](./ngz/README.md)
 
 ## Reporting issues
 
