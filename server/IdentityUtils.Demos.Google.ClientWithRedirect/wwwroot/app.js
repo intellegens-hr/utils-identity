@@ -1,3 +1,24 @@
+class OidcWrapper {
+    constructor() {
+        this.usermanagerConfig = {
+            authority: ConfigAuthorizationAuthority,
+            client_id: ConfigAuthorizationClientId,
+            response_type: 'id_token token',
+            scope: ConfigAuthorizationClientScope,
+            automaticSilentRenew: true,
+            loadUserInfo: true,
+            redirect_uri: "https://localhost:5002/login_callback.html"
+        };
+        this.UserManager = new Oidc.UserManager(this.usermanagerConfig);
+    }
+    async GetUser() {
+        return await this.UserManager.getUser();
+    }
+    async IsUserLoggedIn() {
+        const user = await this.GetUser();
+        return !(user === null);
+    }
+}
 function AjaxCall(url, method, payload, authToken) {
     return new Promise(function (resolve, reject) {
         const xhr = new XMLHttpRequest();
@@ -85,27 +106,6 @@ class IndexView {
         //        //this.oidcWrapper.UserManager.removeUser();
         //        //this.LoginCheck();
         //    })
-    }
-}
-class OidcWrapper {
-    constructor() {
-        this.usermanagerConfig = {
-            authority: ConfigAuthorizationAuthority,
-            client_id: ConfigAuthorizationClientId,
-            response_type: 'id_token token',
-            scope: ConfigAuthorizationClientScope,
-            automaticSilentRenew: true,
-            loadUserInfo: true,
-            redirect_uri: "https://localhost:5002/login_callback.html"
-        };
-        this.UserManager = new Oidc.UserManager(this.usermanagerConfig);
-    }
-    async GetUser() {
-        return await this.UserManager.getUser();
-    }
-    async IsUserLoggedIn() {
-        const user = await this.GetUser();
-        return !(user === null);
     }
 }
 //# sourceMappingURL=app.js.map
