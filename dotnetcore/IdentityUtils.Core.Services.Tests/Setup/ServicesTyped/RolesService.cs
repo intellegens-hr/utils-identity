@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentityUtils.Core.Services.Tests.Setup.ServicesTyped
 {
-    internal class RolesService : IdentityManagerRolesService<UserDb, RoleDb, RoleDto>
+    internal class RolesService : IdentityManagerRolesService<RoleDb, RoleDto>
     {
         public RolesService(RoleManager<RoleDb> roleManager, IMapper mapper) : base(roleManager, mapper)
         {

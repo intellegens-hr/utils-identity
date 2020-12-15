@@ -2,55 +2,28 @@
 using IdentityUtils.Commons.Validation;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
+using IdentityUtils.Core.Contracts.Services;
+using IdentityUtils.Core.Contracts.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Core.Services
 {
-    public class IdentityManagerRolesService<TUser, TRole, TRoleDto> where TUser : IdentityUser<Guid>
+    public class IdentityManagerRolesService<TRole, TRoleDto> : IIdentityManagerRolesService<TRoleDto>
         where TRole : IdentityManagerRole
         where TRoleDto : class, IIdentityManagerRoleDto
     {
-        private readonly RoleManager<TRole> roleManager;
         private readonly IMapper mapper;
+        private readonly RoleManager<TRole> roleManager;
 
         public IdentityManagerRolesService(RoleManager<TRole> roleManager, IMapper mapper)
         {
             this.roleManager = roleManager;
             this.mapper = mapper;
-        }
-
-        public async Task<IList<TRoleDto>> GetAllRoles()
-        {
-            var roles = await roleManager.Roles.ToListAsync();
-            return mapper.Map<IList<TRoleDto>>(roles);
-        }
-
-        private async Task<IdentityUtilsResult<TRole>> GetRoleById(Guid roleId)
-        {
-            var role = await roleManager.FindByIdAsync(roleId.ToString());
-            if (role == null)
-                return IdentityUtilsResult<TRole>.ErrorResult("Role with specified ID not found");
-
-            return IdentityUtilsResult<TRole>.SuccessResult(role);
-        }
-
-        public async Task<IdentityUtilsResult<TRoleDto>> GetRole(Guid roleId)
-        {
-            var roleResult = await GetRoleById(roleId);
-            return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Data));
-        }
-
-        public async Task<IdentityUtilsResult<TRoleDto>> GetRole(string roleNameNormalized)
-        {
-            var role = await roleManager.FindByNameAsync(roleNameNormalized);
-            if (role == null)
-                return IdentityUtilsResult<TRoleDto>.ErrorResult("Role with specified name not found");
-
-            return IdentityUtilsResult<TRoleDto>.SuccessResult(mapper.Map<TRoleDto>(role));
         }
 
         public async Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto roleDto)
@@ -82,6 +55,39 @@ namespace IdentityUtils.Core.Services
 
             var deleteResult = await roleManager.DeleteAsync(roleResult.Data);
             return deleteResult.ToIdentityUtilsResult();
+        }
+
+        public async Task<IList<TRoleDto>> GetAllRoles()
+        {
+            var roles = await roleManager.Roles.ToListAsync();
+            return mapper.Map<IList<TRoleDto>>(roles);
+        }
+
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRole(Guid roleId)
+        {
+            var roleResult = await GetRoleById(roleId);
+            return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Data));
+        }
+
+        public async Task<IEnumerable<TRoleDto>> Search(RoleSearch searchModel)
+        {
+            var rolesQuery = roleManager.Roles;
+
+            if (string.IsNullOrEmpty(searchModel.Name))
+                rolesQuery = rolesQuery.Where(x => x.NormalizedName == searchModel.Name.ToUpperInvariant());
+
+            var roles = await rolesQuery.ToListAsync();
+
+            return mapper.Map<IEnumerable<TRoleDto>>(roles);
+        }
+
+        private async Task<IdentityUtilsResult<TRole>> GetRoleById(Guid roleId)
+        {
+            var role = await roleManager.FindByIdAsync(roleId.ToString());
+            if (role == null)
+                return IdentityUtilsResult<TRole>.ErrorResult("Role with specified ID not found");
+
+            return IdentityUtilsResult<TRole>.SuccessResult(role);
         }
     }
 }

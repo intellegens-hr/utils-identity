@@ -1,4 +1,5 @@
-﻿using IdentityModel.Client;
+﻿using IdentityModel;
+using IdentityModel.Client;
 using IdentityUtils.Commons;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -18,26 +19,28 @@ namespace IdentityUtils.Api.Extensions.RestClients
             this.is4Config = is4Config;
         }
 
+        protected override async Task<HttpRequestMessage> GetHttpRequestMessage(HttpMethod method, string url)
+        {
+            var token = await GetToken();
+            var message = new HttpRequestMessage(method, url);
+            message.SetBearerToken(token);
+
+            return message;
+        }
+
         private async Task<string> GetToken()
         {
+            var disco = await httpClient.GetDiscoveryDocumentAsync(is4Config.Hostname);
+
             var tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
             {
-                Address = $"{is4Config.Hostname}/connect/token",
+                Address = disco.TokenEndpoint,
                 ClientId = is4Config.ClientId,
                 ClientSecret = is4Config.ClientSecret,
                 Scope = is4Config.ClientScope
             });
 
             return tokenResponse.AccessToken;
-        }
-
-        protected override async Task<HttpRequestMessage> GetHttpRequestMessage(HttpMethod method, string url)
-        {
-            var token = await GetToken();
-            var message = new HttpRequestMessage(method, url);
-            message.Headers.Add("Authorization", $"Bearer {token}");
-
-            return message;
         }
     }
 }

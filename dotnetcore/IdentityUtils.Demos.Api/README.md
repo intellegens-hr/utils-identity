@@ -1,6 +1,6 @@
 # API using Identity Server 4 Demo
 
-This guide presumes you already have Identity Server 4 instance up & running after following [Identity Server 4 Demo](../IdentityUtils.Demos.IdentityServer4/README.md) guide. This guide will assume IS4 instance is running on `https://localhost:5010`.
+This guide presumes you already have Identity Server 4 instance up & running after following [Identity Server 4 Demo](../IdentityUtils.Demos.IdentityServer4.MultiTenant/README.md) guide. This guide will assume IS4 instance is running on `https://localhost:5010`.
 
 Once again, create empty web project and name it `IdentityUtils.Demos.Api`. In project settings, set this web app to run on `https://localhost:5015`.
 

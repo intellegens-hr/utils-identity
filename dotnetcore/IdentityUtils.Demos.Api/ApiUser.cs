@@ -1,5 +1,6 @@
 ﻿using IdentityUtils.Api.Extensions;
 using IdentityUtils.Core.Contracts.Claims;
+using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Demos.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
@@ -28,8 +29,8 @@ namespace IdentityUtils.Demos.Api
             {
                 entry.SetAbsoluteExpiration(DateTimeOffset.UtcNow.AddMinutes(5));
 
-                var tenant = tenantManagementApi.GetTenantByHostname(originHost).Result;
-                return tenant.Data.TenantId;
+                var tenant = tenantManagementApi.Search(new TenantSearch(hostname: originHost)).Result;
+                return tenant.Data.First().TenantId;
             });
         }
 
@@ -64,7 +65,7 @@ namespace IdentityUtils.Demos.Api
                     .ToList();
 
                 //Extract roles for current tenant
-                Roles = TenantRoles.First(x => x.TenantId == tenantId).Roles;
+                Roles = TenantRoles.First(x => x.TenantId == tenantId).Roles.Select(x => x.NormalizedName).ToList();
             };
             
         }

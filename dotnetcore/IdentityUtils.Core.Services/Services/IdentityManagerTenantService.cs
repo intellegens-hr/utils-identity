@@ -2,6 +2,8 @@
 using IdentityUtils.Commons.Validation;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Context;
+using IdentityUtils.Core.Contracts.Services;
+using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Contracts.Tenants;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +14,7 @@ using System.Transactions;
 
 namespace IdentityUtils.Core.Services
 {
-    public class IdentityManagerTenantService<TTenant, TTenantDto>
+    public class IdentityManagerTenantService<TTenant, TTenantDto> : IIdentityManagerTenantService<TTenantDto>
         where TTenant : IdentityManagerTenant
         where TTenantDto : class, IIdentityManagerTenantDto
     {
@@ -27,15 +29,59 @@ namespace IdentityUtils.Core.Services
             this.mapper = mapper;
         }
 
-        private TTenantDto ToDto(TTenant tenant)
+        public async Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenantDto)
         {
-            var tenantDto = mapper.Map<TTenantDto>(tenant);
-            tenantDto.Hostnames = tenant
-                .Hosts
-                .Select(x => x.Hostname)
+            tenantDto.Hostnames ??= new List<string>();
+
+            var hostsAlreadyExist = await dbContext.TenantHosts
+                .Where(x => tenantDto.Hostnames.Contains(x.Hostname))
+                .AnyAsync();
+
+            if (hostsAlreadyExist)
+                return IdentityUtilsResult<TTenantDto>.ErrorResult("Hostname already assigned to different tenant");
+
+            var tenant = mapper.Map<TTenant>(tenantDto);
+            tenant.Hosts = tenantDto.Hostnames
+                .Select(x => new IdentityManagerTenantHost
+                {
+                    Hostname = x.Trim()
+                })
                 .ToList();
 
-            return tenantDto;
+            var result = ModelValidator.ValidateDataAnnotations(tenant);
+            if (!result.isValid)
+                return IdentityUtilsResult<TTenantDto>.ErrorResult(result.ToIdentityUtilsResult().ErrorMessages);
+
+            dbContext.Tenants.Add(tenant);
+            await dbContext.SaveChangesAsync();
+
+            return IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenant));
+        }
+
+        public async Task<IdentityUtilsResult> DeleteTenant(Guid id)
+        {
+            var tenantDbResult = await GetTenantDb(id);
+            if (!tenantDbResult.Success)
+                return IdentityUtilsResult.ErrorResult(tenantDbResult.ErrorMessages);
+
+            var hostsToDelete = dbContext.TenantHosts.Where(x => x.TenantId == id);
+
+            dbContext.TenantHosts.RemoveRange(hostsToDelete);
+            dbContext.Tenants.Remove(tenantDbResult.Data);
+            await dbContext.SaveChangesAsync();
+
+            return IdentityUtilsResult.SuccessResult;
+        }
+
+        public async Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
+        {
+            var tenantResult = await GetTenantDb(id);
+
+            var result = tenantResult.Success
+                ? IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenantResult.Data))
+                : IdentityUtilsResult<TTenantDto>.ErrorResult(tenantResult.ErrorMessages);
+
+            return result;
         }
 
         public async Task<IList<TTenantDto>> GetTenants()
@@ -50,45 +96,20 @@ namespace IdentityUtils.Core.Services
                 .ToList();
         }
 
-        public async Task<IdentityUtilsResult<TTenantDto>> GetTenantByHostname(string hostname)
+        public async Task<IEnumerable<TTenantDto>> Search(TenantSearch searchParams)
         {
-            var tenant = await dbContext
+            var tenantsQuery = dbContext
                 .Tenants
-                .Where(x => x.Hosts.Where(y => y.Hostname.ToLower().Contains(hostname)).Any())
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchParams.Hostname))
+                tenantsQuery = tenantsQuery.Where(x => x.Hosts.Where(y => y.Hostname.ToLower().Contains(searchParams.Hostname)).Any());
+
+            var tenants = await tenantsQuery
                 .Include(x => x.Hosts)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
-            return tenant == null
-                ? IdentityUtilsResult<TTenantDto>.ErrorResult("Not found")
-                : IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenant));
-        }
-
-        private async Task<IdentityUtilsResult<TTenant>> GetTenantDb(Guid id, bool includeHosts = true)
-        {
-            var tenantQuery = dbContext.Tenants.Where(x => x.TenantId == id);
-            TTenant tenant = null;
-
-            if (includeHosts)
-                tenant = await tenantQuery.Include(x => x.Hosts).FirstOrDefaultAsync();
-            else
-                tenant = await tenantQuery.FirstOrDefaultAsync();
-
-            var result = tenant == null
-                ? IdentityUtilsResult<TTenant>.ErrorResult("Tenant with specified ID does not exist")
-                : IdentityUtilsResult<TTenant>.SuccessResult(tenant);
-
-            return result;
-        }
-
-        public async Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
-        {
-            var tenantResult = await GetTenantDb(id);
-
-            var result = tenantResult.Success
-                ? IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenantResult.Data))
-                : IdentityUtilsResult<TTenantDto>.ErrorResult(tenantResult.ErrorMessages);
-
-            return result;
+            return ToDto(tenants);
         }
 
         public async Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenantDto)
@@ -134,48 +155,38 @@ namespace IdentityUtils.Core.Services
             return IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenant));
         }
 
-        public async Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenantDto)
+        private async Task<IdentityUtilsResult<TTenant>> GetTenantDb(Guid id, bool includeHosts = true)
         {
-            tenantDto.Hostnames ??= new List<string>();
+            var tenantQuery = dbContext.Tenants.Where(x => x.TenantId == id);
+            TTenant tenant = null;
 
-            var hostsAlreadyExist = await dbContext.TenantHosts
-                .Where(x => tenantDto.Hostnames.Contains(x.Hostname))
-                .AnyAsync();
+            if (includeHosts)
+                tenant = await tenantQuery.Include(x => x.Hosts).FirstOrDefaultAsync();
+            else
+                tenant = await tenantQuery.FirstOrDefaultAsync();
 
-            if (hostsAlreadyExist)
-                return IdentityUtilsResult<TTenantDto>.ErrorResult("Hostname already assigned to different tenant");
+            var result = tenant == null
+                ? IdentityUtilsResult<TTenant>.ErrorResult("Tenant with specified ID does not exist")
+                : IdentityUtilsResult<TTenant>.SuccessResult(tenant);
 
-            var tenant = mapper.Map<TTenant>(tenantDto);
-            tenant.Hosts = tenantDto.Hostnames
-                .Select(x => new IdentityManagerTenantHost
-                {
-                    Hostname = x.Trim()
-                })
-                .ToList();
-
-            var result = ModelValidator.ValidateDataAnnotations(tenant);
-            if (!result.isValid)
-                return IdentityUtilsResult<TTenantDto>.ErrorResult(result.ToIdentityUtilsResult().ErrorMessages);
-
-            dbContext.Tenants.Add(tenant);
-            await dbContext.SaveChangesAsync();
-
-            return IdentityUtilsResult<TTenantDto>.SuccessResult(ToDto(tenant));
+            return result;
         }
 
-        public async Task<IdentityUtilsResult> DeleteTenant(Guid id)
+        private TTenantDto ToDto(TTenant tenant)
         {
-            var tenantDbResult = await GetTenantDb(id);
-            if (!tenantDbResult.Success)
-                return IdentityUtilsResult.ErrorResult(tenantDbResult.ErrorMessages);
+            var tenantDto = mapper.Map<TTenantDto>(tenant);
+            tenantDto.Hostnames = tenant
+                .Hosts
+                .Select(x => x.Hostname)
+                .ToList();
 
-            var hostsToDelete = dbContext.TenantHosts.Where(x => x.TenantId == id);
+            return tenantDto;
+        }
 
-            dbContext.TenantHosts.RemoveRange(hostsToDelete);
-            dbContext.Tenants.Remove(tenantDbResult.Data);
-            await dbContext.SaveChangesAsync();
-
-            return IdentityUtilsResult.SuccessResult;
+        private IEnumerable<TTenantDto> ToDto(IList<TTenant> tenants)
+        {
+            foreach (var tenant in tenants)
+                yield return ToDto(tenant);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
         {
             identityServerBuilder
                 .AddInMemoryIdentityResources(IdentityServerDefaultConfig.Ids)
-                .AddInMemoryApiResources(IdentityServerDefaultConfig.Apis)
+                .AddInMemoryApiScopes(IdentityServerDefaultConfig.ApiScopes)
                 .AddInMemoryClients(IdentityServerDefaultConfig.Clients);
 
             return this;
@@ -31,7 +31,18 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
         {
             identityServerBuilder
                 .AddAspNetIdentity<TUser>()
-                .AddProfileService<IdentityUtilsProfileService<TUser, TUserDto, TRole>>();
+                .AddProfileService<IdentityUtilsProfileService<TUser, TUserDto>>();
+
+            return this;
+        }
+
+        public IdentityUtilsIdentityServerBuilder AddMultitenantIdentityAndProfileService<TUser, TUserDto>()
+            where TUser : IdentityManagerUser
+            where TUserDto : class, IIdentityManagerUserDto
+        {
+            identityServerBuilder
+                .AddAspNetIdentity<TUser>()
+                .AddProfileService<IdentityUtilsMultitenantProfileService<TUser, TUserDto>>();
 
             return this;
         }

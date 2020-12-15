@@ -1,9 +1,8 @@
 ﻿using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
-using IdentityUtils.Core.Contracts.Roles;
+using IdentityUtils.Core.Contracts.Services;
 using IdentityUtils.Core.Contracts.Users;
-using IdentityUtils.Core.Services;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
@@ -12,19 +11,18 @@ using System.Threading.Tasks;
 
 namespace IdentityUtils.IS4Extensions.ProfileServices
 {
-    public class IdentityUtilsProfileService<TUser, TUserDto, TRole> : IProfileService
+    public class IdentityUtilsProfileService<TUser, TUserDto> : IProfileService
         where TUser : IdentityManagerUser
         where TUserDto : class, IIdentityManagerUserDto
-        where TRole : IdentityManagerRole
     {
         private readonly IUserClaimsPrincipalFactory<TUser> claimsFactory;
-        private readonly IdentityManagerUserService<TUser, TUserDto, TRole> tenantUserService;
+        private readonly IIdentityManagerUserService<TUser, TUserDto> userService;
 
         public IdentityUtilsProfileService(
-            IdentityManagerUserService<TUser, TUserDto, TRole> tenantUserService,
+            IIdentityManagerUserService<TUser, TUserDto> userService,
             IUserClaimsPrincipalFactory<TUser> claimsFactory)
         {
-            this.tenantUserService = tenantUserService;
+            this.userService = userService;
             this.claimsFactory = claimsFactory;
         }
 
@@ -32,7 +30,7 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
         {
             var userId = Guid.Parse(context.Subject.GetSubjectId());
 
-            var userResult = await tenantUserService.FindByIdAsync(userId);
+            var userResult = await userService.FindByIdAsync(userId);
             var user = userResult.Data;
             var principal = await claimsFactory.CreateAsync(user);
 
@@ -40,17 +38,13 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
                 .Where(x => context.RequestedClaimTypes.Contains(x.Type))
                 .ToList();
 
-            var tenantClaims = await tenantUserService.GetUserTenantRolesClaims(userId);
-
-            context.IssuedClaims = claims.Union(tenantClaims).ToList();
-
             context.IssuedClaims.Add(new Claim("userId", userId.ToString()));
         }
 
         public async Task IsActiveAsync(IsActiveContext context)
         {
             var sub = Guid.Parse(context.Subject.GetSubjectId());
-            var user = await tenantUserService.FindByIdAsync(sub);
+            var user = await userService.FindByIdAsync(sub);
             context.IsActive = user.Success;
         }
     }

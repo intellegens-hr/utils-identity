@@ -6,12 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace IdentityUtils.Core.Services.Tests.Setup
 {
     public class TestDbContext :
-        IdentityManagerDbContext<UserDb, RoleDb, TenantDb>
+        IdentityManagerDbContext<UserDb, RoleDb>
     {
-        public TestDbContext(DbContextOptions options) : base(options)
-        {
-        }
-
         public TestDbContext()
         {
         }
@@ -29,8 +25,6 @@ namespace IdentityUtils.Core.Services.Tests.Setup
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            builder.Entity<TenantDb>().Property(x => x.Name).HasMaxLength(50);
 
             builder.Entity<RoleDb>().Property(x => x.Name).HasMaxLength(50);
             builder.Entity<RoleDb>().Property(x => x.NormalizedName).HasMaxLength(50);

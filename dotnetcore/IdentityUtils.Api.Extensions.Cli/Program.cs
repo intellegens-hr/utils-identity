@@ -8,7 +8,7 @@ namespace IdentityUtils.Api.Extensions.Cli
     /// In this example, each command a nested class type.
     /// </summary>
     [Command(Name = "is4manager", Description = "Identity server 4 managment CLI"),
-     Subcommand(typeof(Tenants), typeof(Users), typeof(Roles))]
+     Subcommand(typeof(Tenants), typeof(UsersTenant), typeof(Roles))]
     internal class IS4Manager
     {
         [Option(ShortName = "ahost", LongName = "Auth.Hostname", Description = "Authentication - Hostname")]

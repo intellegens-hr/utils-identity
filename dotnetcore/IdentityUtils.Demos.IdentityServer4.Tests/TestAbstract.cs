@@ -7,10 +7,11 @@ using System.IO;
 
 namespace IdentityUtils.Demos.IdentityServer4.Tests
 {
-    public class TestAbstract
+    public class TestAbstract<TStartup>
+        where TStartup : class
     {
-        protected IServiceProvider serviceProvider;
         protected static IWebHost webHost;
+        protected IServiceProvider serviceProvider;
         private static readonly object lockObject = new object();
 
         public TestAbstract()
@@ -38,7 +39,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
                     Environment.SetEnvironmentVariable("DatabaseName", databaseName);
 
                     webHost = WebHost.CreateDefaultBuilder(null)
-                        .UseStartup<Startup>()
+                        .UseStartup<TStartup>()
                         .UseEnvironment("Development")
                         .UseKestrel()
                         .UseUrls(host)

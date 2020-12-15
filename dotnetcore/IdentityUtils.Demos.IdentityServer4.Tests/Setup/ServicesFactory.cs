@@ -1,10 +1,14 @@
 ﻿using IdentityUtils.Api.Extensions;
 using IdentityUtils.Api.Extensions.RestClients;
 using IdentityUtils.Commons;
-using IdentityUtils.Demos.IdentityServer4.Models;
+using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
 using IdentityUtils.Demos.IdentityServer4.Tests.Setup.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
+
+using RoleDtoMultitenant = IdentityUtils.Demos.IdentityServer4.MultiTenant.Models.RoleDto;
+using UserDtoMultitenant = IdentityUtils.Demos.IdentityServer4.MultiTenant.Models.UserDto;
+using RoleDtoSingletenant = IdentityUtils.Demos.IdentityServer4.SingleTenant.Models.RoleDto;
+using UserDtoSingletenant = IdentityUtils.Demos.IdentityServer4.SingleTenant.Models.UserDto;
 
 namespace IdentityUtils.Demos.IdentityServer4.Tests.Setup
 {
@@ -19,9 +23,12 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests.Setup
 
             services.AddScoped<RestClient, Is4ManagementRestClient>();
 
-            services.AddScoped<RoleManagementApi<RoleDto>>();
+            services.AddScoped<RoleManagementApi<RoleDtoMultitenant>>();
             services.AddScoped<TenantManagementApi<TenantDto>>();
-            services.AddScoped<UserManagementApi<UserDto>>();
+            services.AddScoped<UserTenantManagementApi<UserDtoMultitenant>>();
+
+            services.AddScoped<RoleManagementApi<RoleDtoSingletenant>>();
+            services.AddScoped<UserManagementApi<UserDtoSingletenant>>();
 
             return services.BuildServiceProvider();
         }

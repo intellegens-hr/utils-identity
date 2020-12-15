@@ -1,10 +1,12 @@
 ﻿using IdentityUtils.Api.Extensions.Cli.Commons;
 using IdentityUtils.Api.Extensions.Cli.Models;
 using IdentityUtils.Api.Extensions.Cli.Utils;
+using IdentityUtils.Core.Contracts.Services.Models;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace IdentityUtils.Api.Extensions.Cli.Commands
 {
@@ -66,14 +68,14 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else if (!string.IsNullOrEmpty(Name))
                 {
-                    var result = Shared.GetRoleManagementApi(console).GetRoleByNormalizedName(Name).Result;
+                    var result = Shared.GetRoleManagementApi(console).Search(new RoleSearch(name: Name)).Result;
                     if (!result.Success)
                     {
                         result.ToConsoleResult().WriteMessages(console);
                         return;
                     }
 
-                    roles.Add(result.Data);
+                    roles.Add(result.Data.First());
                 }
                 else
                 {

@@ -1,6 +1,6 @@
-﻿using IdentityUtils.Api.Models.Tenants;
-using IdentityUtils.Commons;
+﻿using IdentityUtils.Commons;
 using IdentityUtils.Core.Contracts.Commons;
+using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Contracts.Tenants;
 using System;
 using System.Collections.Generic;
@@ -12,11 +12,10 @@ namespace IdentityUtils.Api.Extensions
     /// Wraps and exposes all tenant management API endpoints
     /// </summary>
     /// <typeparam name="TTenantDto">Tenant DTO model used</typeparam>
-    public class TenantManagementApi<TTenantDto> 
+    public class TenantManagementApi<TTenantDto>
         where TTenantDto : class, IIdentityManagerTenantDto
     {
         private readonly RestClient restClient;
-        private string BasePath { get; }
 
         public TenantManagementApi(RestClient restClient, IApiExtensionsConfig apiExtensionsConfig)
         {
@@ -24,25 +23,27 @@ namespace IdentityUtils.Api.Extensions
             this.restClient = restClient;
         }
 
-        public async Task<IdentityUtilsResult<List<TTenantDto>>> GetTenants()
-        { 
-            var response = await restClient.Get<List<TTenantDto>>($"{BasePath}");
-            return response.ToIdentityResult();
-        }
+        private string BasePath { get; }
 
         public Task<IdentityUtilsResult<TTenantDto>> AddTenant(TTenantDto tenant)
             => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}", tenant).ParseRestResultTask();
 
-        public Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
-            => restClient.Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}").ParseRestResultTask();
-
         public Task<IdentityUtilsResult> DeleteTenant(Guid id)
             => restClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}").ParseRestResultTask();
 
-        public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
-            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant).ParseRestResultTask();
+        public Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
+            => restClient.Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
-        public Task<IdentityUtilsResult<TTenantDto>> GetTenantByHostname(string hostname)
-            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/byhostname", new TenantRequest { Hostname = hostname }).ParseRestResultTask();
+        public async Task<IdentityUtilsResult<IEnumerable<TTenantDto>>> GetTenants()
+        {
+            var response = await restClient.Get<IEnumerable<TTenantDto>>($"{BasePath}");
+            return response.ToIdentityResult();
+        }
+
+        public Task<IdentityUtilsResult<IEnumerable<TTenantDto>>> Search(TenantSearch search)
+            => restClient.Post<IdentityUtilsResult<IEnumerable<TTenantDto>>>($"{BasePath}/search", search).ParseRestResultTask();
+
+        public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
+                    => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant).ParseRestResultTask();
     }
 }

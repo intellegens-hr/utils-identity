@@ -5,21 +5,14 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
 {
     public static class IdentityServerDefaultConfig
     {
-        public static IEnumerable<IdentityResource> Ids =>
-            new IdentityResource[]
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new ApiScope[]
             {
-                new IdentityResources.OpenId(),
-                new IdentityResources.Profile(),
-            };
-
-        public static IEnumerable<ApiResource> Apis =>
-            new ApiResource[]
-            {
-                new ApiResource("demo-core-api", "Demo API which will be consumed by client apps")
+                new ApiScope("demo-core-api", "Demo API which will be consumed by client apps")
                 {
                     UserClaims = new List<string>{"address", "email"}
                 },
-                new ApiResource("demo-is4-management-api", "IS4 management API")
+                new ApiScope("demo-is4-management-api", "IS4 management API")
             };
 
         public static IEnumerable<Client> Clients =>
@@ -33,7 +26,6 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
 
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
                     ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
-
                     AllowedScopes = { "openid", "profile", "demo-is4-management-api" }
                 },
 
@@ -56,6 +48,13 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
 
                     AllowedScopes = { "openid", "profile", "demo-core-api"},
                 }
-            };
+        };
+
+        public static IEnumerable<IdentityResource> Ids =>
+        new IdentityResource[]
+        {
+                    new IdentityResources.OpenId(),
+                    new IdentityResources.Profile(),
+        };
     }
 }

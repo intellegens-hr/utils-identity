@@ -6,16 +6,6 @@ namespace IdentityUtils.Api.Extensions
 {
     internal static class RestResultExtensions
     {
-        internal static IdentityUtilsResult<T> ToIdentityResult<T>(this RestResult<T> restResult)
-        {
-            return new IdentityUtilsResult<T>
-            {
-                Success = restResult.Success,
-                Data = restResult.ResponseData,
-                ErrorMessages = restResult.ErrorMessages
-            };
-        }
-
         internal async static Task<IdentityUtilsResult> ParseRestResultTask(this Task<RestResult<IdentityUtilsResult>> restResultTask)
         {
             var restResult = await restResultTask;
@@ -34,6 +24,16 @@ namespace IdentityUtils.Api.Extensions
                 return IdentityUtilsResult<T>.ErrorResult(restResult.ErrorMessages);
 
             return restResult.ResponseData;
+        }
+
+        internal static IdentityUtilsResult<T> ToIdentityResult<T>(this RestResult<T> restResult)
+        {
+            return new IdentityUtilsResult<T>
+            {
+                Success = restResult.Success,
+                Data = restResult.ResponseData,
+                ErrorMessages = restResult.ErrorMessages
+            };
         }
     }
 }

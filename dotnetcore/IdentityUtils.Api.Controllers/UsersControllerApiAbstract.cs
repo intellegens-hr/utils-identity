@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
-using IdentityUtils.Api.Models.Users;
-using IdentityUtils.Commons.Mailing;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
+using IdentityUtils.Core.Contracts.Services;
+using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Controllers
@@ -20,98 +19,36 @@ namespace IdentityUtils.Api.Controllers
     /// <typeparam name="TRole">Role database model</typeparam>
     /// <typeparam name="TUserDto">User DTO model</typeparam>
     [ApiController]
-    public abstract class UsersControllerApiAbstract<TUser, TRole, TUserDto> : ControllerBase
+    public abstract class UsersControllerApiAbstract<TUser, TUserDto> : UsersControllerApiBase<TUser, TUserDto>
         where TUser : IdentityManagerUser
-        where TRole : IdentityManagerRole
         where TUserDto : class, IIdentityManagerUserDto
     {
-        private readonly IdentityManagerUserService<TUser, TUserDto, TRole> userManager;
-        private readonly IMapper mapper;
+        private readonly IIdentityManagerUserService<TUser, TUserDto> userManager;
 
         public UsersControllerApiAbstract(
-            IdentityManagerUserService<TUser, TUserDto, TRole> userManager,
-            IMapper mapper)
+            IIdentityManagerUserService<TUser, TUserDto> userManager,
+            IMapper mapper) : base(userManager, mapper)
         {
             this.userManager = userManager;
-            this.mapper = mapper;
         }
 
-        [HttpGet]
-        public virtual async Task<List<TUserDto>> GetAllUsers()
-            => mapper.Map<List<TUser>, List<TUserDto>>(await userManager.GetAllUsers());
+        [HttpPost("{userId}/roles/{roleId}")]
+        public virtual async Task<IdentityUtilsResult> AddUserToRole([FromRoute] Guid userId, [FromRoute] Guid roleId)
+            => await userManager.AddToRoleAsync(userId, roleId);
 
-        [HttpGet("{id}")]
-        public virtual async Task<IdentityUtilsResult<TUserDto>> GetUserById([FromRoute]Guid id)
-            => await userManager.FindByIdAsync<TUserDto>(id);
-
-        [HttpDelete("{id}")]
-        public virtual async Task<IdentityUtilsResult> DeleteUser([FromRoute]Guid id)
-            => await userManager.DeleteUser(id);
-
-        [HttpPost()]
-        public virtual async Task<IdentityUtilsResult<TUserDto>> CreateUser([FromBody]TUserDto userDto)
+        [HttpGet("{userId}/roles")]
+        public virtual async Task<IdentityUtilsResult<IEnumerable<RoleBasicData>>> GetUserRoles([FromRoute] Guid userId)
         {
-            return await userManager.CreateUser(userDto);
+            var userRoles = await userManager.GetRolesAsync(userId);
+            return IdentityUtilsResult<IEnumerable<RoleBasicData>>.SuccessResult(userRoles);
         }
 
-        [HttpPost("{id}")]
-        public virtual async Task<IdentityUtilsResult<TUserDto>> UpdateUser([FromRoute]Guid id, [FromBody]TUserDto userDto)
-        {
-            if (id != userDto.Id)
-                throw new UnauthorizedAccessException();
+        [HttpDelete("{userId}/roles/{roleId}")]
+        public virtual async Task<IdentityUtilsResult> RemoveUserFromRole([FromRoute] Guid userId, [FromRoute] Guid roleId)
+            => await userManager.RemoveFromRoleAsync(userId, roleId);
 
-            var result = await userManager.UpdateUser(userDto);
-            return result.ToTypedResult(userDto);
-        }
-
-        [HttpGet("by/{username}")]
-        public virtual async Task<IdentityUtilsResult<TUserDto>> GetUserByUsername([FromRoute]string username)
-            => await userManager.FindByNameAsync<TUserDto>(WebUtility.UrlDecode(username));
-
-        [HttpPost("passwordreset")]
-        public virtual async Task<IdentityUtilsResult<PasswordForgottenResponse>> GetPasswordResetToken([FromBody]PasswordForgottenRequest passwordForgottenRequest)
-        {
-            var userResult = await userManager.FindByNameAsync(passwordForgottenRequest.Username);
-            if (!userResult.Success)
-                return userResult.ToTypedResult<PasswordForgottenResponse>();
-
-            var resetTokenResult = await userManager.GeneratePasswordResetTokenAsync(passwordForgottenRequest.Username);
-            if (!resetTokenResult.Success)
-                return resetTokenResult.ToTypedResult<PasswordForgottenResponse>();
-
-            var passwordResponse = new PasswordForgottenResponse
-            {
-                Username = userResult.Data.UserName,
-                Email = userResult.Data.Email,
-                Token = resetTokenResult.Data
-            };
-
-            return IdentityUtilsResult<PasswordForgottenResponse>.SuccessResult(passwordResponse);
-        }
-
-        [HttpPost("passwordreset/newpassword")]
-        public virtual async Task<IdentityUtilsResult> SetNewPasswordAfterReset([FromBody]PasswordForgottenNewPassword newPassword)
-        {
-            return await userManager.ResetPasswordAsync(newPassword.Username, newPassword.Token, newPassword.Password);
-        }
-
-        [HttpGet("roles/listusers/{tenantId}/{roleId}")]
-        public virtual async Task<IdentityUtilsResult<List<TUserDto>>> GetRoleById([FromRoute]Guid tenantId, [FromRoute]Guid roleId)
-            => await userManager.RoleUsersPerTenant(roleId, tenantId);
-
-        [HttpGet("{userId}/roles/{tenantId}")]
-        public virtual async Task<IdentityUtilsResult<IList<string>>> GetUserRoles([FromRoute]Guid userId, [FromRoute]Guid tenantId)
-        {
-            var userRoles = await userManager.GetRolesAsync(userId, tenantId);
-            return IdentityUtilsResult<IList<string>>.SuccessResult(userRoles);
-        }
-
-        [HttpPost("{userId}/roles/{tenantId}/{roleId}")]
-        public virtual async Task<IdentityUtilsResult> AddUserToRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
-            => await userManager.AddToRoleAsync(userId, tenantId, roleId);
-
-        [HttpDelete("{userId}/roles/{tenantId}/{roleId}")]
-        public virtual async Task<IdentityUtilsResult> RemoveUserFromRole([FromRoute]Guid userId, [FromRoute]Guid tenantId, [FromRoute]Guid roleId)
-            => await userManager.RemoveFromRoleAsync(userId, tenantId, roleId);
+        [HttpPost("search")]
+        public virtual async Task<IdentityUtilsResult<IEnumerable<TUserDto>>> Search([FromBody] UsersSearch search)
+            => IdentityUtilsResult<IEnumerable<TUserDto>>.SuccessResult(await userManager.Search(search));
     }
 }

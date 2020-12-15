@@ -1,5 +1,7 @@
 using IdentityUtils.Api.Extensions;
-using IdentityUtils.Demos.IdentityServer4.Models;
+using IdentityUtils.Core.Contracts.Services.Models;
+using IdentityUtils.Demos.IdentityServer4.MultiTenant;
+using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
@@ -8,7 +10,7 @@ using Xunit;
 
 namespace IdentityUtils.Demos.IdentityServer4.Tests
 {
-    public class RolesApiTests : TestAbstract
+    public class RolesApiTests : TestAbstract<Startup>
     {
         private readonly RoleManagementApi<RoleDto> roleManagementApi;
 
@@ -74,11 +76,11 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         {
             var role = new RoleDto { Name = "strange Name" };
             var resultCreated = await roleManagementApi.AddRole(role);
-            var resultFetched = await roleManagementApi.GetRoleByNormalizedName(resultCreated.Data.NormalizedName);
+            var resultFetched = await roleManagementApi.Search(new RoleSearch(name: resultCreated.Data.NormalizedName));
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(resultCreated.Data, resultFetched.Data);
+            Assert.Contains(resultCreated.Data, resultFetched.Data);
         }
 
         [Fact]
