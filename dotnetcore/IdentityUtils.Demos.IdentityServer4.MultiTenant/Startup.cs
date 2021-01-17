@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -124,16 +125,26 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
             })
-                .LoadIdentityUtilsIdentityServerSettings((builder) =>
-                {
-                    builder
-                        //This will add default clients: is4management and jsapp. One will be used to authorize calls to IS4,
-                        //other one will be used to authorize client apps calls to API apps. Client "jsapp" has no defined
-                        //redirect urls and is used for login via AJAX calls
-                        .AddDefaultClientConfiguration()
-                        //Profile service will properly load roles data per tenant to tokens provided by IS4
-                        .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>();
-                });
+            .LoadIdentityUtilsIdentityServerSettings((builder) =>
+            {
+                builder
+                    //This will add default clients: is4management and jsapp. One will be used to authorize calls to IS4,
+                    //other one will be used to authorize client apps calls to API apps. Client "jsapp" has no defined
+                    //redirect urls and is used for login via AJAX calls
+                    .AddDefaultClientConfiguration()
+                    //Profile service will properly load roles data per tenant to tokens provided by IS4
+                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>();
+            })
+            .AddOperationalStore((options) =>
+            {
+                var dbConfiguration = new DbConfig(Configuration);
+                options.ConfigureDbContext = builder =>
+                    builder.UseSqlite(dbConfiguration.DatabaseName);
+
+                // this enables automatic token cleanup. this is optional.
+                options.EnableTokenCleanup = true;
+                options.TokenCleanupInterval = 30;
+            });
 
             // not recommended for production - you need to store your key material somewhere secure
             builder.AddDeveloperSigningCredential();

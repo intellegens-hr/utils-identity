@@ -1,24 +1,32 @@
-﻿using IdentityUtils.Core.Contracts.Context;
+﻿using IdentityServer4.EntityFramework.Entities;
+using IdentityServer4.EntityFramework.Extensions;
+using IdentityServer4.EntityFramework.Interfaces;
+using IdentityServer4.EntityFramework.Options;
+using IdentityUtils.Core.Contracts.Context;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Demos.IdentityServer4.SingleTenant.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Demos.IdentityServer4.SingleTenant.DbContext
 {
-    public class Is4DemoDbContext : IdentityManagerDbContext<IdentityManagerUser, IdentityManagerRole>
+    public class Is4DemoDbContext : IdentityManagerDbContext<IdentityManagerUser, IdentityManagerRole>, IPersistedGrantDbContext
     {
         private readonly DbConfig dbConfig;
 
-        public Is4DemoDbContext(DbContextOptions options, DbConfig dbConfig) : base()
+        public Is4DemoDbContext(DbConfig dbConfig) : base()
         {
             this.dbConfig = dbConfig;
         }
 
-        protected Is4DemoDbContext(DbConfig dbConfig): base()
+        public DbSet<DeviceFlowCodes> DeviceFlowCodes { get; set; }
+        public DbSet<PersistedGrant> PersistedGrants { get; set; }
+
+        public Task<int> SaveChangesAsync()
         {
-            this.dbConfig = dbConfig;
+            return base.SaveChangesAsync();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -27,6 +35,18 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant.DbContext
                 .UseSqlite($@"Data Source={dbConfig.DatabaseName};");
 
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            var options = new OperationalStoreOptions
+            {
+                DeviceFlowCodes = new TableConfiguration("DeviceCodes"),
+                PersistedGrants = new TableConfiguration("PersistedGrants")
+            };
+
+            base.OnModelCreating(builder);
+            builder.ConfigurePersistedGrantContext(options);
         }
     }
 }
