@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Services;
 using IdentityUtils.Core.Contracts.Users;
 using Microsoft.AspNetCore.Identity;
@@ -30,18 +31,15 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
         {
             var userId = Guid.Parse(context.Subject.GetSubjectId());
 
-            var userResult = await tenantUserService.FindByIdAsync(userId);
-            var user = userResult.Data;
+            var (userResult, user) = await tenantUserService.FindByIdAsync(userId).UnpackSingleOrDefault();
             var principal = await claimsFactory.CreateAsync(user);
 
             var claims = principal.Claims
-                .Where(x => context.RequestedClaimTypes.Contains(x.Type))
-                .ToList();
+                .Where(x => context.RequestedClaimTypes.Contains(x.Type));
 
             var tenantClaims = await tenantUserService.GetUserTenantRolesClaims(userId);
 
             context.IssuedClaims = claims.Union(tenantClaims).ToList();
-
             context.IssuedClaims.Add(new Claim("userId", userId.ToString()));
         }
 

@@ -43,7 +43,7 @@ namespace IdentityUtils.Api.Controllers
             => await rolesService.GetRole(roleId);
 
         [HttpPost("search")]
-        public virtual async Task<IdentityUtilsResult<IEnumerable<TRoleDto>>> Search([FromBody] RoleSearch searchModel)
-            => IdentityUtilsResult<IEnumerable<TRoleDto>>.SuccessResult(await rolesService.Search(searchModel));
+        public virtual async Task<IdentityUtilsResult<TRoleDto>> Search([FromBody] RoleSearch searchModel)
+            => IdentityUtilsResult<TRoleDto>.SuccessResult(await rolesService.Search(searchModel));
     }
 }

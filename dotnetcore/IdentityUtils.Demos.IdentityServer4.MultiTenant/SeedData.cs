@@ -5,7 +5,6 @@ using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Services;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
-using IdentityUtils.Core.Services;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.DbContext;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
 using Microsoft.AspNetCore.Identity;
@@ -24,11 +23,42 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
     {
         private static readonly SequentialGuidValueGenerator guidValueGenerator = new SequentialGuidValueGenerator();
 
+        public static async Task EnsureSeedData(IServiceCollection services)
+        {
+            using var serviceProvider = services.BuildServiceProvider();
+            using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+
+            var context = scope.ServiceProvider.GetService<Is4DemoDbContext>();
+            context.Database.Migrate();
+
+            await LoadTenants(scope);
+            await LoadRoles(scope);
+            await LoadUsers(scope);
+        }
+
+        private static async Task LoadRoles(IServiceScope scope)
+        {
+            var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityManagerRole>>();
+            var rolesToCreate = new string[] { "ADMIN", "GODMODE", "READER" };
+
+            foreach (var role in rolesToCreate)
+            {
+                if (!await roleMgr.RoleExistsAsync(role))
+                {
+                    var appRole = new IdentityManagerRole(role)
+                    {
+                        Id = guidValueGenerator.Next(null)
+                    };
+                    await roleMgr.CreateAsync(appRole);
+                }
+            }
+        }
+
         private static async Task LoadTenants(IServiceScope scope)
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<Is4DemoDbContext>();
 
-            var tenants = new List<IdentityManagerTenant>
+            var tenants = new IdentityManagerTenant[]
             {
                 new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Name = "Intellegens Exams"},
                 new IdentityManagerTenant{TenantId = guidValueGenerator.Next(null), Name = "Intellegens Administration"},
@@ -42,7 +72,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     dbContext.Tenants.Add(tenant);
             }
 
-            var hosts = new List<IdentityManagerTenantHost>
+            var hosts = new IdentityManagerTenantHost[]
             {
                 new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5020" },
                 new IdentityManagerTenantHost { TenantId = tenants[0].TenantId, Hostname = "https://localhost:5010" },
@@ -59,24 +89,6 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
             }
 
             await dbContext.SaveChangesAsync();
-        }
-
-        private static async Task LoadRoles(IServiceScope scope)
-        {
-            var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityManagerRole>>();
-            var rolesToCreate = new List<string> { "ADMIN", "GODMODE", "READER" };
-
-            foreach (var role in rolesToCreate)
-            {
-                if (!await roleMgr.RoleExistsAsync(role))
-                {
-                    var appRole = new IdentityManagerRole(role)
-                    {
-                        Id = guidValueGenerator.Next(null)
-                    };
-                    await roleMgr.CreateAsync(appRole);
-                }
-            }
         }
 
         private static async Task LoadUsers(IServiceScope scope)
@@ -109,7 +121,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
 
                 foreach (var tenant in tenants)
                 {
-                    var roles = new List<Guid> { roleAdmin.Id, roleReader.Id, roleGodmode.Id };
+                    var roles = new Guid[] { roleAdmin.Id, roleReader.Id, roleGodmode.Id };
                     result = await tenantUserService.AddToRolesAsync(alice.Id, tenant.TenantId, roles);
                 }
 
@@ -151,7 +163,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
 
                 foreach (var tenant in tenants)
                 {
-                    var roles = new List<Guid> { roleAdmin.Id, roleReader.Id };
+                    var roles = new Guid[] { roleAdmin.Id, roleReader.Id };
                     result = await tenantUserService.AddToRolesAsync(bob.Id, tenant.TenantId, roles);
                 }
 
@@ -176,19 +188,6 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     throw new Exception(result.ErrorMessages.First());
                 }
             }
-        }
-
-        public static async Task EnsureSeedData(IServiceCollection services)
-        {
-            using var serviceProvider = services.BuildServiceProvider();
-            using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-
-            var context = scope.ServiceProvider.GetService<Is4DemoDbContext>();
-            context.Database.Migrate();
-
-            await LoadTenants(scope);
-            await LoadRoles(scope);
-            await LoadUsers(scope);
         }
     }
 }

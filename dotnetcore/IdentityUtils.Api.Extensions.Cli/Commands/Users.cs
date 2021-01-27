@@ -24,9 +24,9 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         internal static string ApiBaseRoute { get; set; }
 
         private static void ConsoleOutputUsers(IConsole console, UserDto user)
-            => ConsoleOutputUsers(console, new List<UserDto> { user });
+            => ConsoleOutputUsers(console, new UserDto[] { user });
 
-        private static void ConsoleOutputUsers(IConsole console, List<UserDto> users)
+        private static void ConsoleOutputUsers(IConsole console, IEnumerable<UserDto> users)
         {
             console.WriteLine("\tID\t\tUSERNAME\t\tEMAIL\t\tADDITIONAL DATA");
             console.WriteLine("--------------------------------------------");
@@ -69,7 +69,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var userAddResult = Shared.GetUserManagementApi(console).CreateUser(user).Result;
 
                 userAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputUsers(console, userAddResult.Data);
+                ConsoleOutputUsers(console, userAddResult.Data.First());
             }
         }
 
@@ -121,7 +121,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
 
             private void OnExecute(IConsole console)
             {
-                var users = new List<UserDto>();
+                IEnumerable<UserDto> users;
 
                 if (!string.IsNullOrEmpty(Id))
                 {
@@ -134,11 +134,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    users.Add(result.Data);
+                    users = result.Data;
                 }
                 else
                 {
-                    users.AddRange(Shared.GetUserManagementApi(console).GetAllUsers().Result.Data);
+                    users = Shared.GetUserManagementApi(console).GetAllUsers().Result.Data;
                 }
 
                 ConsoleOutputUsers(console, users);
@@ -158,8 +158,8 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
 
             private void OnExecute(IConsole console)
             {
-                var roles = new List<RoleDto>();
-                var tenants = new List<TenantDto>();
+                IEnumerable<RoleDto> roles;
+                IEnumerable<TenantDto> tenants;
 
                 if (!string.IsNullOrEmpty(RoleId))
                 {
@@ -172,12 +172,12 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    roles.Add(roleResult.Data);
+                    roles = roleResult.Data;
                 }
                 else
                 {
                     var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result.Data;
-                    roles.AddRange(rolesList);
+                    roles = rolesList;
                 }
 
                 if (!string.IsNullOrEmpty(TenantId))
@@ -192,11 +192,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    tenants.Add(tenantResult.Data);
+                    tenants = tenantResult.Data;
                 }
                 else
                 {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Data);
+                    tenants = Shared.GetTenantManagementApi(console).GetTenants().Result.Data;
                 }
 
                 foreach (var tenant in tenants)
@@ -279,7 +279,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     return;
                 }
 
-                var user = userResult.Data;
+                var user = userResult.Data.First();
 
                 if (!string.IsNullOrEmpty(Email))
                     user.Email = Email;
@@ -289,7 +289,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 userUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
 
                 if (userUpdateResult.Success)
-                    ConsoleOutputUsers(console, userUpdateResult.Data);
+                    ConsoleOutputUsers(console, userUpdateResult.Data.First());
             }
         }
     }

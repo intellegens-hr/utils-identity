@@ -37,13 +37,13 @@ namespace IdentityUtils.Api.Controllers
             => await tenantService.GetTenant(tenantId);
 
         [HttpGet]
-        public virtual async Task<IList<TTenantDto>> GetTenants()
+        public virtual async Task<IEnumerable<TTenantDto>> GetTenants()
             => await tenantService.GetTenants();
 
         [HttpPost("search")]
-        public virtual async Task<IdentityUtilsResult<IEnumerable<TTenantDto>>> Search([FromBody] TenantSearch tenantSearchRequest)
+        public virtual async Task<IdentityUtilsResult<TTenantDto>> Search([FromBody] TenantSearch tenantSearchRequest)
         {
-            return IdentityUtilsResult<IEnumerable<TTenantDto>>.SuccessResult(await tenantService.Search(tenantSearchRequest));
+            return IdentityUtilsResult<TTenantDto>.SuccessResult(await tenantService.Search(tenantSearchRequest));
         }
 
         [HttpPost("{tenantId}")]

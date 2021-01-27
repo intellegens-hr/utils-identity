@@ -163,15 +163,15 @@ namespace IdentityUtils.Core.Services
             var newTenantRolesClaim = new Claim(TenantClaimsSchema.TenantRolesData, tenantClaimData.Serialize());
             var oldTenantRolesClaim = await GetUserTenantRolesClaims(userId, tenantId);
 
-            var userResult = await FindByIdAsync(userId);
+            var (userResult, user) = await FindByIdAsync(userId).UnpackSingleOrDefault();
             if (!userResult.Success)
                 return userResult;
 
             if (oldTenantRolesClaim != null)
-                result = await userManager.RemoveClaimAsync(userResult.Data, oldTenantRolesClaim);
+                result = await userManager.RemoveClaimAsync(user, oldTenantRolesClaim);
 
             if (result.Succeeded)
-                result = await userManager.AddClaimAsync(userResult.Data, newTenantRolesClaim);
+                result = await userManager.AddClaimAsync(user, newTenantRolesClaim);
 
             return result.ToIdentityUtilsResult();
         }

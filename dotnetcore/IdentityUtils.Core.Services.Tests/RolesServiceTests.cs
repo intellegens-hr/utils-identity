@@ -1,4 +1,5 @@
-﻿using IdentityUtils.Core.Contracts.Services.Models;
+﻿using IdentityUtils.Core.Contracts.Commons;
+using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
 using System;
@@ -25,22 +26,22 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Created_dto_should_match_fetched_dto()
         {
-            var resultCreated = await rolesService.AddRole(TestRole);
-            var resultFetch = await rolesService.GetRole(resultCreated.Data.Id);
+            var (resultCreated, roleCreated) = await rolesService.AddRole(TestRole).UnpackSingleOrDefault();
+            var (resultFetch, roleFetched) = await rolesService.GetRole(roleCreated.Id).UnpackSingleOrDefault();
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetch.Success);
-            Assert.Equal(resultCreated.Data, resultFetch.Data);
+            Assert.Equal(roleCreated, roleFetched);
         }
 
         [Fact]
         public async Task Created_dto_should_match_original_dto()
         {
             var testRole = TestRole;
-            var resultCreated = await rolesService.AddRole(testRole);
+            var (resultCreated, roleCreated) = await rolesService.AddRole(testRole).UnpackSingleOrDefault();
 
             Assert.True(resultCreated.Success);
-            Assert.Equal(testRole.Name, resultCreated.Data.Name);
+            Assert.Equal(testRole.Name, roleCreated.Name);
         }
 
         [Fact]
@@ -53,8 +54,8 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Existing_role_should_be_deleted()
         {
-            var resultCreated = await rolesService.AddRole(TestRole);
-            var deleteResult = await rolesService.DeleteRole(resultCreated.Data.Id);
+            var (resultCreated, roleCreated) = await rolesService.AddRole(TestRole).UnpackSingleOrDefault();
+            var deleteResult = await rolesService.DeleteRole(roleCreated.Id);
 
             Assert.True(resultCreated.Success);
             Assert.True(deleteResult.Success);
@@ -79,12 +80,12 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task Role_should_be_fetched_by_normalized_name()
         {
             var role = new RoleDto { Name = $"strange Name{Guid.NewGuid()}" };
-            var resultCreated = await rolesService.AddRole(role);
-            var resultFetched = await rolesService.Search(new RoleSearch(resultCreated.Data.Name));
+            var (resultCreated, roleCreated) = await rolesService.AddRole(role).UnpackSingleOrDefault();
+            var resultFetched = await rolesService.Search(new RoleSearch(roleCreated.Name));
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Any());
-            Assert.Equal(resultCreated.Data, resultFetched.First());
+            Assert.Equal(roleCreated, resultFetched.First());
         }
 
         [Fact]
@@ -101,16 +102,16 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Service_should_return_all_roles()
         {
-            var resultCreated1 = await rolesService.AddRole(TestRole);
-            var resultCreated2 = await rolesService.AddRole(TestRole);
+            var (resultCreated1, roleCreated1) = await rolesService.AddRole(TestRole).UnpackSingleOrDefault();
+            var (resultCreated2, roleCreated2) = await rolesService.AddRole(TestRole).UnpackSingleOrDefault();
 
             var roles = await rolesService.GetAllRoles();
             var roleIds = roles.Select(x => x.Id);
 
             Assert.True(resultCreated1.Success);
             Assert.True(resultCreated2.Success);
-            Assert.Contains(resultCreated1.Data.Id, roleIds);
-            Assert.Contains(resultCreated2.Data.Id, roleIds);
+            Assert.Contains(roleCreated1.Id, roleIds);
+            Assert.Contains(roleCreated2.Id, roleIds);
         }
     }
 }

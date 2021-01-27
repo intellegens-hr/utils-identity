@@ -16,11 +16,11 @@ namespace IdentityUtils.Core.Contracts.Claims
             TenantId = tenantId;
         }
 
-        public TenantRolesClaimData(Guid tenantId, RoleBasicData role) : this(tenantId, new List<RoleBasicData> { role })
+        public TenantRolesClaimData(Guid tenantId, RoleBasicData role) : this(tenantId, new RoleBasicData[] { role })
         {
         }
 
-        public TenantRolesClaimData(Guid tenantId, List<RoleBasicData> roles)
+        public TenantRolesClaimData(Guid tenantId, IEnumerable<RoleBasicData> roles)
         {
             TenantId = tenantId;
             Roles = roles;

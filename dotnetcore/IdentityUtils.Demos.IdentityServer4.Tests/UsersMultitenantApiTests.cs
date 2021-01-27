@@ -1,5 +1,6 @@
 using IdentityUtils.Api.Extensions;
 using IdentityUtils.Api.Models.Users;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
@@ -24,13 +25,6 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             userManagementApi = serviceProvider.GetRequiredService<UserTenantManagementApi<UserDto>>();
         }
 
-        private UserDto GetUniqueTestUser => new UserDto
-        {
-            Username = "testuser1@email.com" + Guid.NewGuid().ToString().Replace("-", ""),
-            Password = "Wery5trong!Pa55word",
-            Email = "testuser1@email.com"
-        };
-
         private RoleDto Role1 { get; set; } = new RoleDto
         {
             Name = "Users API integration test - Role 1" + Guid.NewGuid().ToString()
@@ -51,18 +45,25 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             Name = "Users API integration test - Tenant 2" + Guid.NewGuid().ToString()
         };
 
+        private UserDto UniqueTestUser => new UserDto
+        {
+            Username = "testuser1@email.com" + Guid.NewGuid().ToString().Replace("-", ""),
+            Password = "Wery5trong!Pa55word",
+            Email = "testuser1@email.com"
+        };
+
         [Fact]
         public async Task Adding_user_to_multiple_roles_should_work()
         {
-            var userResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
             await LoadTenantsAndRoles();
 
-            var roleAddResult1 = await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
-            var roleAddResult2 = await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
+            var roleAddResult1 = await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
+            var roleAddResult2 = await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role2.Id);
 
-            var userRoles = await userManagementApi.GetUserRoles(userResult.Data.Id, Tenant1.TenantId);
+            var userRoles = await userManagementApi.GetUserRoles(userCreated.Id, Tenant1.TenantId);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult1.Success);
             Assert.True(roleAddResult2.Success);
             Assert.Equal(2, userRoles.Data.Count());
@@ -71,15 +72,15 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Adding_user_to_role_multiple_times_shouldnt_do_anything()
         {
-            var userResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
             await LoadTenantsAndRoles();
-            var role1AddResult = await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
-            var role2AddResult = await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var role1AddResult = await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
+            var role2AddResult = await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
 
-            var userRoles = await userManagementApi.GetUserRoles(userResult.Data.Id, Tenant1.TenantId);
+            var userRoles = await userManagementApi.GetUserRoles(userCreated.Id, Tenant1.TenantId);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(role1AddResult.Success);
             Assert.True(role2AddResult.Success);
             Assert.Single(userRoles.Data);
@@ -88,35 +89,35 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Created_user_dto_should_match_fetched_by_id_dto()
         {
-            var createdResult = await userManagementApi.CreateUser(GetUniqueTestUser);
-            var fetchResult = await userManagementApi.GetUserById(createdResult.Data.Id);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
+            var (resultFetched, userFetched) = await userManagementApi.GetUserById(userCreated.Id).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
-            Assert.True(fetchResult.Success);
-            Assert.Equal(createdResult.Data, fetchResult.Data);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultFetched.Success);
+            Assert.Equal(userCreated, userFetched);
         }
 
         [Fact]
         public async Task Created_user_dto_should_match_fetched_by_username_dto()
         {
-            var createdResult = await userManagementApi.CreateUser(GetUniqueTestUser);
-            var fetchResult = await userManagementApi.Search(new UsersTenantSearch(username: createdResult.Data.Username));
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
+            var resultSearch = await userManagementApi.Search(new UsersTenantSearch(username: userCreated.Username));
 
-            Assert.True(createdResult.Success);
-            Assert.True(fetchResult.Success);
-            Assert.Contains(createdResult.Data, fetchResult.Data);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultSearch.Success);
+            Assert.Contains(userCreated, resultSearch.Data);
         }
 
         [Fact]
         public async Task Created_user_dto_should_match_original_dto()
         {
-            var userDto = GetUniqueTestUser;
-            var createdResult = await userManagementApi.CreateUser(userDto);
+            var userDto = UniqueTestUser;
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(userDto).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
-            Assert.Equal(userDto.Email, createdResult.Data.Email);
-            Assert.Equal(userDto.Username, createdResult.Data.Username);
-            Assert.Equal(userDto.AdditionalDataJson, createdResult.Data.AdditionalDataJson);
+            Assert.True(resultCreated.Success);
+            Assert.Equal(userDto.Email, userCreated.Email);
+            Assert.Equal(userDto.Username, userCreated.Username);
+            Assert.Equal(userDto.AdditionalDataJson, userCreated.AdditionalDataJson);
         }
 
         [Fact]
@@ -131,12 +132,12 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         public async Task Fetching_users_per_role_should_filter_correctly()
         {
             await LoadTenantsAndRoles();
-            var userCreatedResult1 = await userManagementApi.CreateUser(GetUniqueTestUser);
-            var userCreatedResult2 = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (_, userCreated1) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
+            var (_, userCreated2) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
-            await userManagementApi.AddUserToRole(userCreatedResult1.Data.Id, Tenant1.TenantId, Role1.Id);
-            await userManagementApi.AddUserToRole(userCreatedResult1.Data.Id, Tenant2.TenantId, Role2.Id);
-            await userManagementApi.AddUserToRole(userCreatedResult2.Data.Id, Tenant2.TenantId, Role2.Id);
+            await userManagementApi.AddUserToRole(userCreated1.Id, Tenant1.TenantId, Role1.Id);
+            await userManagementApi.AddUserToRole(userCreated1.Id, Tenant2.TenantId, Role2.Id);
+            await userManagementApi.AddUserToRole(userCreated2.Id, Tenant2.TenantId, Role2.Id);
 
             var usersInRoleResult1 = await userManagementApi.Search(new UsersTenantSearch(Tenant1.TenantId, Role1.Id));
             var usersInRoleResult2 = await userManagementApi.Search(new UsersTenantSearch(Tenant2.TenantId, Role2.Id));
@@ -148,12 +149,12 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Getting_user_by_multiple_params_should_work()
         {
-            var createdResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
-            var fetchResult1 = await userManagementApi.GetUserById(createdResult.Data.Id);
-            var fetchResult2 = await userManagementApi.Search(new UsersTenantSearch(username: createdResult.Data.Username));
+            var fetchResult1 = await userManagementApi.GetUserById(userCreated.Id);
+            var fetchResult2 = await userManagementApi.Search(new UsersTenantSearch(username: userCreated.Username));
 
-            Assert.True(createdResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(fetchResult1.Success);
             Assert.True(fetchResult2.Success);
         }
@@ -161,13 +162,13 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Managing_user_roles_should_work_properly_after_multiple_operations()
         {
-            var userResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
             await LoadTenantsAndRoles();
-            var roleRemoveResult = await userManagementApi.RemoveUserFromRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
-            var userRoles = await userManagementApi.GetUserRoles(userResult.Data.Id, Tenant1.TenantId);
+            var roleRemoveResult = await userManagementApi.RemoveUserFromRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
+            var userRoles = await userManagementApi.GetUserRoles(userCreated.Id, Tenant1.TenantId);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleRemoveResult.Success);
             Assert.Empty(userRoles.Data);
         }
@@ -175,15 +176,15 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Removing_user_from_role_should_work()
         {
-            var userResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
             await LoadTenantsAndRoles();
-            var roleAddResult = await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
-            var roleRemoveResult = await userManagementApi.RemoveUserFromRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var roleAddResult = await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
+            var roleRemoveResult = await userManagementApi.RemoveUserFromRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
 
-            var userRoles = await userManagementApi.GetUserRoles(userResult.Data.Id, Tenant1.TenantId);
+            var userRoles = await userManagementApi.GetUserRoles(userCreated.Id, Tenant1.TenantId);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
             Assert.True(roleRemoveResult.Success);
             Assert.Empty(userRoles.Data);
@@ -192,18 +193,18 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Removing_user_from_unassigned_role_shouldnt_do_anything()
         {
-            var userResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (_, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
             await LoadTenantsAndRoles();
 
-            await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
-            await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
-            await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
-            await userManagementApi.RemoveUserFromRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
-            await userManagementApi.RemoveUserFromRole(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
-            await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role2.Id);
+            await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
+            await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role2.Id);
+            await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role2.Id);
+            await userManagementApi.RemoveUserFromRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
+            await userManagementApi.RemoveUserFromRole(userCreated.Id, Tenant1.TenantId, Role2.Id);
+            await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role2.Id);
 
-            var userRoles = await userManagementApi.GetUserRoles(userResult.Data.Id, Tenant1.TenantId);
+            var userRoles = await userManagementApi.GetUserRoles(userCreated.Id, Tenant1.TenantId);
 
             Assert.Single(userRoles.Data);
         }
@@ -211,66 +212,65 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task User_should_be_able_to_change_password()
         {
-            var createdResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
             var passwordRequest = new PasswordForgottenRequest
             {
-                Username = createdResult.Data.Username
+                Username = userCreated.Username
             };
 
-            var tokenResult = await userManagementApi.GetPasswordResetToken(passwordRequest);
+            var (resultToken, tokenData) = await userManagementApi.GetPasswordResetToken(passwordRequest).UnpackSingleOrDefault();
 
             var newPasswordRequest = new PasswordForgottenNewPassword
             {
-                Username = tokenResult.Data.Username,
-                Token = tokenResult.Data.Token,
+                Username = tokenData.Username,
+                Token = tokenData.Token,
                 Password = "Ver!32StrongPa55word"
             };
 
             var changePasswordResult = await userManagementApi.SetNewPasswordAfterReset(newPasswordRequest);
 
-            Assert.True(createdResult.Success);
-            Assert.True(tokenResult.Success);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultToken.Success);
             Assert.True(changePasswordResult.Success);
         }
 
         [Fact]
         public async Task User_should_be_assigned_to_role()
         {
-            var userResult = await userManagementApi.CreateUser(GetUniqueTestUser);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
             await LoadTenantsAndRoles();
-            var roleAddResult = await userManagementApi.AddUserToRole(userResult.Data.Id, Tenant1.TenantId, Role1.Id);
+            var roleAddResult = await userManagementApi.AddUserToRole(userCreated.Id, Tenant1.TenantId, Role1.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
         }
 
         [Fact]
         public async Task User_should_be_deleted()
         {
-            var createdResult = await userManagementApi.CreateUser(GetUniqueTestUser);
-            var deleteResult = await userManagementApi.DeleteUser(createdResult.Data.Id);
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
+            var deleteResult = await userManagementApi.DeleteUser(userCreated.Id);
 
-            Assert.True(createdResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(deleteResult.Success);
         }
 
         [Fact]
         public async Task User_should_be_updated()
         {
-            var createdResult = await userManagementApi.CreateUser(GetUniqueTestUser);
-            var userDto = createdResult.Data;
+            var (resultCreated, userCreated) = await userManagementApi.CreateUser(UniqueTestUser).UnpackSingleOrDefault();
 
-            userDto.Email = "changed@email.com";
-            var updatedResult = await userManagementApi.UpdateUser(userDto);
+            userCreated.Email = "changed@email.com";
+            var updatedResult = await userManagementApi.UpdateUser(userCreated);
 
-            var fetchResult = await userManagementApi.GetUserById(userDto.Id);
+            var (resultFetched, userFetched) = await userManagementApi.GetUserById(userCreated.Id).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(updatedResult.Success);
-            Assert.True(fetchResult.Success);
-            Assert.Equal(userDto.Email, fetchResult.Data.Email);
+            Assert.True(resultFetched.Success);
+            Assert.Equal(userCreated.Email, userFetched.Email);
         }
 
         private async Task LoadTenantsAndRoles()
@@ -284,25 +284,25 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             if (!roles.Any(x => x.Name == Role1.Name))
             {
                 var result = await roleManagementApi.AddRole(Role1);
-                Role1 = result.Data;
+                Role1 = result.Data.Single();
             }
 
             if (!roles.Any(x => x.Name == Role2.Name))
             {
                 var result = await roleManagementApi.AddRole(Role2);
-                Role2 = result.Data;
+                Role2 = result.Data.Single();
             }
 
             if (!tenants.Any(x => x.Name == Tenant1.Name))
             {
                 var result = await tenantManagementApi.AddTenant(Tenant1);
-                Tenant1 = result.Data;
+                Tenant1 = result.Data.Single();
             }
 
             if (!tenants.Any(x => x.Name == Tenant2.Name))
             {
                 var result = await tenantManagementApi.AddTenant(Tenant2);
-                Tenant2 = result.Data;
+                Tenant2 = result.Data.Single();
             }
         }
     }

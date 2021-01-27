@@ -14,7 +14,7 @@ namespace IdentityUtils.Core.Contracts.Services
 
         Task<IdentityUtilsResult> DeleteRole(Guid id);
 
-        Task<IList<TRoleDto>> GetAllRoles();
+        Task<IEnumerable<TRoleDto>> GetAllRoles();
 
         Task<IdentityUtilsResult<TRoleDto>> GetRole(Guid roleId);
 

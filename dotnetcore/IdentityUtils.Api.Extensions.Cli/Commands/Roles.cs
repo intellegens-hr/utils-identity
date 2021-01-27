@@ -20,16 +20,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         [Option(ShortName = "r", LongName = "api-base-route", Description = "Base route roles management API uses (defaults to /api/management/roles)")]
         internal static string ApiBaseRoute { get; set; }
 
-        private int OnExecute(IConsole console)
-        {
-            console.Error.WriteLine("You must specify an action. See --help for more details.");
-            return 1;
-        }
-
         private static void ConsoleOutputRoles(IConsole console, RoleDto role)
-            => ConsoleOutputRoles(console, new List<RoleDto> { role });
+            => ConsoleOutputRoles(console, new RoleDto[] { role });
 
-        private static void ConsoleOutputRoles(IConsole console, List<RoleDto> roles)
+        private static void ConsoleOutputRoles(IConsole console, IEnumerable<RoleDto> roles)
         {
             console.WriteLine("\tID\t\t\tNAME\t\tNORMALIZED NAME");
             console.WriteLine("--------------------------------------------");
@@ -39,51 +33,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             }
         }
 
-        [Command(Description = "List all roles"), HelpOption]
-        private class List
+        private int OnExecute(IConsole console)
         {
-            [Option(Description = "Show only role with specified ID")]
-            [GuidValidator]
-            public string Id { get; }
-
-            [Option(Description = "Show only role with specified normalized name")]
-            public string Name { get; }
-
-            private void OnExecute(IConsole console)
-            {
-                var roles = new List<RoleDto>();
-
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    var roleId = Guid.Parse(Id);
-
-                    var result = Shared.GetRoleManagementApi(console).GetRoleById(roleId).Result;
-                    if (!result.Success)
-                    {
-                        result.ToConsoleResult().WriteMessages(console);
-                        return;
-                    }
-
-                    roles.Add(result.Data);
-                }
-                else if (!string.IsNullOrEmpty(Name))
-                {
-                    var result = Shared.GetRoleManagementApi(console).Search(new RoleSearch(name: Name)).Result;
-                    if (!result.Success)
-                    {
-                        result.ToConsoleResult().WriteMessages(console);
-                        return;
-                    }
-
-                    roles.Add(result.Data.First());
-                }
-                else
-                {
-                    roles.AddRange(Shared.GetRoleManagementApi(console).GetRoles().Result.Data);
-                }
-
-                ConsoleOutputRoles(console, roles);
-            }
+            console.Error.WriteLine("You must specify an action. See --help for more details.");
+            return 1;
         }
 
         [Command(Description = "Add role"), HelpOption]
@@ -103,7 +56,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var roleAddResult = Shared.GetRoleManagementApi(console).AddRole(role).Result;
 
                 roleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputRoles(console, roleAddResult.Data);
+                ConsoleOutputRoles(console, roleAddResult.Data.First());
             }
         }
 
@@ -119,6 +72,53 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 var roleId = Guid.Parse(Id);
                 var result = Shared.GetRoleManagementApi(console).DeleteRole(roleId).Result;
                 result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+            }
+        }
+
+        [Command(Description = "List all roles"), HelpOption]
+        private class List
+        {
+            [Option(Description = "Show only role with specified ID")]
+            [GuidValidator]
+            public string Id { get; }
+
+            [Option(Description = "Show only role with specified normalized name")]
+            public string Name { get; }
+
+            private void OnExecute(IConsole console)
+            {
+                IEnumerable<RoleDto> roles;
+
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    var roleId = Guid.Parse(Id);
+
+                    var result = Shared.GetRoleManagementApi(console).GetRoleById(roleId).Result;
+                    if (!result.Success)
+                    {
+                        result.ToConsoleResult().WriteMessages(console);
+                        return;
+                    }
+
+                    roles = result.Data;
+                }
+                else if (!string.IsNullOrEmpty(Name))
+                {
+                    var result = Shared.GetRoleManagementApi(console).Search(new RoleSearch(name: Name)).Result;
+                    if (!result.Success)
+                    {
+                        result.ToConsoleResult().WriteMessages(console);
+                        return;
+                    }
+
+                    roles = result.Data;
+                }
+                else
+                {
+                    roles = Shared.GetRoleManagementApi(console).GetRoles().Result.Data;
+                }
+
+                ConsoleOutputRoles(console, roles);
             }
         }
     }

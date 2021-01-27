@@ -1,13 +1,10 @@
 ﻿using AutoMapper;
 using IdentityUtils.Core.Contracts.Commons;
-using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Services;
 using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Contracts.Users;
-using IdentityUtils.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Controllers
@@ -37,10 +34,10 @@ namespace IdentityUtils.Api.Controllers
             => await userManager.AddToRoleAsync(userId, roleId);
 
         [HttpGet("{userId}/roles")]
-        public virtual async Task<IdentityUtilsResult<IEnumerable<RoleBasicData>>> GetUserRoles([FromRoute] Guid userId)
+        public virtual async Task<IdentityUtilsResult<RoleBasicData>> GetUserRoles([FromRoute] Guid userId)
         {
             var userRoles = await userManager.GetRolesAsync(userId);
-            return IdentityUtilsResult<IEnumerable<RoleBasicData>>.SuccessResult(userRoles);
+            return IdentityUtilsResult<RoleBasicData>.SuccessResult(userRoles);
         }
 
         [HttpDelete("{userId}/roles/{roleId}")]
@@ -48,7 +45,7 @@ namespace IdentityUtils.Api.Controllers
             => await userManager.RemoveFromRoleAsync(userId, roleId);
 
         [HttpPost("search")]
-        public virtual async Task<IdentityUtilsResult<IEnumerable<TUserDto>>> Search([FromBody] UsersSearch search)
-            => IdentityUtilsResult<IEnumerable<TUserDto>>.SuccessResult(await userManager.Search(search));
+        public virtual async Task<IdentityUtilsResult<TUserDto>> Search([FromBody] UsersSearch search)
+            => IdentityUtilsResult<TUserDto>.SuccessResult(await userManager.Search(search));
     }
 }

@@ -1,5 +1,6 @@
 ﻿using IdentityUtils.Commons;
 using IdentityUtils.Core.Contracts.Commons;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions
@@ -27,6 +28,16 @@ namespace IdentityUtils.Api.Extensions
         }
 
         internal static IdentityUtilsResult<T> ToIdentityResult<T>(this RestResult<T> restResult)
+        {
+            return new IdentityUtilsResult<T>
+            {
+                Success = restResult.Success,
+                Data = new T[] { restResult.ResponseData },
+                ErrorMessages = restResult.ErrorMessages
+            };
+        }
+
+        internal static IdentityUtilsResult<T> ToIdentityResult<T>(this RestResult<IEnumerable<T>> restResult)
         {
             return new IdentityUtilsResult<T>
             {

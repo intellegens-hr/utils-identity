@@ -11,11 +11,9 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant.Models
         {
             CreateMap<IdentityManagerUser, UserDto>();
             CreateMap<UserDto, IdentityManagerUser>();
-            CreateMap<List<IdentityManagerUser>, List<UserDto>>();
 
             CreateMap<IdentityManagerRole, RoleDto>();
             CreateMap<RoleDto, IdentityManagerRole>();
-            CreateMap<List<IdentityManagerRole>, List<RoleDto>>();
         }
     }
 }

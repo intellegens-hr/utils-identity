@@ -49,24 +49,24 @@ namespace IdentityUtils.Core.Services
 
         public async Task<IdentityUtilsResult> DeleteRole(Guid id)
         {
-            var roleResult = await GetRoleById(id);
+            var (roleResult, role) = await GetRoleById(id).UnpackSingleOrDefault();
             if (!roleResult.Success)
                 return roleResult;
 
-            var deleteResult = await roleManager.DeleteAsync(roleResult.Data);
+            var deleteResult = await roleManager.DeleteAsync(role);
             return deleteResult.ToIdentityUtilsResult();
         }
 
-        public async Task<IList<TRoleDto>> GetAllRoles()
+        public async Task<IEnumerable<TRoleDto>> GetAllRoles()
         {
             var roles = await roleManager.Roles.ToListAsync();
-            return mapper.Map<IList<TRoleDto>>(roles);
+            return mapper.Map<IEnumerable<TRoleDto>>(roles);
         }
 
         public async Task<IdentityUtilsResult<TRoleDto>> GetRole(Guid roleId)
         {
             var roleResult = await GetRoleById(roleId);
-            return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Data));
+            return roleResult.ToTypedResult<TRoleDto>(mapper.Map<TRoleDto>(roleResult.Data.Single()));
         }
 
         public async Task<IEnumerable<TRoleDto>> Search(RoleSearch searchModel)

@@ -6,6 +6,7 @@ using IdentityUtils.Core.Contracts.Users;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Controllers
@@ -56,11 +57,12 @@ namespace IdentityUtils.Api.Controllers
             if (!resetTokenResult.Success)
                 return resetTokenResult.ToTypedResult<PasswordForgottenResponse>();
 
+            var userData = userResult.Data.First();
             var passwordResponse = new PasswordForgottenResponse
             {
-                Username = userResult.Data.UserName,
-                Email = userResult.Data.Email,
-                Token = resetTokenResult.Data
+                Username = userData.UserName,
+                Email = userData.Email,
+                Token = resetTokenResult.Data.First()
             };
 
             return IdentityUtilsResult<PasswordForgottenResponse>.SuccessResult(passwordResponse);

@@ -37,7 +37,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
         private static async Task LoadRoles(IServiceScope scope)
         {
             var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityManagerRole>>();
-            var rolesToCreate = new List<string> { "ADMIN", "GODMODE", "READER" };
+            var rolesToCreate = new string[] { "ADMIN", "GODMODE", "READER" };
 
             foreach (var role in rolesToCreate)
             {
@@ -77,7 +77,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                     throw new Exception(result.ErrorMessages.First());
                 }
 
-                var roles = new List<Guid> { roleAdmin.Id, roleReader.Id, roleGodmode.Id };
+                var roles = new Guid[] { roleAdmin.Id, roleReader.Id, roleGodmode.Id };
                 result = await userService.AddToRolesAsync(alice.Id, roles);
 
                 if (!result.Success)
@@ -116,7 +116,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                     throw new Exception(result.ErrorMessages.First());
                 }
 
-                var roles = new List<Guid> { roleAdmin.Id, roleReader.Id };
+                var roles = new Guid[] { roleAdmin.Id, roleReader.Id };
                 result = await userService.AddToRolesAsync(bob.Id, roles);
 
                 if (!result.Success)

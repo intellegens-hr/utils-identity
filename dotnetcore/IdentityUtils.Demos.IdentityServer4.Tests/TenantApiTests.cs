@@ -1,4 +1,5 @@
 using IdentityUtils.Api.Extensions;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
@@ -20,7 +21,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             tenantManagementApi = serviceProvider.GetRequiredService<TenantManagementApi<TenantDto>>();
         }
 
-        private TenantDto GetUniqueTestTenant => new TenantDto
+        private TenantDto UniqueTestTenant => new TenantDto
         {
             Name = "Test tenant - " + Guid.NewGuid().ToString(),
             Hostnames = new List<string> { Guid.NewGuid().ToString(), Guid.NewGuid().ToString() }
@@ -29,52 +30,46 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Adding_already_assigned_hostname_should_fail_gracefully()
         {
-            var tenantCreatedResult1 = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var tenantCreatedResult2 = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
+            var (createdResult1, tenant1) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
+            var (createdResult2, tenant2) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
 
-            var tenant = tenantCreatedResult1.Data;
-            tenant.Hostnames.AddRange(tenantCreatedResult2.Data.Hostnames);
+            foreach (var host in tenant2.Hostnames)
+                tenant1.Hostnames.Add(host);
 
-            var tenantUpdatedResult = await tenantManagementApi.UpdateTenant(tenant);
+            var tenantUpdatedResult = await tenantManagementApi.UpdateTenant(tenant1);
 
-            Assert.True(tenantCreatedResult1.Success);
-            Assert.True(tenantCreatedResult2.Success);
+            Assert.True(createdResult1.Success);
+            Assert.True(createdResult2.Success);
             Assert.False(tenantUpdatedResult.Success);
         }
 
         [Fact]
         public async Task Created_dto_should_match_fetched_dto()
         {
-            var tenantDto = GetUniqueTestTenant;
-
-            var resultCreated = await tenantManagementApi.AddTenant(tenantDto);
-            var resultFetched = await tenantManagementApi.GetTenant(resultCreated.Data.TenantId);
-
-            var createdTenant = resultCreated.Data;
-            var fetchedTenant = resultFetched.Data;
+            var (resultCreated, tenantCreated) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
+            var (resultFetched, tenantFetched) = await tenantManagementApi.GetTenant(tenantCreated.TenantId).UnpackSingleOrDefault();
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(createdTenant, fetchedTenant);
+            Assert.Equal(tenantCreated, tenantFetched);
         }
 
         [Fact]
         public async Task Created_dto_should_match_original_dto()
         {
-            var tenantDto = GetUniqueTestTenant;
+            var tenant = UniqueTestTenant;
+            var (resultCreated, tenantCreated) = await tenantManagementApi.AddTenant(tenant).UnpackSingleOrDefault();
 
-            var result = await tenantManagementApi.AddTenant(tenantDto);
-
-            Assert.True(result.Success);
-            Assert.Equal(tenantDto.Name, result.Data.Name);
-            Assert.Equal(tenantDto.Hostnames, result.Data.Hostnames);
+            Assert.True(resultCreated.Success);
+            Assert.Equal(tenant.Name, tenantCreated.Name);
+            Assert.Equal(tenant.Hostnames, tenantCreated.Hostnames);
         }
 
         [Fact]
         public async Task Creating_tenant_with_already_assigned_host_should_fail_gracefully()
         {
-            var tenantDto1 = GetUniqueTestTenant;
-            var tenantDto2 = GetUniqueTestTenant;
+            var tenantDto1 = UniqueTestTenant;
+            var tenantDto2 = UniqueTestTenant;
 
             tenantDto2.Hostnames = tenantDto1.Hostnames;
 
@@ -88,28 +83,27 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Creating_tenant_with_invalid_parameters_should_fail_gracefully()
         {
-            var tenantDto = new TenantDto();
-            var result = await tenantManagementApi.AddTenant(tenantDto);
+            var resultCreated = await tenantManagementApi.AddTenant(new TenantDto());
 
-            Assert.False(result.Success);
+            Assert.False(resultCreated.Success);
         }
 
         [Fact]
         public async Task Deleting_nonexisting_tenant_should_fail_gracefully()
         {
-            var deleteResult = await tenantManagementApi.DeleteTenant(Guid.NewGuid());
+            var resultDeleted = await tenantManagementApi.DeleteTenant(Guid.NewGuid());
 
-            Assert.False(deleteResult.Success);
+            Assert.False(resultDeleted.Success);
         }
 
         [Fact]
         public async Task Deleting_tenant_should_work()
         {
-            var createdResult = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var deleteResult = await tenantManagementApi.DeleteTenant(createdResult.Data.TenantId);
+            var (resultCreated, tenantCreated) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
+            var resultDeleted = await tenantManagementApi.DeleteTenant(tenantCreated.TenantId);
 
-            Assert.True(createdResult.Success);
-            Assert.True(deleteResult.Success);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultDeleted.Success);
         }
 
         [Fact]
@@ -132,24 +126,24 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Service_should_find_tenant_by_hostname()
         {
-            var resultCreated = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var resultFetched = await tenantManagementApi.Search(new TenantSearch(hostname: resultCreated.Data.Hostnames[0]));
+            var (resultCreated, tenantCreated) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
+            var (resultFetched, tenantFetched) = await tenantManagementApi.Search(new TenantSearch(hostname: tenantCreated.Hostnames.First())).UnpackSingleOrDefault();
 
             Assert.True(resultCreated.Success);
             Assert.True(resultFetched.Success);
-            Assert.Equal(resultCreated.Data.TenantId, resultFetched.Data.First().TenantId);
+            Assert.Equal(tenantCreated.TenantId, tenantFetched.TenantId);
         }
 
         [Fact]
         public async Task Service_should_return_all_created_tenants()
         {
-            var result1 = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var result2 = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
+            var (_, tenantCreated1) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
+            var (_, tenantCreated2) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
 
             var tenants = await tenantManagementApi.GetTenants();
             var count = tenants
                 .Data
-                .Where(x => x.TenantId == result1.Data.TenantId || x.TenantId == result2.Data.TenantId)
+                .Where(x => x.TenantId == tenantCreated1.TenantId || x.TenantId == tenantCreated2.TenantId)
                 .Count();
 
             Assert.Equal(2, count);
@@ -158,17 +152,16 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         [Fact]
         public async Task Updated_dto_should_match_original_dto()
         {
-            var tenantCreatedResult = await tenantManagementApi.AddTenant(GetUniqueTestTenant);
-            var tenant = tenantCreatedResult.Data;
+            var (resultCreated, tenantCreated) = await tenantManagementApi.AddTenant(UniqueTestTenant).UnpackSingleOrDefault();
 
-            tenant.Name += " UPDATED";
-            tenant.Hostnames.Add("new-hostname-for-tenant");
+            tenantCreated.Name += " UPDATED";
+            tenantCreated.Hostnames.Add("new-hostname-for-tenant");
 
-            var tenantUpdatedResult = await tenantManagementApi.UpdateTenant(tenant);
+            var (resultUpdated, tenantUpdated) = await tenantManagementApi.UpdateTenant(tenantCreated).UnpackSingleOrDefault();
 
-            Assert.True(tenantCreatedResult.Success);
-            Assert.True(tenantUpdatedResult.Success);
-            Assert.Equal(tenant, tenantUpdatedResult.Data);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultUpdated.Success);
+            Assert.Equal(tenantCreated, tenantUpdated);
         }
     }
 }

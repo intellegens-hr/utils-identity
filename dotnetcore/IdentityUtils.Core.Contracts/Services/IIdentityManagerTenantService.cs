@@ -16,7 +16,7 @@ namespace IdentityUtils.Core.Contracts.Services
 
         Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id);
 
-        Task<IList<TTenantDto>> GetTenants();
+        Task<IEnumerable<TTenantDto>> GetTenants();
 
         Task<IEnumerable<TTenantDto>> Search(TenantSearch searchParams);
 

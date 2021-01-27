@@ -67,7 +67,7 @@ namespace IdentityUtils.Core.Services
             var hostsToDelete = dbContext.TenantHosts.Where(x => x.TenantId == id);
 
             dbContext.TenantHosts.RemoveRange(hostsToDelete);
-            dbContext.Tenants.Remove(tenantDbResult.Data);
+            dbContext.Tenants.RemoveRange(tenantDbResult.Data);
             await dbContext.SaveChangesAsync();
 
             return IdentityUtilsResult.SuccessResult;
@@ -84,16 +84,14 @@ namespace IdentityUtils.Core.Services
             return result;
         }
 
-        public async Task<IList<TTenantDto>> GetTenants()
+        public async Task<IEnumerable<TTenantDto>> GetTenants()
         {
             var tenants = await dbContext
                 .Tenants
                 .Include(x => x.Hosts)
                 .ToListAsync();
 
-            return tenants
-                .Select(x => ToDto(x))
-                .ToList();
+            return tenants.Select(x => ToDto(x));
         }
 
         public async Task<IEnumerable<TTenantDto>> Search(TenantSearch searchParams)
@@ -132,15 +130,14 @@ namespace IdentityUtils.Core.Services
             if (!tenantDbResult.Success)
                 return IdentityUtilsResult<TTenantDto>.ErrorResult(tenantDbResult.ErrorMessages);
 
-            var tenant = tenantDbResult.Data;
+            var tenant = tenantDbResult.Data.First();
             mapper.Map(tenantDto, tenant);
             var hosts = tenantDto.Hostnames
                 .Select(x => new IdentityManagerTenantHost
                 {
                     TenantId = tenantDto.TenantId,
                     Hostname = x
-                })
-                .ToList();
+                });
 
             var result = ModelValidator.ValidateDataAnnotations(tenant);
             if (!result.isValid)
@@ -183,7 +180,7 @@ namespace IdentityUtils.Core.Services
             return tenantDto;
         }
 
-        private IEnumerable<TTenantDto> ToDto(IList<TTenant> tenants)
+        private IEnumerable<TTenantDto> ToDto(IEnumerable<TTenant> tenants)
         {
             foreach (var tenant in tenants)
                 yield return ToDto(tenant);

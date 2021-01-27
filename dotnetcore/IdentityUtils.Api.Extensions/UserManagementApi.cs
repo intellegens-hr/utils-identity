@@ -3,7 +3,6 @@ using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Contracts.Users;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions
@@ -22,13 +21,13 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult> AddUserToRole(Guid userId, Guid roleId)
             => RestClient.Post<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{roleId}").ParseRestResultTask();
 
-        public Task<IdentityUtilsResult<IEnumerable<RoleBasicData>>> GetUserRoles(Guid userId)
-            => RestClient.Get<IdentityUtilsResult<IEnumerable<RoleBasicData>>>($"{BasePath}/{userId}/roles").ParseRestResultTask();
+        public Task<IdentityUtilsResult<RoleBasicData>> GetUserRoles(Guid userId)
+            => RestClient.Get<IdentityUtilsResult<RoleBasicData>>($"{BasePath}/{userId}/roles").ParseRestResultTask();
 
         public Task<IdentityUtilsResult> RemoveUserFromRole(Guid userId, Guid roleId)
             => RestClient.Delete<IdentityUtilsResult>($"{BasePath}/{userId}/roles/{roleId}").ParseRestResultTask();
 
-        public Task<IdentityUtilsResult<IEnumerable<TUserDto>>> Search(UsersSearch search)
-            => RestClient.Post<IdentityUtilsResult<IEnumerable<TUserDto>>>($"{BasePath}/search", search).ParseRestResultTask();
+        public Task<IdentityUtilsResult<TUserDto>> Search(UsersSearch search)
+            => RestClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/search", search).ParseRestResultTask();
     }
 }

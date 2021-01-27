@@ -1,4 +1,5 @@
 using IdentityUtils.Api.Extensions;
+using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
@@ -25,38 +26,41 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         };
 
         [Fact]
+        public async Task Created_dto_should_match_fetched_dto()
+        {
+            var (resultCreated, roleCreated) = await roleManagementApi.AddRole(GetUniqueTestRole).UnpackSingleOrDefault();
+            var (resultFetched, roleFetched) = await roleManagementApi.GetRoleById(roleCreated.Id).UnpackSingleOrDefault();
+
+            Assert.True(resultCreated.Success);
+            Assert.True(resultFetched.Success);
+            Assert.Equal(roleCreated, roleFetched);
+        }
+
+        [Fact]
         public async Task Created_dto_should_match_original_dto()
         {
             var roleDto = GetUniqueTestRole;
-            var resultCreated = await roleManagementApi.AddRole(roleDto);
+            var (resultCreated, roleCreated) = await roleManagementApi.AddRole(roleDto).UnpackSingleOrDefault();
 
             Assert.True(resultCreated.Success);
-            Assert.Equal(roleDto.Name, resultCreated.Data.Name);
+            Assert.Equal(roleDto.Name, roleCreated.Name);
         }
 
         [Fact]
-        public async Task Created_dto_should_match_fetched_dto()
+        public async Task Deleting_nonexisting_role_should_fail_gracefully()
         {
-            var resultCreated = await roleManagementApi.AddRole(GetUniqueTestRole);
-            var resultFetch = await roleManagementApi.GetRoleById(resultCreated.Data.Id);
-
-            Assert.True(resultCreated.Success);
-            Assert.True(resultFetch.Success);
-            Assert.Equal(resultCreated.Data, resultFetch.Data);
+            var deleteResult = await roleManagementApi.DeleteRole(Guid.NewGuid());
+            Assert.False(deleteResult.Success);
         }
 
         [Fact]
-        public async Task Service_should_return_all_roles()
+        public async Task Existing_role_should_be_deleted()
         {
-            var resultCreated1 = await roleManagementApi.AddRole(GetUniqueTestRole);
-            var resultCreated2 = await roleManagementApi.AddRole(GetUniqueTestRole);
+            var (resultCreated, roleCreated) = await roleManagementApi.AddRole(GetUniqueTestRole).UnpackSingleOrDefault();
+            var deleteResult = await roleManagementApi.DeleteRole(roleCreated.Id);
 
-            var roles = await roleManagementApi.GetRoles();
-            var count = roles.Data.Where(x => x.Id == resultCreated1.Data.Id || x.Id == resultCreated2.Data.Id).Count();
-
-            Assert.True(resultCreated1.Success);
-            Assert.True(resultCreated2.Success);
-            Assert.Equal(2, count);
+            Assert.True(resultCreated.Success);
+            Assert.True(deleteResult.Success);
         }
 
         [Fact]
@@ -75,29 +79,26 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         public async Task Role_should_be_fetched_by_normalized_name()
         {
             var role = new RoleDto { Name = "strange Name" };
-            var resultCreated = await roleManagementApi.AddRole(role);
-            var resultFetched = await roleManagementApi.Search(new RoleSearch(name: resultCreated.Data.NormalizedName));
+            var (resultCreated, roleCreated) = await roleManagementApi.AddRole(role).UnpackSingleOrDefault();
+            var resultSearch = await roleManagementApi.Search(new RoleSearch(name: roleCreated.NormalizedName));
 
             Assert.True(resultCreated.Success);
-            Assert.True(resultFetched.Success);
-            Assert.Contains(resultCreated.Data, resultFetched.Data);
+            Assert.True(resultSearch.Success);
+            Assert.Contains(roleCreated, resultSearch.Data);
         }
 
         [Fact]
-        public async Task Existing_role_should_be_deleted()
+        public async Task Service_should_return_all_roles()
         {
-            var resultCreated = await roleManagementApi.AddRole(GetUniqueTestRole);
-            var deleteResult = await roleManagementApi.DeleteRole(resultCreated.Data.Id);
+            var (resultCreated1, roleCreated1) = await roleManagementApi.AddRole(GetUniqueTestRole).UnpackSingleOrDefault();
+            var (resultCreated2, roleCreated2) = await roleManagementApi.AddRole(GetUniqueTestRole).UnpackSingleOrDefault();
 
-            Assert.True(resultCreated.Success);
-            Assert.True(deleteResult.Success);
-        }
+            var roles = await roleManagementApi.GetRoles();
+            var count = roles.Data.Where(x => x.Id == roleCreated1.Id || x.Id == roleCreated2.Id).Count();
 
-        [Fact]
-        public async Task Deleting_nonexisting_role_should_fail_gracefully()
-        {
-            var deleteResult = await roleManagementApi.DeleteRole(Guid.NewGuid());
-            Assert.False(deleteResult.Success);
+            Assert.True(resultCreated1.Success);
+            Assert.True(resultCreated2.Success);
+            Assert.Equal(2, count);
         }
     }
 }

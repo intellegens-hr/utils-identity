@@ -8,9 +8,9 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant.Models
 {
     public class TenantDto : IIdentityManagerTenantDto, IEquatable<TenantDto>
     {
-        public Guid TenantId { get; set; }
+        public ICollection<string> Hostnames { get; set; } = new List<string>();
         public string Name { get; set; }
-        public List<string> Hostnames { get; set; }
+        public Guid TenantId { get; set; }
 
         public bool Equals([AllowNull] TenantDto other)
         {

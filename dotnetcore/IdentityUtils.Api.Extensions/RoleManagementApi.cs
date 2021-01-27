@@ -34,13 +34,13 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult<TRoleDto>> GetRoleById(Guid id)
             => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
-        public async Task<IdentityUtilsResult<List<TRoleDto>>> GetRoles()
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRoles()
         {
-            var response = await restClient.Get<List<TRoleDto>>($"{BasePath}");
+            var response = await restClient.Get<IEnumerable<TRoleDto>>($"{BasePath}");
             return response.ToIdentityResult();
         }
 
-        public Task<IdentityUtilsResult<IEnumerable<TRoleDto>>> Search(RoleSearch search)
-            => restClient.Post<IdentityUtilsResult<IEnumerable<TRoleDto>>>($"{BasePath}/search", search).ParseRestResultTask();
+        public Task<IdentityUtilsResult<TRoleDto>> Search(RoleSearch search)
+            => restClient.Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}/search", search).ParseRestResultTask();
     }
 }

@@ -19,16 +19,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         [Option(ShortName = "r", LongName = "api-base-route", Description = "Base route tenant management API uses (defaults to /api/management/tenants)")]
         internal static string ApiBaseRoute { get; set; }
 
-        private int OnExecute(IConsole console)
-        {
-            console.Error.WriteLine("You must specify an action. See --help for more details.");
-            return 1;
-        }
-
         private static void ConsoleOutputTenants(IConsole console, TenantDto tenant)
-            => ConsoleOutputTenants(console, new List<TenantDto> { tenant });
+            => ConsoleOutputTenants(console, new TenantDto[] { tenant });
 
-        private static void ConsoleOutputTenants(IConsole console, List<TenantDto> tenants)
+        private static void ConsoleOutputTenants(IConsole console, IEnumerable<TenantDto> tenants)
         {
             console.WriteLine("\tID\t\t\tNAME\t\tHOSTNAME");
             console.WriteLine("--------------------------------------------");
@@ -38,103 +32,35 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             }
         }
 
-        [Command(Description = "List all tenants"), HelpOption]
-        private class List
+        private int OnExecute(IConsole console)
         {
-            [Option(Description = "Show only tenant with specified ID")]
-            [GuidValidator]
-            public string Id { get; }
-
-            private void OnExecute(IConsole console)
-            {
-                var tenants = new List<TenantDto>();
-
-                if (!string.IsNullOrEmpty(Id))
-                {
-                    var tenantId = Guid.Parse(Id);
-
-                    var result = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
-                    if (!result.Success)
-                    {
-                        result.ToConsoleResult().WriteMessages(console);
-                        return;
-                    }
-
-                    tenants.Add(result.Data);
-                }
-                else
-                {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Data);
-                }
-
-                ConsoleOutputTenants(console, tenants);
-            }
+            console.Error.WriteLine("You must specify an action. See --help for more details.");
+            return 1;
         }
 
         [Command(Description = "Add tenant"), HelpOption]
         private class Add
         {
-            [Required(ErrorMessage = "Must specify tenant name")]
-            [Option(Description = "Tenant name")]
-            public string Name { get; }
-
             [Required(ErrorMessage = "Must specify tenant host")]
             [Option(Description = "Hostnames (separate multiple hosts with ';')")]
             public string Hostnames { get; }
+
+            [Required(ErrorMessage = "Must specify tenant name")]
+            [Option(Description = "Tenant name")]
+            public string Name { get; }
 
             private void OnExecute(IConsole console)
             {
                 TenantDto tenant = new TenantDto
                 {
                     Name = Name,
-                    Hostnames = Hostnames.Split(';').ToList()
+                    Hostnames = Hostnames.Split(';')
                 };
 
                 var tenantAddResult = Shared.GetTenantManagementApi(console).AddTenant(tenant).Result;
 
                 tenantAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputTenants(console, tenantAddResult.Data);
-            }
-        }
-
-        [Command(Description = "Update tenant"), HelpOption]
-        private class Update
-        {
-            [Option(Description = "Tenant ID")]
-            [Required, GuidValidator]
-            public string Id { get; }
-
-            [Option(Description = "Tenant name")]
-            public string Name { get; }
-
-            [Option(Description = "Hostnames (separate multiple hosts with ';')")]
-            public string Hostnames { get; }
-
-            private void OnExecute(IConsole console)
-            {
-                var tenantId = Guid.Parse(Id);
-
-                var tenantResult = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
-                if (!tenantResult.Success)
-                {
-                    tenantResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                    return;
-                }
-
-                var tenant = tenantResult.Data;
-
-                if (!string.IsNullOrEmpty(Name))
-                    tenant.Name = Name;
-
-                if (!string.IsNullOrEmpty(Hostnames))
-                    tenant.Hostnames = Hostnames.Split(';').ToList();
-
-                var tenantUpdateResult = Shared.GetTenantManagementApi(console).UpdateTenant(tenant).Result;
-
-                tenantUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-
-                if (tenantUpdateResult.Success)
-                    ConsoleOutputTenants(console, tenantUpdateResult.Data);
+                ConsoleOutputTenants(console, tenantAddResult.Data.First());
             }
         }
 
@@ -152,6 +78,80 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
 
                 var result = Shared.GetTenantManagementApi(console).DeleteTenant(tenantId).Result;
                 result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+            }
+        }
+
+        [Command(Description = "List all tenants"), HelpOption]
+        private class List
+        {
+            [Option(Description = "Show only tenant with specified ID")]
+            [GuidValidator]
+            public string Id { get; }
+
+            private void OnExecute(IConsole console)
+            {
+                IEnumerable<TenantDto> tenants;
+
+                if (!string.IsNullOrEmpty(Id))
+                {
+                    var tenantId = Guid.Parse(Id);
+
+                    var result = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
+                    if (!result.Success)
+                    {
+                        result.ToConsoleResult().WriteMessages(console);
+                        return;
+                    }
+
+                    tenants = result.Data;
+                }
+                else
+                {
+                    tenants = Shared.GetTenantManagementApi(console).GetTenants().Result.Data;
+                }
+
+                ConsoleOutputTenants(console, tenants);
+            }
+        }
+
+        [Command(Description = "Update tenant"), HelpOption]
+        private class Update
+        {
+            [Option(Description = "Hostnames (separate multiple hosts with ';')")]
+            public string Hostnames { get; }
+
+            [Option(Description = "Tenant ID")]
+            [Required, GuidValidator]
+            public string Id { get; }
+
+            [Option(Description = "Tenant name")]
+            public string Name { get; }
+
+            private void OnExecute(IConsole console)
+            {
+                var tenantId = Guid.Parse(Id);
+
+                var tenantResult = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
+                if (!tenantResult.Success)
+                {
+                    tenantResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+                    return;
+                }
+
+                var tenant = tenantResult.Data.First();
+
+                if (!string.IsNullOrEmpty(Name))
+                    tenant.Name = Name;
+
+                if (!string.IsNullOrEmpty(Hostnames))
+                    tenant.Hostnames = Hostnames.Split(';');
+
+                var tenantUpdateResult = Shared.GetTenantManagementApi(console).UpdateTenant(tenant).Result;
+
+                tenantUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+
+                if (tenantUpdateResult.Success)
+                    ConsoleOutputTenants(console, tenantUpdateResult.Data.First());
             }
         }
     }

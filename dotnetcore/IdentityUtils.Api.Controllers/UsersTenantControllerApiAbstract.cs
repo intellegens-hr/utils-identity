@@ -35,10 +35,10 @@ namespace IdentityUtils.Api.Controllers
             => await userManager.AddToRoleAsync(userId, tenantId, roleId);
 
         [HttpGet("{userId}/roles/{tenantId}")]
-        public virtual async Task<IdentityUtilsResult<IEnumerable<RoleBasicData>>> GetUserRoles([FromRoute] Guid userId, [FromRoute] Guid tenantId)
+        public virtual async Task<IdentityUtilsResult<RoleBasicData>> GetUserRoles([FromRoute] Guid userId, [FromRoute] Guid tenantId)
         {
             var userRoles = await userManager.GetRolesAsync(userId, tenantId);
-            return IdentityUtilsResult<IEnumerable<RoleBasicData>>.SuccessResult(userRoles);
+            return IdentityUtilsResult<RoleBasicData>.SuccessResult(userRoles);
         }
 
         [HttpDelete("{userId}/roles/{tenantId}/{roleId}")]

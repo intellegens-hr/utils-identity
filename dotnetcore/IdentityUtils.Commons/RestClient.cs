@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,7 @@ namespace IdentityUtils.Commons
         private async Task<RestResult<T>> GetResponseResult<T>(HttpResponseMessage responseMessage)
         {
             string content = await responseMessage.Content.ReadAsStringAsync();
+            var errors = new List<string>();
 
             var result = new RestResult<T>()
             {
@@ -45,7 +47,7 @@ namespace IdentityUtils.Commons
                 catch (Exception ex)
                 {
                     result.StatusCode = 0;
-                    result.ErrorMessages.Add("Rest client - error parsing JSON: " + ex.Message);
+                    errors.Add("Rest client - error parsing JSON: " + ex.Message);
                 }
             }
             else
@@ -54,9 +56,10 @@ namespace IdentityUtils.Commons
                 if (!string.IsNullOrEmpty(content))
                     errorMessage = $"{errorMessage}: {content}";
 
-                result.ErrorMessages.Add(errorMessage);
+                errors.Add(errorMessage);
             }
 
+            result.ErrorMessages = errors;
             return result;
         }
 

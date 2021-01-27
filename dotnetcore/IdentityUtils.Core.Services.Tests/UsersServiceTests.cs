@@ -1,4 +1,5 @@
-﻿using IdentityUtils.Core.Contracts.Services.Models;
+﻿using IdentityUtils.Core.Contracts.Commons;
+using IdentityUtils.Core.Contracts.Services.Models;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
 using IdentityUtils.Core.Services.Tests.TestData;
@@ -36,15 +37,15 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Adding_user_claims_should_work()
         {
-            var userCreatedResult = await usersService.CreateUser(TestUser);
+            var (_, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
-            var claimsToAdd = new List<Claim> {
+            var claimsToAdd = new Claim[] {
                 new Claim("testclaim2", "testvalue"),
                 new Claim("testclaim3", "testvalue")
             };
 
-            var resultAdding1 = await usersService.AddClaimAsync(userCreatedResult.Data.Id, new Claim("testclaim1", "testvalue"));
-            var resultAdding2 = await usersService.AddClaimsAsync(userCreatedResult.Data.Id, claimsToAdd);
+            var resultAdding1 = await usersService.AddClaimAsync(userCreated.Id, new Claim("testclaim1", "testvalue"));
+            var resultAdding2 = await usersService.AddClaimsAsync(userCreated.Id, claimsToAdd);
 
             Assert.True(resultAdding1.Success);
             Assert.True(resultAdding2.Success);
@@ -53,46 +54,49 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Adding_user_to_multiple_roles_should_work()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
             await LoadRoles();
 
-            var rolesToAdd = new List<Guid> { Role1.Id, Role2.Id };
-            var roleAddResult = await usersService.AddToRolesAsync(userResult.Data.Id, rolesToAdd);
+            var rolesToAdd = new Guid[] { Role1.Id, Role2.Id };
+            var roleAddResult = await usersService.AddToRolesAsync(userCreated.Id, rolesToAdd);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id);
+            var userRoles = await usersService.GetRolesAsync(userCreated.Id);
+            var roleIds = userRoles.Select(x => x.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
+            Assert.Contains(Role1.Id, roleIds);
+            Assert.Contains(Role2.Id, roleIds);
             Assert.Equal(2, userRoles.Count());
         }
 
         [Fact]
         public async Task Adding_user_to_role_multiple_times_shouldnt_do_anything()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
-            var role1AddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
-            var role2AddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
+            var role1AddResult = await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            var role2AddResult = await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id);
+            var userRoles = await usersService.GetRolesAsync(userCreated.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(role1AddResult.Success);
             Assert.True(role2AddResult.Success);
-            Assert.Equal(1, userRoles.Count());
+            Assert.Single(userRoles);
         }
 
         [Fact]
         public async Task Checking_if_user_is_in_role_should_work()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
-            var isUserInRole = await usersService.IsInRoleAsync(userResult.Data.Id, Role1.Id);
+            var roleAddResult = await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            var isUserInRole = await usersService.IsInRoleAsync(userCreated.Id, Role1.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
             Assert.True(isUserInRole);
         }
@@ -100,13 +104,13 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Checking_if_user_is_in_unassigend_role_should_work()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
-            var isUserInRole = await usersService.IsInRoleAsync(userResult.Data.Id, Guid.NewGuid());
+            var roleAddResult = await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            var isUserInRole = await usersService.IsInRoleAsync(userCreated.Id, Guid.NewGuid());
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
             Assert.False(isUserInRole);
         }
@@ -114,36 +118,36 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Created_user_dto_should_match_fetched_by_id_dto()
         {
-            var createdResult = await usersService.CreateUser(TestUser);
-            var fetchResult = await usersService.FindByIdAsync<UserDto>(createdResult.Data.Id);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
+            var (resultFetched, userFetched) = await usersService.FindByIdAsync<UserDto>(userCreated.Id).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
-            Assert.True(fetchResult.Success);
-            Assert.Equal(createdResult.Data, fetchResult.Data);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultFetched.Success);
+            Assert.Equal(userCreated, userFetched);
         }
 
         [Fact]
         public async Task Created_user_dto_should_match_fetched_by_username_dto()
         {
-            var createdResult = await usersService.CreateUser(TestUser);
-            var fetchResult = await usersService.FindByNameAsync<UserDto>(createdResult.Data.Username);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
+            var (resultFetched, userFetched) = await usersService.FindByNameAsync<UserDto>(userCreated.Username).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
-            Assert.True(fetchResult.Success);
-            Assert.Equal(createdResult.Data, fetchResult.Data);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultFetched.Success);
+            Assert.Equal(userCreated, userFetched);
         }
 
         [Fact]
         public async Task Created_user_dto_should_match_original_dto()
         {
-            var testUser = TestUser;
-            var createdResult = await usersService.CreateUser(testUser);
+            var dto = TestUser;
+            var (resultCreated, userCreated) = await usersService.CreateUser(dto).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
-            Assert.Equal(testUser.Email, createdResult.Data.Email);
-            Assert.Equal(testUser.Username, createdResult.Data.Username);
-            Assert.Equal(testUser.DisplayName, createdResult.Data.DisplayName);
-            Assert.Equal(testUser.AdditionalDataJson, createdResult.Data.AdditionalDataJson);
+            Assert.True(resultCreated.Success);
+            Assert.Equal(dto.Email, userCreated.Email);
+            Assert.Equal(dto.Username, userCreated.Username);
+            Assert.Equal(dto.DisplayName, userCreated.DisplayName);
+            Assert.Equal(dto.AdditionalDataJson, userCreated.AdditionalDataJson);
         }
 
         [Theory]
@@ -165,15 +169,18 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Fetching_user_tenant_claim_data_should_work()
         {
-            var userCreatedResult = await usersService.CreateUser(TestUser);
+            var (_, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
             await LoadRoles();
 
-            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult.Data.Id, Role2.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role2.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userCreatedResult.Data.Id);
+            var userRoles = await usersService.GetRolesAsync(userCreated.Id);
+            var roleIds = userRoles.Select(x => x.Id);
 
+            Assert.Contains(Role1.Id, roleIds);
+            Assert.Contains(Role2.Id, roleIds);
             Assert.Equal(2, userRoles.Count());
         }
 
@@ -181,12 +188,12 @@ namespace IdentityUtils.Core.Services.Tests
         public async Task Fetching_users_per_role_should_filter_correctly()
         {
             await LoadRoles();
-            var userCreatedResult1 = await usersService.CreateUser(TestUser);
-            var userCreatedResult2 = await usersService.CreateUser(TestUser);
+            var (_, userCreated1) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
+            var (_, userCreated2) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
-            await usersService.AddToRoleAsync(userCreatedResult1.Data.Id, Role1.Id);
-            await usersService.AddToRoleAsync(userCreatedResult1.Data.Id, Role2.Id);
-            await usersService.AddToRoleAsync(userCreatedResult2.Data.Id, Role2.Id);
+            await usersService.AddToRoleAsync(userCreated1.Id, Role1.Id);
+            await usersService.AddToRoleAsync(userCreated1.Id, Role2.Id);
+            await usersService.AddToRoleAsync(userCreated2.Id, Role2.Id);
 
             var usersInRoleResult1 = await usersService.Search(new UsersSearch(roleId: Role1.Id));
             var usersInRoleResult2 = await usersService.Search(new UsersSearch(roleId: Role2.Id));
@@ -198,30 +205,30 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Getting_all_users_should_work()
         {
-            var createdResult1 = await usersService.CreateUser(TestUser);
-            var createdResult2 = await usersService.CreateUser(TestUser);
+            var (resultCreated1, userCreated1) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
+            var (resultCreated2, userCreated2) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             var users = await usersService.GetAllUsers();
             var userIds = users.Select(x => x.Id);
 
-            Assert.True(createdResult1.Success);
-            Assert.True(createdResult2.Success);
-            Assert.Contains(createdResult1.Data.Id, userIds);
-            Assert.Contains(createdResult2.Data.Id, userIds);
+            Assert.True(resultCreated1.Success);
+            Assert.True(resultCreated2.Success);
+            Assert.Contains(userCreated1.Id, userIds);
+            Assert.Contains(userCreated2.Id, userIds);
         }
 
         [Fact]
         public async Task Getting_user_by_multiple_params_should_work()
         {
-            var createdResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
-            var fetchResultDb1 = await usersService.FindByIdAsync(createdResult.Data.Id);
-            var fetchResultDb2 = await usersService.FindByNameAsync(createdResult.Data.Username);
+            var fetchResultDb1 = await usersService.FindByIdAsync(userCreated.Id);
+            var fetchResultDb2 = await usersService.FindByNameAsync(userCreated.Username);
 
-            var fetchResult1 = await usersService.FindByIdAsync<UserDto>(createdResult.Data.Id);
-            var fetchResult2 = await usersService.FindByNameAsync<UserDto>(createdResult.Data.Username);
+            var fetchResult1 = await usersService.FindByIdAsync<UserDto>(userCreated.Id);
+            var fetchResult2 = await usersService.FindByNameAsync<UserDto>(userCreated.Username);
 
-            Assert.True(createdResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(fetchResultDb1.Success);
             Assert.True(fetchResultDb2.Success);
             Assert.True(fetchResult1.Success);
@@ -231,102 +238,102 @@ namespace IdentityUtils.Core.Services.Tests
         [Fact]
         public async Task Managing_user_roles_should_work_properly_after_multiple_operations()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
-            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userResult.Data.Id, Role1.Id);
-            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id);
+            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userCreated.Id, Role1.Id);
+            var userRoles = await usersService.GetRolesAsync(userCreated.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleRemoveResult.Success);
-            Assert.Equal(0, userRoles.Count());
+            Assert.Empty(userRoles);
         }
 
         [Fact]
         public async Task Removing_user_from_role_should_work()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
-            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userResult.Data.Id, Role1.Id);
+            var roleAddResult = await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            var roleRemoveResult = await usersService.RemoveFromRoleAsync(userCreated.Id, Role1.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id);
+            var userRoles = await usersService.GetRolesAsync(userCreated.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
             Assert.True(roleRemoveResult.Success);
-            Assert.Equal(0, userRoles.Count());
+            Assert.Empty(userRoles);
         }
 
         [Fact]
         public async Task Removing_user_from_unassigned_role_shouldnt_do_anything()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
 
-            await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
-            await usersService.AddToRoleAsync(userResult.Data.Id, Role2.Id);
-            await usersService.AddToRoleAsync(userResult.Data.Id, Role2.Id);
-            await usersService.RemoveFromRoleAsync(userResult.Data.Id, Role1.Id);
-            await usersService.RemoveFromRoleAsync(userResult.Data.Id, Role2.Id);
-            await usersService.AddToRoleAsync(userResult.Data.Id, Role2.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role2.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role2.Id);
+            await usersService.RemoveFromRoleAsync(userCreated.Id, Role1.Id);
+            await usersService.RemoveFromRoleAsync(userCreated.Id, Role2.Id);
+            await usersService.AddToRoleAsync(userCreated.Id, Role2.Id);
 
-            var userRoles = await usersService.GetRolesAsync(userResult.Data.Id);
+            var userRoles = await usersService.GetRolesAsync(userCreated.Id);
 
-            Assert.Equal(1, userRoles.Count());
+            Assert.Single(userRoles);
+            Assert.Contains(Role2.Id, userRoles.Select(x => x.Id));
         }
 
         [Fact]
         public async Task User_should_be_able_to_change_password()
         {
-            var createdResult = await usersService.CreateUser(TestUser);
-            var tokenResult = await usersService.GeneratePasswordResetTokenAsync(createdResult.Data.Username);
-            var changePasswordResult = await usersService.ResetPasswordAsync(createdResult.Data.Username, tokenResult.Data, "NewStrong1324Pa55!");
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
+            var (resultToken, token) = await usersService.GeneratePasswordResetTokenAsync(userCreated.Username).UnpackSingleOrDefault();
+            var changePasswordResult = await usersService.ResetPasswordAsync(userCreated.Username, token, "NewStrong1324Pa55!");
 
-            Assert.True(createdResult.Success);
-            Assert.True(tokenResult.Success);
+            Assert.True(resultCreated.Success);
+            Assert.True(resultToken.Success);
             Assert.True(changePasswordResult.Success);
         }
 
         [Fact]
         public async Task User_should_be_assigned_to_role()
         {
-            var userResult = await usersService.CreateUser(TestUser);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
             await LoadRoles();
-            var roleAddResult = await usersService.AddToRoleAsync(userResult.Data.Id, Role1.Id);
+            var roleAddResult = await usersService.AddToRoleAsync(userCreated.Id, Role1.Id);
 
-            Assert.True(userResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(roleAddResult.Success);
         }
 
         [Fact]
         public async Task User_should_be_deleted()
         {
-            var createdResult = await usersService.CreateUser(TestUser);
-            var deleteResult = await usersService.DeleteUser(createdResult.Data.Id);
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
+            var deleteResult = await usersService.DeleteUser(userCreated.Id);
 
-            Assert.True(createdResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(deleteResult.Success);
         }
 
         [Fact]
         public async Task User_should_be_updated()
         {
-            var createdResult = await usersService.CreateUser(TestUser);
-            var userDto = createdResult.Data;
+            var (resultCreated, userCreated) = await usersService.CreateUser(TestUser).UnpackSingleOrDefault();
 
-            userDto.Email = "changed@email.com";
-            var updatedResult = await usersService.UpdateUser(userDto);
+            userCreated.Email = "changed@email.com";
+            var updatedResult = await usersService.UpdateUser(userCreated);
 
-            var fetchResult = await usersService.FindByIdAsync<UserDto>(userDto.Id);
+            var (resultFetched, userFetched) = await usersService.FindByIdAsync<UserDto>(userCreated.Id).UnpackSingleOrDefault();
 
-            Assert.True(createdResult.Success);
+            Assert.True(resultCreated.Success);
             Assert.True(updatedResult.Success);
-            Assert.True(fetchResult.Success);
-            Assert.Equal(userDto.Email, fetchResult.Data.Email);
+            Assert.True(resultFetched.Success);
+            Assert.Equal(userCreated.Email, userFetched.Email);
         }
 
         private async Task LoadRoles()
@@ -344,8 +351,8 @@ namespace IdentityUtils.Core.Services.Tests
             var role1Result = await rolesService.AddRole(Role1);
             var role2Result = await rolesService.AddRole(Role2);
 
-            Role1 = role1Result.Data;
-            Role2 = role2Result.Data;
+            Role1 = role1Result.Data.Single();
+            Role2 = role2Result.Data.Single();
         }
     }
 }

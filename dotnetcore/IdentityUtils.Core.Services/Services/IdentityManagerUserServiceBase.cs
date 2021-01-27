@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -32,11 +33,11 @@ namespace IdentityUtils.Core.Services
 
         public async Task<IdentityUtilsResult> AddClaimsAsync(Guid userId, IEnumerable<Claim> claims)
         {
-            var userResult = await FindByIdAsync(userId);
+            var (userResult, user) = await FindByIdAsync(userId).UnpackSingleOrDefault();
             if (!userResult.Success)
                 return userResult;
 
-            var result = await userManager.AddClaimsAsync(userResult.Data, claims);
+            var result = await userManager.AddClaimsAsync(user, claims);
             return result.ToIdentityUtilsResult();
         }
 
@@ -65,11 +66,11 @@ namespace IdentityUtils.Core.Services
 
         public async Task<IdentityUtilsResult> DeleteUser(Guid userId)
         {
-            var userResult = await FindByIdAsync(userId);
+            var (userResult, user) = await FindByIdAsync(userId).UnpackSingleOrDefault();
             if (!userResult.Success)
                 return userResult;
 
-            var identityResult = await userManager.DeleteAsync(userResult.Data);
+            var identityResult = await userManager.DeleteAsync(user);
             return identityResult.ToIdentityUtilsResult();
         }
 
@@ -98,7 +99,7 @@ namespace IdentityUtils.Core.Services
             var user = await FindByIdAsync(id);
 
             return user.Success
-                ? IdentityUtilsResult<TDto>.SuccessResult(mapper.Map<TDto>(user.Data))
+                ? IdentityUtilsResult<TDto>.SuccessResult(mapper.Map<TDto>(user.Data.Single()))
                 : IdentityUtilsResult<TDto>.ErrorResult(user.ErrorMessages);
         }
 
@@ -118,7 +119,7 @@ namespace IdentityUtils.Core.Services
             if (!userResult.Success)
                 return IdentityUtilsResult<TUserDto>.ErrorResult(userResult.ErrorMessages);
 
-            return IdentityUtilsResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Data));
+            return IdentityUtilsResult<TUserDto>.SuccessResult(mapper.Map<TUserDto>(userResult.Data.First()));
         }
 
         public async Task<IdentityUtilsResult<string>> GeneratePasswordResetTokenAsync(string username)
@@ -128,8 +129,8 @@ namespace IdentityUtils.Core.Services
 
             if (result.Success)
             {
-                var token = await userManager.GeneratePasswordResetTokenAsync(userResult.Data);
-                result.Data = token;
+                var token = await userManager.GeneratePasswordResetTokenAsync(userResult.Data.First());
+                result.Data = new string[] { token };
             }
 
             return result;
@@ -147,7 +148,7 @@ namespace IdentityUtils.Core.Services
             if (!userResult.Success)
                 return userResult;
 
-            var result = await userManager.ResetPasswordAsync(userResult.Data, token, newPassword);
+            var result = await userManager.ResetPasswordAsync(userResult.Data.First(), token, newPassword);
             return result.ToIdentityUtilsResult();
         }
 
@@ -158,7 +159,7 @@ namespace IdentityUtils.Core.Services
             if (!userDbResult.Success)
                 return IdentityUtilsResult.ErrorResult(userDbResult.ErrorMessages);
 
-            var userDb = userDbResult.Data;
+            var userDb = userDbResult.Data.First();
 
             mapper.Map(user, userDb);
 
@@ -175,7 +176,7 @@ namespace IdentityUtils.Core.Services
             if (!identityResult.Succeeded)
                 return identityResult.ToIdentityUtilsResult();
 
-            mapper.Map(userDbResult.Data, user);
+            mapper.Map(userDbResult.Data.Single(), user);
             return IdentityUtilsResult.SuccessResult;
         }
     }

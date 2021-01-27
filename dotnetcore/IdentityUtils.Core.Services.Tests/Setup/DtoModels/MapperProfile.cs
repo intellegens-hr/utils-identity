@@ -9,15 +9,12 @@ namespace IdentityUtils.Core.Services.Tests.Setup.DtoModels
         {
             CreateMap<UserDb, UserDto>();
             CreateMap<UserDto, UserDb>();
-            //CreateMap<List<IdentityManagerUser>, List<UserDto>>();
 
             CreateMap<RoleDb, RoleDto>();
             CreateMap<RoleDto, RoleDb>();
-            //CreateMap<List<IdentityManagerRole>, List<RoleDto>>();
 
             CreateMap<TenantDb, TenantDto>();
             CreateMap<TenantDto, TenantDb>();
-            //CreateMap<List<IdentityManagerTenant>, List<TenantDto>>();
         }
     }
 }

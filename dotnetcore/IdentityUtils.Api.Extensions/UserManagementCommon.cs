@@ -30,9 +30,9 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult> DeleteUser(Guid id)
             => RestClient.Delete<IdentityUtilsResult>($"{BasePath}/{id}").ParseRestResultTask();
 
-        public async Task<IdentityUtilsResult<List<TUserDto>>> GetAllUsers()
+        public async Task<IdentityUtilsResult<TUserDto>> GetAllUsers()
         {
-            var response = await RestClient.Get<List<TUserDto>>($"{BasePath}");
+            var response = await RestClient.Get<TUserDto>($"{BasePath}");
             return response.ToIdentityResult();
         }
 
@@ -40,12 +40,12 @@ namespace IdentityUtils.Api.Extensions
             => RestClient.Post<IdentityUtilsResult<PasswordForgottenResponse>>($"{BasePath}/passwordreset", passwordForgottenRequest).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TUserDto>> GetUserById(Guid id)
-                    => RestClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{id}").ParseRestResultTask();
+            => RestClient.Get<IdentityUtilsResult<TUserDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
         public Task<IdentityUtilsResult> SetNewPasswordAfterReset(PasswordForgottenNewPassword newPassword)
             => RestClient.Post<IdentityUtilsResult>($"{BasePath}/passwordreset/newpassword", newPassword).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TUserDto>> UpdateUser(TUserDto userDto)
-                   => RestClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto).ParseRestResultTask();
+            => RestClient.Post<IdentityUtilsResult<TUserDto>>($"{BasePath}/{userDto.Id}", userDto).ParseRestResultTask();
     }
 }

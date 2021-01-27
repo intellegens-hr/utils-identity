@@ -34,16 +34,16 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult<TTenantDto>> GetTenant(Guid id)
             => restClient.Get<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
-        public async Task<IdentityUtilsResult<IEnumerable<TTenantDto>>> GetTenants()
+        public async Task<IdentityUtilsResult<TTenantDto>> GetTenants()
         {
             var response = await restClient.Get<IEnumerable<TTenantDto>>($"{BasePath}");
             return response.ToIdentityResult();
         }
 
-        public Task<IdentityUtilsResult<IEnumerable<TTenantDto>>> Search(TenantSearch search)
-            => restClient.Post<IdentityUtilsResult<IEnumerable<TTenantDto>>>($"{BasePath}/search", search).ParseRestResultTask();
+        public Task<IdentityUtilsResult<TTenantDto>> Search(TenantSearch search)
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/search", search).ParseRestResultTask();
 
         public Task<IdentityUtilsResult<TTenantDto>> UpdateTenant(TTenantDto tenant)
-                    => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant).ParseRestResultTask();
+            => restClient.Post<IdentityUtilsResult<TTenantDto>>($"{BasePath}/{tenant.TenantId}", tenant).ParseRestResultTask();
     }
 }
