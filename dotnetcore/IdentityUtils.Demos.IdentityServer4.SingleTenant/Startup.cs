@@ -98,8 +98,9 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                 //demo-is4-management-api resource as one of allowed scopes
                 opt.AddPolicy("Is4ManagementApi", builder =>
                 {
-                    builder.RequireScope(Configuration["Is4AuthManagementAudience"]);
+                    builder.RequireScope(Configuration["Is4AuthManagementAudience"], "jsapp");
                 });
+                opt.AddPolicy("AuthenticatedUser", builder => builder.RequireAuthenticatedUser());
             });
 
             services.AddCors(options =>
@@ -129,13 +130,14 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                     //redirect urls and is used for login via AJAX calls
                     .AddDefaultClientConfiguration()
                     //Profile service will properly load roles data per tenant to tokens provided by IS4
-                    .AddIdentityAndProfileService<IdentityManagerUser, UserDto, IdentityManagerRole>();
+                    .AddIdentityAndProfileService<IdentityManagerUser, UserDto, IdentityManagerRole>()
+                    .EnableIdentityUtilsAuthenticationController();
             })
             .AddOperationalStore((options) =>
             {
                 var dbConfiguration = new DbConfig(Configuration);
                 options.ConfigureDbContext = builder =>
-                    builder.UseSqlite(dbConfiguration.DatabaseName);
+                    builder.UseSqlite($@"Data Source={dbConfiguration.DatabaseName};");
 
                 // this enables automatic token cleanup. this is optional.
                 options.EnableTokenCleanup = true;

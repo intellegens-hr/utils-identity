@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.Identit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.IdentityServer4.SingleTenant", "IdentityUtils.Demos.IdentityServer4.SingleTenant\IdentityUtils.Demos.IdentityServer4.SingleTenant.csproj", "{9030C206-307E-4436-9607-8CF66D6F90F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityUtils.Api.Controllers.Authentication", "IdentityUtils.Api.Controllers.Auth\IdentityUtils.Api.Controllers.Authentication.csproj", "{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,10 @@ Global
 		{9030C206-307E-4436-9607-8CF66D6F90F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9030C206-307E-4436-9607-8CF66D6F90F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9030C206-307E-4436-9607-8CF66D6F90F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,6 +127,7 @@ Global
 		{64833E5A-42A8-45D8-8E1E-71F7B25A731E} = {D6EE6D34-7BB1-4E4B-B0D8-B2DE0421B687}
 		{7DB814B4-0756-45FD-9B32-FB0E0872EBA3} = {B3032E9A-8A85-4A73-B297-D59FE4B20366}
 		{9030C206-307E-4436-9607-8CF66D6F90F7} = {B3032E9A-8A85-4A73-B297-D59FE4B20366}
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA} = {C2EFC4D1-43DB-46C4-B44C-CEC9DF60DFC4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {37ABF11B-08BA-4A66-9A8B-AA337179D9C7}

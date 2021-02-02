@@ -133,7 +133,8 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     //redirect urls and is used for login via AJAX calls
                     .AddDefaultClientConfiguration()
                     //Profile service will properly load roles data per tenant to tokens provided by IS4
-                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>();
+                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>()
+                    .EnableIdentityUtilsAuthenticationController();
             })
             .AddOperationalStore((options) =>
             {

@@ -21,6 +21,46 @@ namespace IdentityUtils.Commons
             this.httpClient = new HttpClient();
         }
 
+        public virtual async Task<RestResult<T>> Delete<T>(string url)
+        {
+            var message = await GetHttpRequestMessage(HttpMethod.Delete, url);
+            var response = await httpClient.SendAsync(message);
+
+            return await GetResponseResult<T>(response);
+        }
+
+        public void Dispose()
+        {
+            httpClient.Dispose();
+        }
+
+        public virtual async Task<RestResult<T>> Get<T>(string url, string bearerToken = null)
+        {
+            var message = await GetHttpRequestMessage(HttpMethod.Get, url);
+
+            if (!string.IsNullOrEmpty(bearerToken))
+                message.Headers.Add("Authorization", $"Bearer {bearerToken}");
+
+            var response = await httpClient.SendAsync(message);
+
+            return await GetResponseResult<T>(response);
+        }
+
+        public virtual async Task<RestResult<T>> Post<T>(string url, object dataToSend = null, string bearerToken = null)
+        {
+            var message = await GetHttpRequestMessage(HttpMethod.Post, url);
+
+            if (dataToSend != null)
+                message.Content = new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json");
+
+            if (!string.IsNullOrEmpty(bearerToken))
+                message.Headers.Add("Authorization", $"Bearer {bearerToken}");
+            
+            var response = await httpClient.SendAsync(message);
+
+            return await GetResponseResult<T>(response);
+        }
+
         protected virtual async Task<HttpRequestMessage> GetHttpRequestMessage(HttpMethod method, string url)
         {
             var message = new HttpRequestMessage(method, url);
@@ -61,39 +101,6 @@ namespace IdentityUtils.Commons
 
             result.ErrorMessages = errors;
             return result;
-        }
-
-        public virtual async Task<RestResult<T>> Get<T>(string url)
-        {
-            var message = await GetHttpRequestMessage(HttpMethod.Get, url);
-            var response = await httpClient.SendAsync(message);
-
-            return await GetResponseResult<T>(response);
-        }
-
-        public virtual async Task<RestResult<T>> Delete<T>(string url)
-        {
-            var message = await GetHttpRequestMessage(HttpMethod.Delete, url);
-            var response = await httpClient.SendAsync(message);
-
-            return await GetResponseResult<T>(response);
-        }
-
-        public virtual async Task<RestResult<T>> Post<T>(string url, object dataToSend = null)
-        {
-            var message = await GetHttpRequestMessage(HttpMethod.Post, url);
-
-            if (dataToSend != null)
-                message.Content = new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json");
-
-            var response = await httpClient.SendAsync(message);
-
-            return await GetResponseResult<T>(response);
-        }
-
-        public void Dispose()
-        {
-            httpClient.Dispose();
         }
     }
 }

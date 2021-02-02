@@ -13,6 +13,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
         protected static IWebHost webHost;
         protected IServiceProvider serviceProvider;
         private static readonly object lockObject = new object();
+        protected string HostAddress = "https://localhost:5010";
 
         public TestAbstract()
         {
@@ -29,7 +30,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
                 {
                     //Host and database name are stored as environment variables which IS4 app reads
                     //If needed, this can be changed
-                    string host = "https://localhost:5010";
+                    string host = HostAddress;
                     var databaseName = $"IntegrationTestsDatabase.db";
 
                     //Have clean database each run

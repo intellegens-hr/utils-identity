@@ -1,4 +1,5 @@
-﻿using IdentityUtils.Core.Contracts.Roles;
+﻿using IdentityUtils.Api.Controllers;
+using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.IS4Extensions.ProfileServices;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +44,13 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
             identityServerBuilder
                 .AddAspNetIdentity<TUser>()
                 .AddProfileService<IdentityUtilsMultitenantProfileService<TUser, TUserDto>>();
+
+            return this;
+        }
+
+        public IdentityUtilsIdentityServerBuilder EnableIdentityUtilsAuthenticationController()
+        {
+            this.identityServerBuilder.Services.AddControllers().AddApplicationPart(typeof(AuthenticationControllerApi).Assembly);
 
             return this;
         }
