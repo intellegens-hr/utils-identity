@@ -4,17 +4,22 @@
 // Import modules
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-const modules = [HttpClientModule];
+import { RouterModule } from '@angular/router';
+const modules = [HttpClientModule, RouterModule];
 
 // Import and (re)export injectables
 export * from './services';
 import {
   AuthenticationService,
-  AuthenticationServiceInterceptopProvider,
+  AuthenticationHttpInterceptopProvider,
+  WhenAuthenticated,
+  WhenNotAuthenticated,
 } from './services';
 const injectables = [
   AuthenticationService,
-  AuthenticationServiceInterceptopProvider,
+  AuthenticationHttpInterceptopProvider,
+  WhenAuthenticated,
+  WhenNotAuthenticated,
 ];
 
 /**
