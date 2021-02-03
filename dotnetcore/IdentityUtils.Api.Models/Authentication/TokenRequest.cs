@@ -5,7 +5,6 @@ namespace IdentityUtils.Api.Models.Authentication
 {
     public class TokenRequest : IValidatableObject
     {
-        [Required]
         public string ClientId { get; set; }
 
         [Required]
