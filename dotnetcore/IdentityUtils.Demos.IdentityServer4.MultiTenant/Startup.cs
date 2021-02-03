@@ -1,4 +1,5 @@
 using AutoMapper;
+using IdentityUtils.Api.Models.Authentication;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
@@ -7,14 +8,12 @@ using IdentityUtils.Demos.IdentityServer4.MultiTenant.DbContext;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
 using IdentityUtils.IS4Extensions.IdentityServerBuilder;
 using IdentityUtils.IS4Extensions.ServicesCollection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
 {
@@ -75,10 +74,12 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                 iis.AutomaticAuthentication = false;
             });
 
-            services.AddScoped<IConfigurationRoot>(x => Configuration);
-            services.AddScoped<DbConfig>();
-            services.AddDbContext<Is4DemoDbContext>();
-            services.AddAutoMapper(typeof(Is4ModelsMapperProfile));
+            services
+                .AddScoped<IConfigurationRoot>(x => Configuration)
+                .AddSingleton<IIdentityUtilsAuthenticationConfig, IdentityUtilsConfiguration>()
+                .AddScoped<DbConfig>()
+                .AddDbContext<Is4DemoDbContext>()
+                .AddAutoMapper(typeof(Is4ModelsMapperProfile));
 
             services
                 .AddIdentityUtilsIs4MultitenancyExtensions((builder) =>

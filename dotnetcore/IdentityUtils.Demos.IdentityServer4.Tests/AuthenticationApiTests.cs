@@ -1,11 +1,11 @@
 using IdentityUtils.Api.Extensions;
+using IdentityUtils.Api.Models.Authentication;
 using IdentityUtils.Commons;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Demos.IdentityServer4.SingleTenant;
 using IdentityUtils.Demos.IdentityServer4.SingleTenant.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -59,7 +59,7 @@ namespace IdentityUtils.Demos.IdentityServer4.Tests
             var restResult = await restClient.Post<IdentityUtilsResult<TokenResponse>>($"{HostAddress}/auth/token", tokenRequest);
             var accessToken = restResult.ResponseData.Data.First().AccessToken;
 
-            var profileRestResult = await restClient.Get<IdentityUtilsResult<dynamic>>($"{HostAddress}/auth/init", accessToken);
+            var profileRestResult = await restClient.Get<IdentityUtilsResult<UserProfile>>($"{HostAddress}/auth/init", accessToken);
 
             Assert.True(profileRestResult.Success);
             Assert.True(profileRestResult.ResponseData.Success);

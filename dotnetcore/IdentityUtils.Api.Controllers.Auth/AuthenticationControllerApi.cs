@@ -23,12 +23,12 @@ namespace IdentityUtils.Api.Controllers
     [Route("auth")]
     public class AuthenticationControllerApi : ControllerBase
     {
-        private readonly IEventService events;
         private readonly IClientStore clientStore;
+        private readonly IClientSecretValidator clientValidator;
+        private readonly IEventService events;
         private readonly ILogger logger;
         private readonly ITokenRequestValidator requestValidator;
         private readonly ITokenResponseGenerator responseGenerator;
-        private readonly IClientSecretValidator clientValidator;
 
         public AuthenticationControllerApi(
             ITokenRequestValidator requestValidator,
@@ -49,6 +49,9 @@ namespace IdentityUtils.Api.Controllers
         [HttpPost("token")]
         public virtual async Task<IdentityUtilsResult<TokenResponse>> GetToken(TokenRequest request)
         {
+            var config = HttpContext.RequestServices.GetService(typeof(IIdentityUtilsAuthenticationConfig)) as IIdentityUtilsAuthenticationConfig;
+            request.ClientId = config?.ClientId ?? request.ClientId;
+
             HttpContext.Request.Form = new FormCollection(new Dictionary<string, StringValues>
             {
                 { "client_id", request.ClientId },
@@ -91,7 +94,6 @@ namespace IdentityUtils.Api.Controllers
 
             // create response
             var response = await responseGenerator.ProcessAsync(requestResult);
-
             await events.RaiseAsync(new TokenIssuedSuccessEvent(response, requestResult));
 
             // return result
@@ -107,10 +109,13 @@ namespace IdentityUtils.Api.Controllers
 
         [Authorize]
         [HttpGet("init")]
-        public virtual async Task<IdentityUtilsResult<dynamic>> ProfileInit()
+        public virtual async Task<IdentityUtilsResult<IUserProfile>> ProfileInit()
         {
-            var claims = User.Claims.Select(x => new { x.Value, x.Type });
-            return IdentityUtilsResult<dynamic>.SuccessResult(claims);
+            var profile = new UserProfile
+            {
+                Claims = User.Claims.Select(x => new Claim(x.Type, x.Value))
+            };
+            return IdentityUtilsResult<IUserProfile>.SuccessResult(profile);
         }
     }
 }

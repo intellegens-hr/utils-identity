@@ -1,4 +1,5 @@
 using AutoMapper;
+using IdentityUtils.Api.Models.Authentication;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Demos.IdentityServer4.SingleTenant.Configuration;
@@ -72,10 +73,12 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                 iis.AutomaticAuthentication = false;
             });
 
-            services.AddScoped<IConfigurationRoot>(x => Configuration);
-            services.AddScoped<DbConfig>();
-            services.AddDbContext<Is4DemoDbContext>();
-            services.AddAutoMapper(typeof(Is4ModelsMapperProfile));
+            services
+                .AddScoped<IConfigurationRoot>(x => Configuration)
+                .AddSingleton<IIdentityUtilsAuthenticationConfig, IdentityUtilsConfiguration>()
+                .AddScoped<DbConfig>()
+                .AddDbContext<Is4DemoDbContext>()
+                .AddAutoMapper(typeof(Is4ModelsMapperProfile));
 
             services
                 .AddIdentityUtilsIs4Extensions((builder) =>
