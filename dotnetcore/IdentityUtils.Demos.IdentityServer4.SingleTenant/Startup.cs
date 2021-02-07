@@ -57,7 +57,9 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
         public void ConfigureServices(IServiceCollection services)
         {
             this.services = services;
-            services.AddControllersWithViews();
+            services
+                .AddMvcCore()
+                .RemoveIdentityUtilsAuthenticationControllerAssemblyPart();
 
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
@@ -134,7 +136,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                     .AddDefaultClientConfiguration()
                     //Profile service will properly load roles data per tenant to tokens provided by IS4
                     .AddIdentityAndProfileService<IdentityManagerUser, UserDto, IdentityManagerRole>()
-                    .EnableIdentityUtilsAuthenticationController();
+                    ;
             })
             .AddOperationalStore((options) =>
             {

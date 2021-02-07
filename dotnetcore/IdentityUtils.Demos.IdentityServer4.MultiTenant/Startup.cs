@@ -58,7 +58,8 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
         public void ConfigureServices(IServiceCollection services)
         {
             this.services = services;
-            services.AddControllersWithViews();
+            services
+                .AddControllersWithViews();
 
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
             services.Configure<IISOptions>(iis =>
@@ -134,8 +135,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     //redirect urls and is used for login via AJAX calls
                     .AddDefaultClientConfiguration()
                     //Profile service will properly load roles data per tenant to tokens provided by IS4
-                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>()
-                    .EnableIdentityUtilsAuthenticationController();
+                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>();
             })
             .AddOperationalStore((options) =>
             {

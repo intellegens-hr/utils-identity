@@ -4,6 +4,7 @@ using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+using IdentityUtils.Api.Controllers.Authentication.Services;
 using IdentityUtils.Api.Models.Authentication;
 using IdentityUtils.Core.Contracts.Commons;
 using Microsoft.AspNetCore.Authorization;
@@ -24,25 +25,19 @@ namespace IdentityUtils.Api.Controllers
     public class AuthenticationControllerApi : ControllerBase
     {
         private readonly IClientStore clientStore;
-        private readonly IClientSecretValidator clientValidator;
         private readonly IEventService events;
         private readonly ILogger logger;
         private readonly ITokenRequestValidator requestValidator;
         private readonly ITokenResponseGenerator responseGenerator;
 
         public AuthenticationControllerApi(
-            ITokenRequestValidator requestValidator,
-            ITokenResponseGenerator responseGenerator,
-            IClientSecretValidator clientValidator,
-            IEventService events,
-            IClientStore clientStore,
+            IIdentityUtilsAuthService identityUtilsAuthService,
             ILogger<AuthenticationControllerApi> logger)
         {
-            this.requestValidator = requestValidator;
-            this.responseGenerator = responseGenerator;
-            this.clientValidator = clientValidator;
-            this.events = events;
-            this.clientStore = clientStore;
+            requestValidator = identityUtilsAuthService.RequestValidator;
+            responseGenerator = identityUtilsAuthService.ResponseGenerator;
+            events = identityUtilsAuthService.Events;
+            clientStore = identityUtilsAuthService.ClientStore;
             this.logger = logger;
         }
 

@@ -1,14 +1,13 @@
 ﻿using IdentityServer4.Services;
+using IdentityUtils.Api.Controllers.Authentication.Services;
 using IdentityUtils.Core.Contracts.Context;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Services;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services;
 using IdentityUtils.IS4Extensions.ProfileServices;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 
 namespace IdentityUtils.IS4Extensions.ServicesCollection
 {
@@ -81,6 +80,7 @@ namespace IdentityUtils.IS4Extensions.ServicesCollection
         private IServiceCollection LoadDefaults(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
+            services.AddScoped<IIdentityUtilsAuthService, IdentityUtilsAuthService>();
             return services;
         }
     }
