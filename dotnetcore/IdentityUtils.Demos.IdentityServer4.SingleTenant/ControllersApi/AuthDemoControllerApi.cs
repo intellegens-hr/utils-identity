@@ -18,7 +18,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant.ControllersApi
             return base.GetToken(request);
         }
 
-        public override Task<IdentityUtilsResult<IUserProfile>> ProfileInit()
+        public override Task<IdentityUtilsResult<UserProfile>> ProfileInit()
         {
             return base.ProfileInit();
         }

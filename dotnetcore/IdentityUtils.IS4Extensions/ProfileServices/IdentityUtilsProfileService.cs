@@ -35,10 +35,10 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
             var principal = await claimsFactory.CreateAsync(user);
 
             var claims = principal.Claims
-                .Where(x => context.RequestedClaimTypes.Contains(x.Type))
-                .ToList();
+                .Where(x => context.RequestedClaimTypes.Contains(x.Type));
 
             context.IssuedClaims.Add(new Claim("userId", userId.ToString()));
+            context.IssuedClaims.AddRange(claims);
         }
 
         public async Task IsActiveAsync(IsActiveContext context)

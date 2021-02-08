@@ -10,7 +10,7 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
             {
                 new ApiScope("demo-core-api", "Demo API which will be consumed by client apps")
                 {
-                    UserClaims = new List<string>{"address", "email"}
+                    UserClaims = new List<string>{"address", "email", "username", "role"}
                 },
                 new ApiScope("demo-is4-management-api", "IS4 management API")
             };
