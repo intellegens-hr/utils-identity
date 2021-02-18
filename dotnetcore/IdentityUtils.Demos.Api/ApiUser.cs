@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Demos.Api
 {
@@ -21,15 +22,15 @@ namespace IdentityUtils.Demos.Api
         /// Tenant ID is found by using client hostname
         /// </summary>
         /// <returns></returns>
-        private Guid GetTenantIdByHostname()
+        private async Task<Guid> GetTenantIdByHostname()
         {
             var originHost = httpContext.Request.Headers.First(x => x.Key == "Origin").Value;
 
-            return memoryCache.GetOrCreate(originHost, (entry) =>
+            return await memoryCache.GetOrCreateAsync(originHost, async (entry) =>
             {
                 entry.SetAbsoluteExpiration(DateTimeOffset.UtcNow.AddMinutes(5));
 
-                var tenant = tenantManagementApi.Search(new TenantSearch(hostname: originHost)).Result;
+                var tenant = await tenantManagementApi.Search(new TenantSearch(hostname: originHost));
                 return tenant.Data.First().TenantId;
             });
         }
@@ -48,7 +49,7 @@ namespace IdentityUtils.Demos.Api
 
             if (IsAuthenticated)
             {
-                var tenantId = GetTenantIdByHostname();
+                var tenantId = GetTenantIdByHostname().Result;
 
                 //parse claims list
                 var claims = httpContext

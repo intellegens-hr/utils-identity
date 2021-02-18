@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions.Cli.Commands
 {
@@ -57,7 +58,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Username")]
             public string Username { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 UserDto user = new UserDto
                 {
@@ -66,7 +67,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     Password = Password
                 };
 
-                var userAddResult = Shared.GetUserTenantManagementApi(console).CreateUser(user).Result;
+                var userAddResult = await Shared.GetUserTenantManagementApi(console).CreateUser(user);
 
                 userAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
                 ConsoleOutputUsers(console, userAddResult.Data.First());
@@ -91,13 +92,13 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string UserId { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var userGuid = Guid.Parse(UserId);
                 var roleGuid = Guid.Parse(RoleId);
                 var tenantGuid = Guid.Parse(TenantId);
 
-                var userRoleAddResult = Shared.GetUserTenantManagementApi(console).AddUserToRole(userGuid, tenantGuid, roleGuid).Result;
+                var userRoleAddResult = await Shared.GetUserTenantManagementApi(console).AddUserToRole(userGuid, tenantGuid, roleGuid);
                 userRoleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
@@ -110,10 +111,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var userId = Guid.Parse(Id);
-                var result = Shared.GetUserTenantManagementApi(console).DeleteUser(userId).Result;
+                var result = await Shared.GetUserTenantManagementApi(console).DeleteUser(userId);
                 result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
@@ -125,7 +126,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 IEnumerable<UserDto> users;
 
@@ -133,7 +134,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 {
                     var userId = Guid.Parse(Id);
 
-                    var result = Shared.GetUserTenantManagementApi(console).GetUserById(userId).Result;
+                    var result = await Shared.GetUserTenantManagementApi(console).GetUserById(userId);
                     if (!result.Success)
                     {
                         result.ToConsoleResult().WriteMessages(console);
@@ -144,7 +145,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    users = Shared.GetUserTenantManagementApi(console).GetAllUsers().Result.Data;
+                    users = (await Shared.GetUserTenantManagementApi(console).GetAllUsers()).Data;
                 }
 
                 ConsoleOutputUsers(console, users);
@@ -162,7 +163,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string TenantId { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 IEnumerable<RoleDto> roles;
                 IEnumerable<TenantDto> tenants;
@@ -170,7 +171,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 if (!string.IsNullOrEmpty(RoleId))
                 {
                     var roleId = Guid.Parse(RoleId);
-                    var roleResult = Shared.GetRoleManagementApi(console).GetRoleById(roleId).Result;
+                    var roleResult = await Shared.GetRoleManagementApi(console).GetRoleById(roleId);
 
                     if (!roleResult.Success)
                     {
@@ -182,7 +183,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result.Data;
+                    var rolesList = (await Shared.GetRoleManagementApi(console).GetRoles()).Data;
                     roles = rolesList;
                 }
 
@@ -190,7 +191,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 {
                     var tenantId = Guid.Parse(TenantId);
 
-                    var tenantResult = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
+                    var tenantResult = await Shared.GetTenantManagementApi(console).GetTenant(tenantId);
 
                     if (!tenantResult.Success)
                     {
@@ -202,7 +203,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    tenants = Shared.GetTenantManagementApi(console).GetTenants().Result.Data;
+                    tenants = (await Shared.GetTenantManagementApi(console).GetTenants()).Data;
                 }
 
                 foreach (var tenant in tenants)
@@ -214,7 +215,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     {
                         console.WriteLine($"ROLE: {role.Name} (ID: {role.Id})");
 
-                        var usersResult = Shared.GetUserTenantManagementApi(console).Search(new UsersTenantSearch(tenant.TenantId, role.Id)).Result;
+                        var usersResult = await Shared.GetUserTenantManagementApi(console).Search(new UsersTenantSearch(tenant.TenantId, role.Id));
 
                         if (!usersResult.Success)
                         {
@@ -257,13 +258,13 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string UserId { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var userGuid = Guid.Parse(UserId);
                 var roleGuid = Guid.Parse(RoleId);
                 var tenantGuid = Guid.Parse(TenantId);
 
-                var userRoleRemoveResult = Shared.GetUserTenantManagementApi(console).RemoveUserFromRole(userGuid, tenantGuid, roleGuid).Result;
+                var userRoleRemoveResult = await Shared.GetUserTenantManagementApi(console).RemoveUserFromRole(userGuid, tenantGuid, roleGuid);
                 userRoleRemoveResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
@@ -280,11 +281,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "User ID")]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var userId = Guid.Parse(Id);
 
-                var userResult = Shared.GetUserTenantManagementApi(console).GetUserById(userId).Result;
+                var userResult = await Shared.GetUserTenantManagementApi(console).GetUserById(userId);
                 if (!userResult.Success)
                 {
                     userResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
@@ -296,7 +297,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 if (!string.IsNullOrEmpty(Email))
                     user.Email = Email;
 
-                var userUpdateResult = Shared.GetUserTenantManagementApi(console).UpdateUser(user).Result;
+                var userUpdateResult = await Shared.GetUserTenantManagementApi(console).UpdateUser(user);
 
                 userUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
 

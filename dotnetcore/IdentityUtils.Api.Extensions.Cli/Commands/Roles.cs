@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions.Cli.Commands
 {
@@ -46,14 +47,14 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Role name")]
             public string Name { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 RoleDto role = new RoleDto
                 {
                     Name = Name
                 };
 
-                var roleAddResult = Shared.GetRoleManagementApi(console).AddRole(role).Result;
+                var roleAddResult = await Shared.GetRoleManagementApi(console).AddRole(role);
 
                 roleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
                 ConsoleOutputRoles(console, roleAddResult.Data.First());
@@ -67,10 +68,10 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Role to delete")]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var roleId = Guid.Parse(Id);
-                var result = Shared.GetRoleManagementApi(console).DeleteRole(roleId).Result;
+                var result = await Shared.GetRoleManagementApi(console).DeleteRole(roleId);
                 result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
@@ -85,7 +86,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Show only role with specified normalized name")]
             public string Name { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 IEnumerable<RoleDto> roles;
 
@@ -93,7 +94,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 {
                     var roleId = Guid.Parse(Id);
 
-                    var result = Shared.GetRoleManagementApi(console).GetRoleById(roleId).Result;
+                    var result = await Shared.GetRoleManagementApi(console).GetRoleById(roleId);
                     if (!result.Success)
                     {
                         result.ToConsoleResult().WriteMessages(console);
@@ -104,7 +105,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else if (!string.IsNullOrEmpty(Name))
                 {
-                    var result = Shared.GetRoleManagementApi(console).Search(new RoleSearch(name: Name)).Result;
+                    var result = await Shared.GetRoleManagementApi(console).Search(new RoleSearch(name: Name));
                     if (!result.Success)
                     {
                         result.ToConsoleResult().WriteMessages(console);
@@ -115,7 +116,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    roles = Shared.GetRoleManagementApi(console).GetRoles().Result.Data;
+                    roles = (await Shared.GetRoleManagementApi(console).GetRoles()).Data;
                 }
 
                 ConsoleOutputRoles(console, roles);

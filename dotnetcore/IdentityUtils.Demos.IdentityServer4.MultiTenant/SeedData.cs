@@ -104,7 +104,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
             var roleReader = await roleMgr.FindByNameAsync("READER");
             var roleGodmode = await roleMgr.FindByNameAsync("GODMODE");
 
-            var aliceExists = userMgr.FindByNameAsync("alice").Result != null;
+            var aliceExists = (await userMgr.FindByNameAsync("alice")) != null;
             if (!aliceExists)
             {
                 var alice = new UserDto
@@ -113,7 +113,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     Username = "alice",
                     Password = "Pass123$"
                 };
-                IdentityUtilsResult result = tenantUserService.CreateUser(alice).Result;
+                IdentityUtilsResult result = await tenantUserService.CreateUser(alice);
                 if (!result.Success)
                 {
                     throw new Exception(result.ErrorMessages.First());
@@ -146,7 +146,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                 }
             }
 
-            var bobExists = userMgr.FindByNameAsync("bob").Result != null;
+            var bobExists = (await userMgr.FindByNameAsync("bob")) != null;
             if (!bobExists)
             {
                 var bob = new UserDto
@@ -155,7 +155,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     Username = "bob",
                     Password = "Pass123$"
                 };
-                IdentityUtilsResult result = tenantUserService.CreateUser(bob).Result;
+                IdentityUtilsResult result = await tenantUserService.CreateUser(bob);
                 if (!result.Success)
                 {
                     throw new Exception(result.ErrorMessages.First());

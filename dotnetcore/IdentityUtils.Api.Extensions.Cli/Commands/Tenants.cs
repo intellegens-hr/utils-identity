@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions.Cli.Commands
 {
@@ -49,7 +50,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Tenant name")]
             public string Name { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 TenantDto tenant = new TenantDto
                 {
@@ -57,7 +58,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     Hostnames = Hostnames.Split(';')
                 };
 
-                var tenantAddResult = Shared.GetTenantManagementApi(console).AddTenant(tenant).Result;
+                var tenantAddResult = await Shared.GetTenantManagementApi(console).AddTenant(tenant);
 
                 tenantAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
                 ConsoleOutputTenants(console, tenantAddResult.Data.First());
@@ -72,11 +73,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Tenant to delete")]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var tenantId = Guid.Parse(Id);
 
-                var result = Shared.GetTenantManagementApi(console).DeleteTenant(tenantId).Result;
+                var result = await Shared.GetTenantManagementApi(console).DeleteTenant(tenantId);
                 result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
@@ -88,7 +89,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 IEnumerable<TenantDto> tenants;
 
@@ -96,7 +97,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 {
                     var tenantId = Guid.Parse(Id);
 
-                    var result = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
+                    var result = await Shared.GetTenantManagementApi(console).GetTenant(tenantId);
                     if (!result.Success)
                     {
                         result.ToConsoleResult().WriteMessages(console);
@@ -107,7 +108,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 }
                 else
                 {
-                    tenants = Shared.GetTenantManagementApi(console).GetTenants().Result.Data;
+                    tenants = (await Shared.GetTenantManagementApi(console).GetTenants()).Data;
                 }
 
                 ConsoleOutputTenants(console, tenants);
@@ -127,11 +128,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [Option(Description = "Tenant name")]
             public string Name { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var tenantId = Guid.Parse(Id);
 
-                var tenantResult = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
+                var tenantResult = await Shared.GetTenantManagementApi(console).GetTenant(tenantId);
                 if (!tenantResult.Success)
                 {
                     tenantResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
@@ -146,7 +147,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                 if (!string.IsNullOrEmpty(Hostnames))
                     tenant.Hostnames = Hostnames.Split(';');
 
-                var tenantUpdateResult = Shared.GetTenantManagementApi(console).UpdateTenant(tenant).Result;
+                var tenantUpdateResult = await Shared.GetTenantManagementApi(console).UpdateTenant(tenant);
 
                 tenantUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
 
