@@ -1,53 +1,56 @@
+using IdentityUtils.Api.Extensions;
+using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
 using IdentityUtils.Demos.IdentityServer4.Tests.Setup;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+using Intellegens.Tests.Commons.WebApps;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.IO;
+using RoleDtoSingleTenant = IdentityUtils.Demos.IdentityServer4.SingleTenant.Models.RoleDto;
+using UserDtoSingleTenant = IdentityUtils.Demos.IdentityServer4.SingleTenant.Models.UserDto;
 
 namespace IdentityUtils.Demos.IdentityServer4.Tests
 {
-    public class TestAbstract<TStartup>
-        where TStartup : class
+    public abstract class TestAbstract<TStartup, TStartupBase, TFactory> : ControllerIntegrationTestBase<TStartup, TStartupBase, TFactory>
+        where TStartup : class, ITestStartup
+        where TStartupBase : class
+        where TFactory : CustomWebApplicationFactoryBase<TStartup, TStartupBase>
     {
-        protected static IWebHost webHost;
-        protected IServiceProvider serviceProvider;
-        private static readonly object lockObject = new object();
-        protected string HostAddress = "https://localhost:5010";
-
-        public TestAbstract()
+        public TestAbstract(
+            CustomWebApplicationFactoryBase<TStartup, TStartupBase> factory,
+            string solutionRelativeDirectory = "IdentityUtils.Demos.IdentityServer4.MultiTenant")
+            : base(factory, solutionRelativeDirectory: solutionRelativeDirectory)
         {
-            serviceProvider = ServicesFactory.ServiceProvider();
-            StartServer();
         }
 
-        private void StartServer()
+        private ServiceProvider ServiceProvider
+            => TestServicesFactory.ServiceProvider(GetHttpClient(GetAccessTokenFromSecret().Result));
+
+        protected virtual string DatabaseName => "IntegrationTestDatabase.db";
+
+        protected RoleManagementApi<RoleDto> RoleManagementApi
+            => ServiceProvider.GetRequiredService<RoleManagementApi<RoleDto>>();
+
+        protected RoleManagementApi<RoleDtoSingleTenant> RoleManagementApiSingleTenant
+            => ServiceProvider.GetRequiredService<RoleManagementApi<RoleDtoSingleTenant>>();
+
+        protected TenantManagementApi<TenantDto> TenantManagementApi
+            => ServiceProvider.GetRequiredService<TenantManagementApi<TenantDto>>();
+
+        protected UserManagementApi<UserDtoSingleTenant> UserManagementApi
+            => ServiceProvider.GetRequiredService<UserManagementApi<UserDtoSingleTenant>>();
+
+        protected UserTenantManagementApi<UserDto> UserTenantManagementApi
+            => ServiceProvider.GetRequiredService<UserTenantManagementApi<UserDto>>();
+
+        protected override void OnPreInit()
         {
-            //Wait till server is started, otherwise multiple webhosts could be started,
-            //all on same port which would cause error
-            lock (lockObject)
-                if (webHost == null)
-                {
-                    //Host and database name are stored as environment variables which IS4 app reads
-                    //If needed, this can be changed
-                    string host = HostAddress;
-                    var databaseName = $"IntegrationTestsDatabase.db";
+            Environment.SetEnvironmentVariable("Is4Host", Factory.BaseUrl);
+            Environment.SetEnvironmentVariable("DatabaseName", DatabaseName);
 
-                    //Have clean database each run
-                    File.WriteAllText(databaseName, "");
+            DefaultClientId = "is4management";
+            DefaultClientSecret = "511536EF-F270-4058-80CA-1C89C192F69A";
+            DefaultScope = "demo-is4-management-api";
 
-                    Environment.SetEnvironmentVariable("Is4Host", host);
-                    Environment.SetEnvironmentVariable("DatabaseName", databaseName);
-
-                    webHost = WebHost.CreateDefaultBuilder(null)
-                        .UseStartup<TStartup>()
-                        .UseEnvironment("Development")
-                        .UseKestrel()
-                        .UseUrls(host)
-                        .Build();
-
-                    webHost.Start();
-                }
+            base.OnPreInit();
         }
     }
 }

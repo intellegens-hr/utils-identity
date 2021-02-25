@@ -2,7 +2,10 @@
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityUtils.Core.Contracts.Commons;
+using IdentityUtils.Core.Contracts.Configuration;
 using IdentityUtils.Core.Contracts.Services;
+using IdentityUtils.Core.Contracts.Services.Models;
+using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -12,19 +15,26 @@ using System.Threading.Tasks;
 
 namespace IdentityUtils.IS4Extensions.ProfileServices
 {
-    public class IdentityUtilsMultitenantProfileService<TUser, TUserDto> : IProfileService
+    public class IdentityUtilsMultitenantProfileService<TUser, TUserDto, TTenantDto> : IProfileService
         where TUser : IdentityManagerUser
         where TUserDto : class, IIdentityManagerUserDto
+        where TTenantDto : class, IIdentityManagerTenantDto
     {
         private readonly IUserClaimsPrincipalFactory<TUser> claimsFactory;
+        private readonly IIdentityUtilsMultitenantConfiguration configuration;
+        private readonly IIdentityManagerTenantService<TTenantDto> tenantService;
         private readonly IIdentityManagerUserTenantService<TUser, TUserDto> tenantUserService;
 
         public IdentityUtilsMultitenantProfileService(
             IIdentityManagerUserTenantService<TUser, TUserDto> tenantUserService,
-            IUserClaimsPrincipalFactory<TUser> claimsFactory)
+            IUserClaimsPrincipalFactory<TUser> claimsFactory,
+            IIdentityManagerTenantService<TTenantDto> tenantService,
+            IIdentityUtilsMultitenantConfiguration configuration)
         {
             this.tenantUserService = tenantUserService;
             this.claimsFactory = claimsFactory;
+            this.tenantService = tenantService;
+            this.configuration = configuration;
         }
 
         public async Task GetProfileDataAsync(ProfileDataRequestContext context)
@@ -37,9 +47,17 @@ namespace IdentityUtils.IS4Extensions.ProfileServices
             var claims = principal.Claims
                 .Where(x => context.RequestedClaimTypes.Contains(x.Type));
 
-            var tenantClaims = await tenantUserService.GetUserTenantRolesClaims(userId);
+            var tenants = await tenantService.Search(new TenantSearch { Hostname = configuration.Hostname });
+            if (!tenants.Any())
+            {
+                throw new Exception("Host not recognized!");
+            }
 
-            context.IssuedClaims = claims.Union(tenantClaims).ToList();
+            var tenantId = tenants.First().TenantId;
+            var roles = await tenantUserService.GetRolesAsync(userId, tenantId);
+            var tenantRoles = roles.Select(x => new Claim(ClaimTypes.Role, x.NormalizedName));
+
+            context.IssuedClaims = claims.Union(tenantRoles).ToList();
             context.IssuedClaims.Add(new Claim("userId", userId.ToString()));
         }
 

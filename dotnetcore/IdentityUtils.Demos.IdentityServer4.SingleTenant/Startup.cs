@@ -1,4 +1,3 @@
-using AutoMapper;
 using IdentityUtils.Api.Models.Authentication;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Users;
@@ -7,12 +6,14 @@ using IdentityUtils.Demos.IdentityServer4.SingleTenant.DbContext;
 using IdentityUtils.Demos.IdentityServer4.SingleTenant.Models;
 using IdentityUtils.IS4Extensions.IdentityServerBuilder;
 using IdentityUtils.IS4Extensions.ServicesCollection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
 {
@@ -48,6 +49,14 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
             app.UseRouting();
             app.UseAuthorization();
             app.UseIdentityServer();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity utils demo API");
+                c.RoutePrefix = string.Empty;
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
@@ -58,7 +67,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
         {
             this.services = services;
             services
-                .AddMvcCore()
+                .AddControllersWithViews()
                 .RemoveIdentityUtilsAuthenticationControllerAssemblyPart();
 
             // configures IIS out-of-proc settings (see https://github.com/aspnet/AspNetCore/issues/14882)
@@ -82,6 +91,11 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                 .AddDbContext<Is4DemoDbContext>()
                 .AddAutoMapper(typeof(Is4ModelsMapperProfile));
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Identity utils demo API", Version = "v1" });
+            });
+
             services
                 .AddIdentityUtilsIs4Extensions((builder) =>
                 {
@@ -90,7 +104,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
                         .AddDataStore<IdentityManagerUser, IdentityManagerRole, Is4DemoDbContext>()
                         //This will add authentication to all API calls, first argument is authority - in this case
                         //it's the URL of this instance. Second parameter is Audience for JWT bearer token
-                        .AddAuthentication(Configuration["Is4Host"], Configuration["Is4AuthManagementAudience"])
+                        .AddAuthentication(Configuration["Is4Host"], Configuration["Is4AuthManagementAudience"], JwtBearerOptionsCallback)
                         .AddDefaultUserStore<IdentityManagerUser, UserDto, IdentityManagerRole>()
                         .AddDefaultRolesStore<IdentityManagerUser, IdentityManagerRole, RoleDto>()
                         .AddIntellegensProfileClaimsService<IdentityManagerUser, UserDto, IdentityManagerRole>();
@@ -151,6 +165,10 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant
 
             // not recommended for production - you need to store your key material somewhere secure
             builder.AddDeveloperSigningCredential();
+        }
+
+        protected virtual void JwtBearerOptionsCallback(JwtBearerOptions options)
+        {
         }
     }
 }

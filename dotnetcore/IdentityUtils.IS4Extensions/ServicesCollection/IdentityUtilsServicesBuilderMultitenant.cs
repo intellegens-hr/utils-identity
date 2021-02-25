@@ -1,4 +1,5 @@
 ﻿using IdentityServer4.Services;
+using IdentityUtils.Api.Controllers.Authentication.Services;
 using IdentityUtils.Core.Contracts.Context;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Services;
@@ -9,7 +10,7 @@ using IdentityUtils.IS4Extensions.ProfileServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+using System;
 
 namespace IdentityUtils.IS4Extensions.ServicesCollection
 {
@@ -23,9 +24,15 @@ namespace IdentityUtils.IS4Extensions.ServicesCollection
             LoadDefaults(services);
         }
 
-        public IdentityUtilsServicesBuilderMultitenant AddAuthentication(string authority, string managementApiAudience)
+        public IdentityUtilsServicesBuilderMultitenant AddAuthentication(string authority, string managementApiAudience, Action<JwtBearerOptions> optionsCallback = null)
         {
-            services.AddAuthentication(authority, managementApiAudience);
+            services.AddAuthentication(authority, managementApiAudience, optionsCallback);
+            return this;
+        }
+
+        public IdentityUtilsServicesBuilderMultitenant AddAuthentication(Action<JwtBearerOptions> optionsCallback)
+        {
+            services.AddAuthentication(optionsCallback);
             return this;
         }
 
@@ -39,28 +46,6 @@ namespace IdentityUtils.IS4Extensions.ServicesCollection
             services.AddScoped<IIdentityManagerUserContext<TUser>, TDbContext>();
             services.AddScoped<IdentityManagerTenantDbContext<TUser, TRole, TTenant>, TDbContext>();
 
-            return this;
-        }
-
-        public IdentityUtilsServicesBuilderMultitenant AddIdentity<TUser, TRole, TTenant, TDbContext>()
-            where TUser : IdentityManagerUser
-            where TRole : IdentityManagerRole
-            where TTenant : IdentityManagerTenant
-            where TDbContext : IdentityManagerTenantDbContext<TUser, TRole, TTenant>
-        {
-            services.AddIdentity<TUser, TRole>()
-             .AddEntityFrameworkStores<TDbContext>()
-             .AddDefaultTokenProviders();
-
-            return this;
-        }
-
-        public IdentityUtilsServicesBuilderMultitenant AddIntellegensProfileClaimsService<TUser, TUserDto, TRole>()
-            where TUser : IdentityManagerUser
-            where TUserDto : class, IIdentityManagerUserDto
-            where TRole : IdentityManagerRole
-        {
-            services.AddTransient<IProfileService, IdentityUtilsMultitenantProfileService<TUser, TUserDto>>();
             return this;
         }
 
@@ -90,9 +75,32 @@ namespace IdentityUtils.IS4Extensions.ServicesCollection
             return this;
         }
 
+        public IdentityUtilsServicesBuilderMultitenant AddIdentity<TUser, TRole, TTenant, TDbContext>()
+                                    where TUser : IdentityManagerUser
+            where TRole : IdentityManagerRole
+            where TTenant : IdentityManagerTenant
+            where TDbContext : IdentityManagerTenantDbContext<TUser, TRole, TTenant>
+        {
+            services.AddIdentity<TUser, TRole>()
+             .AddEntityFrameworkStores<TDbContext>()
+             .AddDefaultTokenProviders();
+
+            return this;
+        }
+
+        public IdentityUtilsServicesBuilderMultitenant AddIntellegensProfileClaimsService<TUser, TUserDto, TTenantDto>()
+            where TUser : IdentityManagerUser
+            where TUserDto : class, IIdentityManagerUserDto
+            where TTenantDto : class, IIdentityManagerTenantDto
+        {
+            services.AddTransient<IProfileService, IdentityUtilsMultitenantProfileService<TUser, TUserDto, TTenantDto>>();
+            return this;
+        }
+
         private IServiceCollection LoadDefaults(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
+            services.AddScoped<IIdentityUtilsAuthService, IdentityUtilsAuthService>();
             return services;
         }
     }

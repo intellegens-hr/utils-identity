@@ -1,4 +1,5 @@
 ﻿using IdentityUtils.Core.Contracts.Roles;
+using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.IS4Extensions.ProfileServices;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,13 +37,14 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
             return this;
         }
 
-        public IdentityUtilsIdentityServerBuilder AddMultitenantIdentityAndProfileService<TUser, TUserDto>()
+        public IdentityUtilsIdentityServerBuilder AddMultitenantIdentityAndProfileService<TUser, TUserDto, TTenantDto>()
             where TUser : IdentityManagerUser
             where TUserDto : class, IIdentityManagerUserDto
+            where TTenantDto : class, IIdentityManagerTenantDto
         {
             identityServerBuilder
                 .AddAspNetIdentity<TUser>()
-                .AddProfileService<IdentityUtilsMultitenantProfileService<TUser, TUserDto>>();
+                .AddProfileService<IdentityUtilsMultitenantProfileService<TUser, TUserDto, TTenantDto>>();
 
             return this;
         }

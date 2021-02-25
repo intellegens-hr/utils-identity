@@ -1,5 +1,5 @@
-using AutoMapper;
 using IdentityUtils.Api.Models.Authentication;
+using IdentityUtils.Core.Contracts.Configuration;
 using IdentityUtils.Core.Contracts.Roles;
 using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
@@ -8,12 +8,14 @@ using IdentityUtils.Demos.IdentityServer4.MultiTenant.DbContext;
 using IdentityUtils.Demos.IdentityServer4.MultiTenant.Models;
 using IdentityUtils.IS4Extensions.IdentityServerBuilder;
 using IdentityUtils.IS4Extensions.ServicesCollection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
 {
@@ -49,6 +51,14 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
             app.UseRouting();
             app.UseAuthorization();
             app.UseIdentityServer();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity utils demo multitenant API");
+                c.RoutePrefix = string.Empty;
+            });
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapDefaultControllerRoute();
@@ -78,9 +88,15 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
             services
                 .AddScoped<IConfigurationRoot>(x => Configuration)
                 .AddSingleton<IIdentityUtilsAuthenticationConfig, IdentityUtilsConfiguration>()
+                .AddSingleton<IIdentityUtilsMultitenantConfiguration, IdentityUtilsConfiguration>()
                 .AddScoped<DbConfig>()
                 .AddDbContext<Is4DemoDbContext>()
                 .AddAutoMapper(typeof(Is4ModelsMapperProfile));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Identity utils demo multitenant API", Version = "v1" });
+            });
 
             services
                 .AddIdentityUtilsIs4MultitenancyExtensions((builder) =>
@@ -90,11 +106,11 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                         .AddDataStore<IdentityManagerUser, IdentityManagerRole, IdentityManagerTenant, Is4DemoDbContext>()
                         //This will add authentication to all API calls, first argument is authority - in this case
                         //it's the URL of this instance. Second parameter is Audience for JWT bearer token
-                        .AddAuthentication(Configuration["Is4Host"], Configuration["Is4AuthManagementAudience"])
+                        .AddAuthentication(Configuration["Is4Host"], Configuration["Is4AuthManagementAudience"], JwtBearerOptionsCallback)
                         .AddDefaultTenantStore<IdentityManagerTenant, TenantDto>()
                         .AddDefaultTenantUserStore<IdentityManagerUser, UserDto, IdentityManagerRole>()
                         .AddDefaultRolesStore<IdentityManagerRole, RoleDto>()
-                        .AddIntellegensProfileClaimsService<IdentityManagerUser, UserDto, IdentityManagerRole>();
+                        .AddIntellegensProfileClaimsService<IdentityManagerUser, UserDto, TenantDto>();
                 });
 
             services.AddAuthorization(opt =>
@@ -135,13 +151,13 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
                     //redirect urls and is used for login via AJAX calls
                     .AddDefaultClientConfiguration()
                     //Profile service will properly load roles data per tenant to tokens provided by IS4
-                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto>();
+                    .AddMultitenantIdentityAndProfileService<IdentityManagerUser, UserDto, TenantDto>();
             })
             .AddOperationalStore((options) =>
             {
                 var dbConfiguration = new DbConfig(Configuration);
                 options.ConfigureDbContext = builder =>
-                    builder.UseSqlite(dbConfiguration.DatabaseName);
+                    builder.UseSqlite($@"Data Source={dbConfiguration.DatabaseName};");
 
                 // this enables automatic token cleanup. this is optional.
                 options.EnableTokenCleanup = true;
@@ -150,6 +166,10 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
 
             // not recommended for production - you need to store your key material somewhere secure
             builder.AddDeveloperSigningCredential();
+        }
+
+        protected virtual void JwtBearerOptionsCallback(JwtBearerOptions options)
+        {
         }
     }
 }

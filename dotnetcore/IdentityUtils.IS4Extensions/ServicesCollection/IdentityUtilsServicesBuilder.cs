@@ -6,8 +6,10 @@ using IdentityUtils.Core.Contracts.Services;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.Core.Services;
 using IdentityUtils.IS4Extensions.ProfileServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace IdentityUtils.IS4Extensions.ServicesCollection
 {
@@ -21,9 +23,15 @@ namespace IdentityUtils.IS4Extensions.ServicesCollection
             LoadDefaults(services);
         }
 
-        public IdentityUtilsServicesBuilder AddAuthentication(string authority, string managementApiAudience)
+        public IdentityUtilsServicesBuilder AddAuthentication(string authority, string managementApiAudience, Action<JwtBearerOptions> optionsCallback = null)
         {
-            services.AddAuthentication(authority, managementApiAudience);
+            services.AddAuthentication(authority, managementApiAudience, optionsCallback);
+            return this;
+        }
+
+        public IdentityUtilsServicesBuilder AddAuthentication(Action<JwtBearerOptions> optionsCallback)
+        {
+            services.AddAuthentication(optionsCallback);
             return this;
         }
 

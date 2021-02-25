@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -29,7 +28,7 @@ namespace IdentityUtils.Demos.IdentityServer4.MultiTenant
             using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
 
             var context = scope.ServiceProvider.GetService<Is4DemoDbContext>();
-            context.Database.Migrate();
+            try { context.Database.Migrate(); } catch { }
 
             await LoadTenants(scope);
             await LoadRoles(scope);

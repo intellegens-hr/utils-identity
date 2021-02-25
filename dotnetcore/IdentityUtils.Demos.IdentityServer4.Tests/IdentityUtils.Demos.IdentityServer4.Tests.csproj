@@ -12,13 +12,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.0.2">
+    <PackageReference Include="coverlet.collector" Version="3.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -28,6 +28,7 @@
     <ProjectReference Include="..\IdentityUtils.Api.Extensions\IdentityUtils.Api.Extensions.csproj" />
     <ProjectReference Include="..\IdentityUtils.Demos.IdentityServer4.MultiTenant\IdentityUtils.Demos.IdentityServer4.MultiTenant.csproj" />
     <ProjectReference Include="..\IdentityUtils.Demos.IdentityServer4.SingleTenant\IdentityUtils.Demos.IdentityServer4.SingleTenant.csproj" />
+    <ProjectReference Include="..\Intellegens.Tests.Commons\Intellegens.Tests.Commons.csproj" />
   </ItemGroup>
 
 </Project>

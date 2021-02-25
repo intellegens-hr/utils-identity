@@ -41,7 +41,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.Identit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.IdentityServer4.SingleTenant", "IdentityUtils.Demos.IdentityServer4.SingleTenant\IdentityUtils.Demos.IdentityServer4.SingleTenant.csproj", "{9030C206-307E-4436-9607-8CF66D6F90F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityUtils.Api.Controllers.Authentication", "IdentityUtils.Api.Controllers.Auth\IdentityUtils.Api.Controllers.Authentication.csproj", "{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Api.Controllers.Authentication", "IdentityUtils.Api.Controllers.Auth\IdentityUtils.Api.Controllers.Authentication.csproj", "{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intellegens.Tests.Commons", "Intellegens.Tests.Commons\Intellegens.Tests.Commons.csproj", "{2D4D9C14-1C42-4260-A8FC-DF841D117418}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -109,6 +111,10 @@ Global
 		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

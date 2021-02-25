@@ -32,7 +32,7 @@ namespace IdentityUtils.Demos.IdentityServer4.SingleTenant.DbContext
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlite($@"Data Source={dbConfig.DatabaseName};");
+                .UseSqlite($"Data Source={dbConfig.DatabaseName};");
 
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
         }
