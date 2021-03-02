@@ -1,10 +1,13 @@
 ﻿using IdentityUtils.Api.Extensions.Cli.Commons;
 using IdentityUtils.Api.Extensions.Cli.Models;
 using IdentityUtils.Api.Extensions.Cli.Utils;
+using IdentityUtils.Core.Contracts.Services.Models;
 using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions.Cli.Commands
 {
@@ -21,22 +24,92 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
         [Option(ShortName = "r", LongName = "api-base-route", Description = "Base route user management API uses (defaults to /api/management/users)")]
         internal static string ApiBaseRoute { get; set; }
 
-        private int OnExecute(IConsole console)
-        {
-            console.Error.WriteLine("You must specify an action. See --help for more details.");
-            return 1;
-        }
-
         private static void ConsoleOutputUsers(IConsole console, UserDto user)
-            => ConsoleOutputUsers(console, new List<UserDto> { user });
+            => ConsoleOutputUsers(console, new UserDto[] { user });
 
-        private static void ConsoleOutputUsers(IConsole console, List<UserDto> users)
+        private static void ConsoleOutputUsers(IConsole console, IEnumerable<UserDto> users)
         {
             console.WriteLine("\tID\t\tUSERNAME\t\tEMAIL\t\tADDITIONAL DATA");
             console.WriteLine("--------------------------------------------");
             foreach (var user in users)
             {
                 console.WriteLine($"{user.Id}\t\t{user.Username}\t\t{user.Email}\t\t{user.AdditionalDataJson}");
+            }
+        }
+
+        private int OnExecute(IConsole console)
+        {
+            console.Error.WriteLine("You must specify an action. See --help for more details.");
+            return 1;
+        }
+
+        [Command(Description = "Add user"), HelpOption]
+        private class Add
+        {
+            [Required(ErrorMessage = "Must specify user e-mail")]
+            [Option(Description = "Email")]
+            public string Email { get; }
+
+            [Required(ErrorMessage = "Must specify user password")]
+            [Option(Description = "Password")]
+            public string Password { get; }
+
+            [Required(ErrorMessage = "Must specify username")]
+            [Option(Description = "Username")]
+            public string Username { get; }
+
+            private async Task OnExecuteAsync(IConsole console)
+            {
+                UserDto user = new UserDto
+                {
+                    Username = Username,
+                    Email = Email,
+                    Password = Password
+                };
+
+                var userAddResult = await Shared.GetUserManagementApi(console).CreateUser(user);
+
+                userAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+                ConsoleOutputUsers(console, userAddResult.Data.First());
+            }
+        }
+
+        [Command(Description = "Add user to role"), HelpOption]
+        private class AddToRole
+        {
+            [Required(ErrorMessage = "Must specify role ID")]
+            [Option(Description = "Role Id")]
+            [GuidValidator]
+            public string RoleId { get; }
+
+            [Required(ErrorMessage = "Must specify user ID")]
+            [Option(Description = "User Id")]
+            [GuidValidator]
+            public string UserId { get; }
+
+            private async Task OnExecuteAsync(IConsole console)
+            {
+                var userGuid = Guid.Parse(UserId);
+                var roleGuid = Guid.Parse(RoleId);
+
+                var userRoleAddResult = await Shared.GetUserManagementApi(console).AddUserToRole(userGuid, roleGuid);
+                userRoleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+            }
+        }
+
+        [Command("delete", Description = "Delete user", AllowArgumentSeparator = true, UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.StopParsingAndCollect)]
+        private class Delete
+        {
+            [Required(ErrorMessage = "You must specify the user ID")]
+            [Option(Description = "User to delete")]
+            [GuidValidator]
+            public string Id { get; }
+
+            private async Task OnExecuteAsync(IConsole console)
+            {
+                var userId = Guid.Parse(Id);
+                var result = await Shared.GetUserManagementApi(console).DeleteUser(userId);
+                result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
 
@@ -47,26 +120,26 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string Id { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
-                var users = new List<UserDto>();
+                IEnumerable<UserDto> users;
 
                 if (!string.IsNullOrEmpty(Id))
                 {
                     var userId = Guid.Parse(Id);
 
-                    var result = Shared.GetUserManagementApi(console).GetUserById(userId).Result;
+                    var result = await Shared.GetUserManagementApi(console).GetUserById(userId);
                     if (!result.Success)
                     {
                         result.ToConsoleResult().WriteMessages(console);
                         return;
                     }
 
-                    users.Add(result.Data);
+                    users = result.Data;
                 }
                 else
                 {
-                    users.AddRange(Shared.GetUserManagementApi(console).GetAllUsers().Result.Data);
+                    users = (await Shared.GetUserManagementApi(console).GetAllUsers()).Data;
                 }
 
                 ConsoleOutputUsers(console, users);
@@ -84,15 +157,15 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             [GuidValidator]
             public string TenantId { get; }
 
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
-                var roles = new List<RoleDto>();
-                var tenants = new List<TenantDto>();
+                IEnumerable<RoleDto> roles;
+                IEnumerable<TenantDto> tenants;
 
                 if (!string.IsNullOrEmpty(RoleId))
                 {
                     var roleId = Guid.Parse(RoleId);
-                    var roleResult = Shared.GetRoleManagementApi(console).GetRoleById(roleId).Result;
+                    var roleResult = await Shared.GetRoleManagementApi(console).GetRoleById(roleId);
 
                     if (!roleResult.Success)
                     {
@@ -100,19 +173,19 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    roles.Add(roleResult.Data);
+                    roles = roleResult.Data;
                 }
                 else
                 {
-                    var rolesList = Shared.GetRoleManagementApi(console).GetRoles().Result.Data;
-                    roles.AddRange(rolesList);
+                    var rolesList = (await Shared.GetRoleManagementApi(console).GetRoles()).Data;
+                    roles = rolesList;
                 }
 
                 if (!string.IsNullOrEmpty(TenantId))
                 {
                     var tenantId = Guid.Parse(TenantId);
 
-                    var tenantResult = Shared.GetTenantManagementApi(console).GetTenant(tenantId).Result;
+                    var tenantResult = await Shared.GetTenantManagementApi(console).GetTenant(tenantId);
 
                     if (!tenantResult.Success)
                     {
@@ -120,11 +193,11 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                         return;
                     }
 
-                    tenants.Add(tenantResult.Data);
+                    tenants = tenantResult.Data;
                 }
                 else
                 {
-                    tenants.AddRange(Shared.GetTenantManagementApi(console).GetTenants().Result.Data);
+                    tenants = (await Shared.GetTenantManagementApi(console).GetTenants()).Data;
                 }
 
                 foreach (var tenant in tenants)
@@ -136,7 +209,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                     {
                         console.WriteLine($"ROLE: {role.Name} (ID: {role.Id})");
 
-                        var usersResult = Shared.GetUserManagementApi(console).RoleUsersPerTenant(tenant.TenantId, role.Id).Result;
+                        var usersResult = await Shared.GetUserManagementApi(console).Search(new UsersTenantSearch(tenant.TenantId, role.Id));
 
                         if (!usersResult.Success)
                         {
@@ -149,7 +222,7 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
                             console.WriteLine($"{user.Id} - {user.Username}");
                         }
 
-                        if (usersResult.Data.Count == 0)
+                        if (!usersResult.Data.Any())
                             console.WriteLine($"No user in role for tenant {tenant.TenantId}");
 
                         console.WriteLine("");
@@ -161,145 +234,63 @@ namespace IdentityUtils.Api.Extensions.Cli.Commands
             }
         }
 
-        [Command(Description = "Add user"), HelpOption]
-        private class Add
+        [Command(Description = "Remove user from role"), HelpOption]
+        private class RemoveFromRole
         {
-            [Required(ErrorMessage = "Must specify username")]
-            [Option(Description = "Username")]
-            public string Username { get; }
+            [Required(ErrorMessage = "Must specify role ID")]
+            [Option(Description = "Role Id")]
+            [GuidValidator]
+            public string RoleId { get; }
 
-            [Required(ErrorMessage = "Must specify user e-mail")]
-            [Option(Description = "Email")]
-            public string Email { get; }
+            [Required(ErrorMessage = "Must specify user ID")]
+            [Option(Description = "User Id")]
+            [GuidValidator]
+            public string UserId { get; }
 
-            [Required(ErrorMessage = "Must specify user password")]
-            [Option(Description = "Password")]
-            public string Password { get; }
-
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
-                UserDto user = new UserDto
-                {
-                    Username = Username,
-                    Email = Email,
-                    Password = Password
-                };
+                var userGuid = Guid.Parse(UserId);
+                var roleGuid = Guid.Parse(RoleId);
 
-                var userAddResult = Shared.GetUserManagementApi(console).CreateUser(user).Result;
-
-                userAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-                ConsoleOutputUsers(console, userAddResult.Data);
+                var userRoleRemoveResult = await Shared.GetUserManagementApi(console).RemoveUserFromRole(userGuid, roleGuid);
+                userRoleRemoveResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
             }
         }
 
         [Command(Description = "Update user"), HelpOption]
         private class Update
         {
+            [Required(ErrorMessage = "Must specify user e-mail")]
+            [Option(Description = "Email")]
+            public string Email { get; }
+
             [Required(ErrorMessage = "Must specify ID to update")]
             [GuidValidator]
             [Option(Description = "User ID")]
             public string Id { get; }
 
-            [Required(ErrorMessage = "Must specify user e-mail")]
-            [Option(Description = "Email")]
-            public string Email { get; }
-
-            private void OnExecute(IConsole console)
+            private async Task OnExecuteAsync(IConsole console)
             {
                 var userId = Guid.Parse(Id);
 
-                var userResult = Shared.GetUserManagementApi(console).GetUserById(userId).Result;
+                var userResult = await Shared.GetUserManagementApi(console).GetUserById(userId);
                 if (!userResult.Success)
                 {
                     userResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
                     return;
                 }
 
-                var user = userResult.Data;
+                var user = userResult.Data.First();
 
                 if (!string.IsNullOrEmpty(Email))
                     user.Email = Email;
 
-                var userUpdateResult = Shared.GetUserManagementApi(console).UpdateUser(user).Result;
+                var userUpdateResult = await Shared.GetUserManagementApi(console).UpdateUser(user);
 
                 userUpdateResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
 
                 if (userUpdateResult.Success)
-                    ConsoleOutputUsers(console, userUpdateResult.Data);
-            }
-        }
-
-        [Command("delete", Description = "Delete user", AllowArgumentSeparator = true, UnrecognizedArgumentHandling = UnrecognizedArgumentHandling.StopParsingAndCollect)]
-        private class Delete
-        {
-            [Required(ErrorMessage = "You must specify the user ID")]
-            [Option(Description = "User to delete")]
-            [GuidValidator]
-            public string Id { get; }
-
-            private void OnExecute(IConsole console)
-            {
-                var userId = Guid.Parse(Id);
-                var result = Shared.GetUserManagementApi(console).DeleteUser(userId).Result;
-                result.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-            }
-        }
-
-        [Command(Description = "Add user to role"), HelpOption]
-        private class AddToRole
-        {
-            [Required(ErrorMessage = "Must specify user ID")]
-            [Option(Description = "User Id")]
-            [GuidValidator]
-            public string UserId { get; }
-
-            [Required(ErrorMessage = "Must specify role ID")]
-            [Option(Description = "Role Id")]
-            [GuidValidator]
-            public string RoleId { get; }
-
-            [Required(ErrorMessage = "Must specify tenantId")]
-            [Option(Description = "Tenant Id")]
-            [GuidValidator]
-            public string TenantId { get; }
-
-            private void OnExecute(IConsole console)
-            {
-                var userGuid = Guid.Parse(UserId);
-                var roleGuid = Guid.Parse(RoleId);
-                var tenantGuid = Guid.Parse(TenantId);
-
-                var userRoleAddResult = Shared.GetUserManagementApi(console).AddToRole(userGuid, tenantGuid, roleGuid).Result;
-                userRoleAddResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
-            }
-        }
-
-        [Command(Description = "Remove user from role"), HelpOption]
-        private class RemoveFromRole
-        {
-            [Required(ErrorMessage = "Must specify user ID")]
-            [Option(Description = "User Id")]
-            [GuidValidator]
-            public string UserId { get; }
-
-            [Required(ErrorMessage = "Must specify role ID")]
-            [Option(Description = "Role Id")]
-            [GuidValidator]
-            public string RoleId { get; }
-
-            [Required(ErrorMessage = "Must specify tenantId")]
-            [Option(Description = "Tenant Id")]
-            [GuidValidator]
-            public string TenantId { get; }
-
-            private void OnExecute(IConsole console)
-            {
-                var userGuid = Guid.Parse(UserId);
-                var roleGuid = Guid.Parse(RoleId);
-                var tenantGuid = Guid.Parse(TenantId);
-
-                var userRoleRemoveResult = Shared.GetUserManagementApi(console).RemoveFromRole(userGuid, tenantGuid, roleGuid).Result;
-                userRoleRemoveResult.ToConsoleResultWithDefaultMessages().WriteMessages(console);
+                    ConsoleOutputUsers(console, userUpdateResult.Data.First());
             }
         }
     }

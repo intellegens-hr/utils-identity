@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.IS4Extensions
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{B3032E9A-8A85-4A73-B297-D59FE4B20366}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.IdentityServer4", "IdentityUtils.Demos.IdentityServer4\IdentityUtils.Demos.IdentityServer4.csproj", "{61027A5B-C33A-4DEC-B9FE-CD20EC1615AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.IdentityServer4.MultiTenant", "IdentityUtils.Demos.IdentityServer4.MultiTenant\IdentityUtils.Demos.IdentityServer4.MultiTenant.csproj", "{61027A5B-C33A-4DEC-B9FE-CD20EC1615AF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.Api", "IdentityUtils.Demos.Api\IdentityUtils.Demos.Api.csproj", "{AD0E0220-8F8D-43D2-AE8A-98F3F5967951}"
 EndProject
@@ -37,7 +37,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.Client"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Core.Services.Tests", "IdentityUtils.Core.Services.Tests\IdentityUtils.Core.Services.Tests.csproj", "{64833E5A-42A8-45D8-8E1E-71F7B25A731E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityUtils.Demos.IdentityServer4.Tests", "IdentityUtils.Demos.IdentityServer4.Tests\IdentityUtils.Demos.IdentityServer4.Tests.csproj", "{7DB814B4-0756-45FD-9B32-FB0E0872EBA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.IdentityServer4.Tests", "IdentityUtils.Demos.IdentityServer4.Tests\IdentityUtils.Demos.IdentityServer4.Tests.csproj", "{7DB814B4-0756-45FD-9B32-FB0E0872EBA3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Demos.IdentityServer4.SingleTenant", "IdentityUtils.Demos.IdentityServer4.SingleTenant\IdentityUtils.Demos.IdentityServer4.SingleTenant.csproj", "{9030C206-307E-4436-9607-8CF66D6F90F7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityUtils.Api.Controllers.Authentication", "IdentityUtils.Api.Controllers.Auth\IdentityUtils.Api.Controllers.Authentication.csproj", "{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Intellegens.Tests.Commons", "Intellegens.Tests.Commons\Intellegens.Tests.Commons.csproj", "{2D4D9C14-1C42-4260-A8FC-DF841D117418}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +103,18 @@ Global
 		{7DB814B4-0756-45FD-9B32-FB0E0872EBA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DB814B4-0756-45FD-9B32-FB0E0872EBA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DB814B4-0756-45FD-9B32-FB0E0872EBA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9030C206-307E-4436-9607-8CF66D6F90F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9030C206-307E-4436-9607-8CF66D6F90F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9030C206-307E-4436-9607-8CF66D6F90F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9030C206-307E-4436-9607-8CF66D6F90F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D4D9C14-1C42-4260-A8FC-DF841D117418}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +132,8 @@ Global
 		{48CB57BD-D9E1-43D1-8BD5-F1322294E247} = {B3032E9A-8A85-4A73-B297-D59FE4B20366}
 		{64833E5A-42A8-45D8-8E1E-71F7B25A731E} = {D6EE6D34-7BB1-4E4B-B0D8-B2DE0421B687}
 		{7DB814B4-0756-45FD-9B32-FB0E0872EBA3} = {B3032E9A-8A85-4A73-B297-D59FE4B20366}
+		{9030C206-307E-4436-9607-8CF66D6F90F7} = {B3032E9A-8A85-4A73-B297-D59FE4B20366}
+		{D63BA83B-330D-471B-BBF0-B836ABC8A7BA} = {C2EFC4D1-43DB-46C4-B44C-CEC9DF60DFC4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {37ABF11B-08BA-4A66-9A8B-AA337179D9C7}

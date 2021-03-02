@@ -10,9 +10,9 @@ namespace IdentityUtils.Api.Extensions.Cli
     {
         private const string configFileName = "identityutils-cli.config";
 
-        private static List<ConsoleMessage> FileNotFoundInfoMessage(List<string> configFilePaths)
+        private static List<ConsoleMessage> FileNotFoundInfoMessage(IEnumerable<string> configFilePaths)
         {
-            List<ConsoleMessage> messages = new List<ConsoleMessage> {
+            var messages = new List<ConsoleMessage> {
                  new ConsoleMessage(MessageTypes.INFO, "Info: Configuration file not found!")
             };
 
@@ -115,12 +115,11 @@ Your configuration file content:";
             string exeLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
 
             //Need to take distinct in case console app is running from exe directory
-            List<string> configFilePaths = new List<string>() {
+            var configFilePaths = new string[] {
                 Path.Combine(currentDirectory, configFileName),
                 Path.Combine(exeLocation, configFileName)
             }
-            .Distinct()
-            .ToList();
+            .Distinct();
 
             string pathToUse = configFilePaths.Where(x => File.Exists(x)).FirstOrDefault();
 

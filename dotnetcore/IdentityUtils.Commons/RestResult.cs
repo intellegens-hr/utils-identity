@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace IdentityUtils.Commons
 {
@@ -8,9 +10,9 @@ namespace IdentityUtils.Commons
         {
         }
 
-        public bool Success => StatusCode == 200;
+        public IEnumerable<string> ErrorMessages { get; set; } = Enumerable.Empty<string>();
         public int StatusCode { get; set; }
-        public List<string> ErrorMessages { get; set; } = new List<string>();
+        public bool Success => StatusCode == 200;
     }
 
     /// <summary>
@@ -29,7 +31,7 @@ namespace IdentityUtils.Commons
             ResponseData = data;
         }
 
-        public string ResponseDataRaw { get;set;}
         public T ResponseData { get; set; }
+        public string ResponseDataRaw { get; set; }
     }
 }

@@ -90,7 +90,7 @@ namespace IdentityUtils.Demos.Api
                 if (user.IsAuthenticated)
                 {
                     var identity = context.User.Identity as ClaimsIdentity;
-                    var currentTenantRoles = user.Roles.Select(x => new Claim(ClaimTypes.Role, x)).ToList();
+                    var currentTenantRoles = user.Roles.Select(x => new Claim(ClaimTypes.Role, x));
                     identity.AddClaims(currentTenantRoles);
                 }
 

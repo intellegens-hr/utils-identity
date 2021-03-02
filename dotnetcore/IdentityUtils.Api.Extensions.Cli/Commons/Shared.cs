@@ -39,12 +39,23 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
             return new TenantManagementApi<TenantDto>(client, config);
         }
 
+        internal static UserTenantManagementApi<UserDto> GetUserTenantManagementApi(IConsole console)
+        {
+            var config = GetServicesConfiguration(console);
+
+            if (!string.IsNullOrEmpty(UsersTenant.ApiBaseRoute))
+                config.UserManagementBaseRoute = UsersTenant.ApiBaseRoute;
+
+            var client = GetRestClient(config);
+            return new UserTenantManagementApi<UserDto>(client, config);
+        }
+
         internal static UserManagementApi<UserDto> GetUserManagementApi(IConsole console)
         {
             var config = GetServicesConfiguration(console);
 
-            if (!string.IsNullOrEmpty(Users.ApiBaseRoute))
-                config.UserManagementBaseRoute = Users.ApiBaseRoute;
+            if (!string.IsNullOrEmpty(UsersTenant.ApiBaseRoute))
+                config.UserManagementBaseRoute = UsersTenant.ApiBaseRoute;
 
             var client = GetRestClient(config);
             return new UserManagementApi<UserDto>(client, config);

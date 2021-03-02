@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IdentityUtils.Core.Contracts.Services.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,19 +11,24 @@ namespace IdentityUtils.Core.Contracts.Claims
         {
         }
 
-        public TenantRolesClaimData(Guid tenantId, string role) : this(tenantId, new List<string> { role })
+        public TenantRolesClaimData(Guid tenantId)
+        {
+            TenantId = tenantId;
+        }
+
+        public TenantRolesClaimData(Guid tenantId, RoleBasicData role) : this(tenantId, new RoleBasicData[] { role })
         {
         }
 
-        public TenantRolesClaimData(Guid tenantId, List<string> roles)
+        public TenantRolesClaimData(Guid tenantId, IEnumerable<RoleBasicData> roles)
         {
             TenantId = tenantId;
             Roles = roles;
         }
 
-        public Guid TenantId { get; set; }
+        public IEnumerable<RoleBasicData> Roles { get; set; } = Enumerable.Empty<RoleBasicData>();
 
-        public List<string> Roles { get; set; }
+        public Guid TenantId { get; set; }
 
         public bool Equals(TenantRolesClaimData other)
         {

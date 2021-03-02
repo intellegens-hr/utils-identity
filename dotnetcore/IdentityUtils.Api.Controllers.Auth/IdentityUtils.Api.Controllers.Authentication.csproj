@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<AssemblyName>IdentityUtils.Api.Controllers.Authentication</AssemblyName>
+		<RootNamespace>IdentityUtils.Api.Controllers.Authentication</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="IdentityServer4" Version="4.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\IdentityUtils.Api.Models\IdentityUtils.Api.Models.csproj" />
+		<ProjectReference Include="..\IdentityUtils.Core.Services\IdentityUtils.Core.Services.csproj" />
+	</ItemGroup>
+</Project>

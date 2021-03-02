@@ -1,4 +1,5 @@
 ﻿using IdentityUtils.Core.Contracts.Roles;
+using IdentityUtils.Core.Contracts.Tenants;
 using IdentityUtils.Core.Contracts.Users;
 using IdentityUtils.IS4Extensions.ProfileServices;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
         {
             identityServerBuilder
                 .AddInMemoryIdentityResources(IdentityServerDefaultConfig.Ids)
-                .AddInMemoryApiResources(IdentityServerDefaultConfig.Apis)
+                .AddInMemoryApiScopes(IdentityServerDefaultConfig.ApiScopes)
                 .AddInMemoryClients(IdentityServerDefaultConfig.Clients);
 
             return this;
@@ -31,7 +32,19 @@ namespace IdentityUtils.IS4Extensions.IdentityServerBuilder
         {
             identityServerBuilder
                 .AddAspNetIdentity<TUser>()
-                .AddProfileService<IdentityUtilsProfileService<TUser, TUserDto, TRole>>();
+                .AddProfileService<IdentityUtilsProfileService<TUser, TUserDto>>();
+
+            return this;
+        }
+
+        public IdentityUtilsIdentityServerBuilder AddMultitenantIdentityAndProfileService<TUser, TUserDto, TTenantDto>()
+            where TUser : IdentityManagerUser
+            where TUserDto : class, IIdentityManagerUserDto
+            where TTenantDto : class, IIdentityManagerTenantDto
+        {
+            identityServerBuilder
+                .AddAspNetIdentity<TUser>()
+                .AddProfileService<IdentityUtilsMultitenantProfileService<TUser, TUserDto, TTenantDto>>();
 
             return this;
         }

@@ -1,7 +1,7 @@
 # Javascript client using API and Identity Server 4 Demo
 
 This guide presumes you already have API instance and Identity Server 4 instance up & running after following 
-- [Identity Server 4 Demo](../IdentityUtils.Demos.IdentityServer4/README.md)
+- [Identity Server 4 Demo](../IdentityUtils.Demos.IdentityServer4.MultiTenant/README.md)
 - [API Demo](../IdentityUtils.Demos.Api/README.md)
 
 This guide will assume IS4 instance is running on `https://localhost:5010` and API on `https://localhost:5015`

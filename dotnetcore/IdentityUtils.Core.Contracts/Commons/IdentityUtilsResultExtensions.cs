@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace IdentityUtils.Core.Contracts.Commons
 {
@@ -14,13 +16,10 @@ namespace IdentityUtils.Core.Contracts.Commons
              => new IdentityUtilsResult
              {
                  Success = result.Succeeded,
-                 ErrorMessages = result.Errors.Select(x => $"{x.Code}: {x.Description}").ToList()
+                 ErrorMessages = result.Errors.Select(x => $"{x.Code}: {x.Description}")
              };
 
-        public static IdentityUtilsResult<T> ToTypedResult<T>(this IdentityUtilsResult result, T payload = null) where T : class
-           => IdentityUtilsResult<T>.FromNonTypedResult(result, payload);
-
-        public static IdentityUtilsResult ToIdentityUtilsResult(this (bool isValid, List<ValidationResult> validationResults) result)
+        public static IdentityUtilsResult ToIdentityUtilsResult(this (bool isValid, IEnumerable<ValidationResult> validationResults) result)
         {
             if (result.isValid)
                 return IdentityUtilsResult.SuccessResult;
@@ -28,11 +27,19 @@ namespace IdentityUtils.Core.Contracts.Commons
             {
                 var flatResults = result
                     .validationResults
-                    .Select(x => $"{x.ErrorMessage}: {string.Join(',', x.MemberNames)}")
-                    .ToList();
+                    .Select(x => $"{x.ErrorMessage}: {string.Join(',', x.MemberNames)}");
 
                 return IdentityUtilsResult.ErrorResult(flatResults);
             }
+        }
+
+        public static IdentityUtilsResult<T> ToTypedResult<T>(this IdentityUtilsResult result, T payload = null) where T : class
+            => IdentityUtilsResult<T>.FromNonTypedResult(result, payload);
+
+        public static async Task<(IdentityUtilsResult<T> result, T data)> UnpackSingleOrDefault<T>(this Task<IdentityUtilsResult<T>> task)
+        {
+            var result = await task;
+            return (result, (result.Data ?? Array.Empty<T>()).SingleOrDefault());
         }
     }
 }

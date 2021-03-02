@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using IdentityUtils.Core.Contracts.Context;
-using IdentityUtils.Core.Services.Tests.Setup;
 using IdentityUtils.Core.Services.Tests.Setup.DbModels;
 using IdentityUtils.Core.Services.Tests.Setup.DtoModels;
 using IdentityUtils.Core.Services.Tests.Setup.ServicesTyped;
@@ -11,48 +9,55 @@ using System;
 
 namespace IdentityUtils.Core.Services.Tests
 {
-    public abstract class TestAbstract: IDisposable
+    public abstract class TestAbstract<TDbContext> : IDisposable
+        where TDbContext : DbContext
     {
-        protected string GetUniqueId() => Guid.NewGuid().ToString().Replace(" - ", "");
+        private ServiceProvider serviceProvider;
 
-        private readonly ServiceProvider serviceProvider;
-        private readonly TestDbContext testDbContext;
-
-        protected TestAbstract()
+        protected TestAbstract(TDbContext dbContext)
         {
-            testDbContext = new TestDbContext();
+            DbContext = dbContext;
 
-            testDbContext.Database.OpenConnection();
-            testDbContext.Database.Migrate();
-
-            var servicesCollection = new ServiceCollection();
-
-            servicesCollection.AddIdentity<UserDb, RoleDb>()
-             .AddEntityFrameworkStores<TestDbContext>()
+            ServiceCollection.AddIdentity<UserDb, RoleDb>()
+             .AddEntityFrameworkStores<TDbContext>()
              .AddDefaultTokenProviders();
 
-            servicesCollection
+            ServiceCollection
                 .AddLogging()
                 .AddAutoMapper(typeof(MapperProfile))
-                .AddScoped<IIdentityManagerTenantContext<TenantDb>>(x => testDbContext)
-                .AddScoped<IIdentityManagerUserContext<UserDb>>(x => testDbContext)
-                .AddScoped<IdentityManagerDbContext<UserDb, RoleDb, TenantDb>>(x => testDbContext)
-                .AddScoped(x => testDbContext)
+                .AddScoped(x => DbContext)
                 .AddScoped<RolesService>()
                 .AddScoped<TenantsService>()
+                .AddScoped<UsersTenantService>()
                 .AddScoped<UsersService>();
+        }
 
-            serviceProvider = servicesCollection.BuildServiceProvider();
+        protected TDbContext DbContext { get; set; }
 
-            testDbContext.Database.OpenConnection();
+        protected ServiceCollection ServiceCollection { get; } = new ServiceCollection();
+
+        public void Dispose()
+        {
+            DbContext.Database.CloseConnection();
         }
 
         internal TService GetService<TService>()
            => serviceProvider.GetRequiredService<TService>();
 
-        public void Dispose()
+        protected void BuildServiceProvider()
         {
-            testDbContext.Database.CloseConnection();
+            serviceProvider = ServiceCollection.BuildServiceProvider();
+            DbContext.Database.OpenConnection();
+        }
+
+        protected string GetUniqueId() => Guid.NewGuid().ToString().Replace(" - ", "");
+
+        protected void Initialize()
+        {
+            serviceProvider = ServiceCollection.BuildServiceProvider();
+
+            DbContext.Database.OpenConnection();
+            DbContext.Database.Migrate();
         }
     }
 }

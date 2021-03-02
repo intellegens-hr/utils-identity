@@ -6,13 +6,13 @@ namespace IdentityUtils.Api.Extensions.Cli.Commons
 {
     internal static class ConsoleResultExtensions
     {
-        internal static List<ConsoleMessage> GetConsoleErrorMessages(this IdentityUtilsResult result)
-            => result.ErrorMessages.Select(x => new ConsoleMessage(MessageTypes.ERROR, x)).ToList();
+        internal static IEnumerable<ConsoleMessage> GetConsoleErrorMessages(this IdentityUtilsResult result)
+            => result.ErrorMessages.Select(x => new ConsoleMessage(MessageTypes.ERROR, x));
 
         internal static ConsoleResult ToConsoleResult(this IdentityUtilsResult result)
             => new ConsoleResult
             {
-                Messages = result.GetConsoleErrorMessages()
+                Messages = result.GetConsoleErrorMessages().ToList()
             };
 
         internal static ConsoleResult ToConsoleResultWithDefaultMessages(this IdentityUtilsResult result)

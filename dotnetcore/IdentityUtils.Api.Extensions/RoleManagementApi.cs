@@ -1,9 +1,9 @@
 ﻿using IdentityUtils.Commons;
 using IdentityUtils.Core.Contracts.Commons;
 using IdentityUtils.Core.Contracts.Roles;
+using IdentityUtils.Core.Contracts.Services.Models;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace IdentityUtils.Api.Extensions
@@ -16,7 +16,6 @@ namespace IdentityUtils.Api.Extensions
         where TRoleDto : class, IIdentityManagerRoleDto
     {
         private readonly RestClient restClient;
-        private string BasePath { get; }
 
         public RoleManagementApi(RestClient restClient, IApiExtensionsConfig apiExtensionsConfig)
         {
@@ -24,11 +23,7 @@ namespace IdentityUtils.Api.Extensions
             this.restClient = restClient;
         }
 
-        public async Task<IdentityUtilsResult<List<TRoleDto>>> GetRoles()
-        { 
-            var response = await restClient.Get<List<TRoleDto>>($"{BasePath}");
-            return response.ToIdentityResult();
-        }
+        private string BasePath { get; }
 
         public Task<IdentityUtilsResult<TRoleDto>> AddRole(TRoleDto role)
             => restClient.Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}", role).ParseRestResultTask();
@@ -39,7 +34,13 @@ namespace IdentityUtils.Api.Extensions
         public Task<IdentityUtilsResult<TRoleDto>> GetRoleById(Guid id)
             => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/{id}").ParseRestResultTask();
 
-        public Task<IdentityUtilsResult<TRoleDto>> GetRoleByNormalizedName(string roleName)
-            => restClient.Get<IdentityUtilsResult<TRoleDto>>($"{BasePath}/rolename/{WebUtility.UrlEncode(roleName)}").ParseRestResultTask();
+        public async Task<IdentityUtilsResult<TRoleDto>> GetRoles()
+        {
+            var response = await restClient.Get<IEnumerable<TRoleDto>>($"{BasePath}");
+            return response.ToIdentityResult();
+        }
+
+        public Task<IdentityUtilsResult<TRoleDto>> Search(RoleSearch search)
+            => restClient.Post<IdentityUtilsResult<TRoleDto>>($"{BasePath}/search", search).ParseRestResultTask();
     }
 }

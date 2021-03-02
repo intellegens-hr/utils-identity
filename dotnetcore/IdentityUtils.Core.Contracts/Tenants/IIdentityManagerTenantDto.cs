@@ -9,6 +9,6 @@ namespace IdentityUtils.Core.Contracts.Tenants
     public interface IIdentityManagerTenantDto
     {
         public Guid TenantId { get; }
-        public List<string> Hostnames { get; set; }
+        public ICollection<string> Hostnames { get; set; }
     }
 }

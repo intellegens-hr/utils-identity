@@ -7,11 +7,11 @@ namespace IdentityUtils.Commons.Mailing
     public class MailMessageSimple
     {
         public MailMessageSimple(string from, string to, string subject, string content) :
-            this(from, new List<string> { to }, subject, content)
+            this(from, new string[] { to }, subject, content)
         {
         }
 
-        public MailMessageSimple(string from, List<string> to, string subject, string content)
+        public MailMessageSimple(string from, IEnumerable<string> to, string subject, string content)
         {
             From = from;
             Subject = subject;
