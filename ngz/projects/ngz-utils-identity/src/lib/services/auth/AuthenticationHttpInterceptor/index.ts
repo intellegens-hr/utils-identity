@@ -4,13 +4,7 @@
 // Import dependencies
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import {
-  HTTP_INTERCEPTORS,
-  HttpRequest,
-  HttpInterceptor,
-  HttpEvent,
-  HttpHandler,
-} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpRequest, HttpInterceptor, HttpEvent, HttpHandler } from '@angular/common/http';
 import { AuthenticationService } from '../Authentication';
 
 /**
@@ -20,10 +14,7 @@ import { AuthenticationService } from '../Authentication';
 class AuthenticationHttpInterceptor implements HttpInterceptor {
   constructor(private _auth: AuthenticationService) {}
 
-  public intercept(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  public intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(
       // Check if authenticated
       this._auth.accessToken
@@ -32,7 +23,7 @@ class AuthenticationHttpInterceptor implements HttpInterceptor {
             setHeaders: { Authorization: `Bearer ${this._auth.accessToken}` },
           })
         : // Do not modify the request
-          req
+          req,
     );
   }
 }

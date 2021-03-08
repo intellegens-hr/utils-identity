@@ -11,20 +11,13 @@ import { RouterModule, Router, Routes } from '@angular/router';
 import { SomeComponent } from './component';
 
 // Import route guards
-import {
-  AuthenticationService,
-  AuthenticationRouterGuardFactory,
-} from '@intellegens/ngz-utils-identity';
+import { AuthenticationService, AuthenticationRouteGuardFactory } from '@intellegens/ngz-utils-identity';
 
 /**
  * When authenticated router guard, redirects to /public if not authenticated
  */
 @Injectable()
-export class WhenAuthenticated extends AuthenticationRouterGuardFactory(
-  (isAuthenticated: boolean, info: any, claims: any, roles: any) =>
-    isAuthenticated,
-  'public'
-) {
+class WhenAuthenticated extends AuthenticationRouteGuardFactory((auth: AuthenticationService) => auth.isAuthenticated, 'public') {
   constructor(public _router: Router, public _auth: AuthenticationService) {
     super(_router, _auth);
   }
@@ -34,11 +27,7 @@ export class WhenAuthenticated extends AuthenticationRouterGuardFactory(
  * When not-authenticated router guard, redirects to /private if not authenticated
  */
 @Injectable()
-class WhenNotAuthenticated extends AuthenticationRouterGuardFactory(
-  (isAuthenticated: boolean, info: any, claims: any, roles: any) =>
-    !isAuthenticated,
-  'private'
-) {
+class WhenNotAuthenticated extends AuthenticationRouteGuardFactory((auth: AuthenticationService) => !auth.isAuthenticated, 'private') {
   constructor(public _router: Router, public _auth: AuthenticationService) {
     super(_router, _auth);
   }

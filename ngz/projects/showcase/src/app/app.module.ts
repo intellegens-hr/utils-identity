@@ -6,8 +6,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
-import { NgzUtilsIdentityModule } from '@intellegens/ngz-utils-identity';
-import { AuthenticationService } from '@intellegens/ngz-utils-identity';
+import { NgzUtilsIdentityModule, AuthenticationService } from '@intellegens/ngz-utils-identity';
 import { environment } from '../environments/environment';
 
 // Import components
@@ -18,12 +17,7 @@ import { AppComponent } from './app.component';
  */
 @NgModule({
   declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    CommonModule,
-    AppRoutingModule,
-    NgzUtilsIdentityModule,
-  ],
+  imports: [BrowserModule, CommonModule, AppRoutingModule, NgzUtilsIdentityModule],
   providers: [],
   bootstrap: [AppComponent],
 })
