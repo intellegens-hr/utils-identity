@@ -23,10 +23,5 @@ import { AuthenticationService } from '@intellegens/ngz-utils-identity';
   styleUrls: [],
 })
 export class AppComponent {
-  constructor(public _auth: AuthenticationService) {
-    this._auth.initialize('https://localhost:5010/auth', {
-      refreshOnLogin: false,
-      refreshOnLogout: false,
-    });
-  }
+  constructor(public _auth: AuthenticationService) {}
 }

@@ -4,88 +4,60 @@
 // Import dependencies
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 import { AuthenticationService } from '../Authentication';
 
 /**
- * Route guard allows routes only when authenticated
+ * Route guard factory, allows routes only when authenticated (TODO: ...)
+ * @param authenticationValidationCallbackFn
+ * @param defaultPath
+ * @returns
  */
-@Injectable()
-export class WhenAuthenticated implements CanActivate {
+export function AuthenticationRouterGuardFactory(
+  authenticationValidationCallbackFn: (
+    isAuthenticated: boolean,
+    info: any,
+    claims: { type: string; value: string }[],
+    roles: string[]
+  ) => boolean,
+  defaultPath = '/'
+): new (_router: Router, _auth: AuthenticationService) => CanActivate {
   /**
-   * Path to redirect to when route condition not met
+   *  (TODO: ...)
    */
-  private static _defaultPath = '/';
-  /**
-   * Sets path to redirect to when route condition not met
-   * @param path Path to redirect to when route condition not met
-   */
-  public static onFailRedirectTo(path: string): void {
-    WhenAuthenticated._defaultPath = path;
-  }
+  return class WhenAuthenticatedGuard implements CanActivate {
+    constructor(public _router: Router, public _auth: AuthenticationService) {}
 
-  constructor(private _router: Router, private _auth: AuthenticationService) {}
-
-  /**
-   * Checks if route can be activated
-   */
-  public canActivate(): Observable<boolean | UrlTree> {
-    // If authentication initialized, resolve
-    if (this._auth.isInitialized) {
-      return !!this._auth.info
-        ? of(true)
-        : of(this._router.parseUrl(WhenAuthenticated._defaultPath));
-    }
-    // If not initialized, wait for initialization
-    else {
-      return this._auth.isAuthenticatedObservable.pipe(
-        map((info) =>
-          !!info ? true : this._router.parseUrl(WhenAuthenticated._defaultPath)
+    /**
+     * Checks if route can be activated
+     */
+    public canActivate(): Observable<boolean | UrlTree> {
+      // If authentication initialized, resolve
+      if (this._auth.isInitialized) {
+        return authenticationValidationCallbackFn(
+          this._auth.isAuthenticated,
+          this._auth.info,
+          this._auth.claims,
+          this._auth.roles
         )
-      );
+          ? of(true)
+          : of(this._router.parseUrl(defaultPath));
+      }
+      // If not initialized, wait for initialization
+      else {
+        return this._auth.isAuthenticatedObservable.pipe(
+          map((auth: AuthenticationService) =>
+            authenticationValidationCallbackFn(
+              auth.isAuthenticated,
+              auth.info,
+              auth.claims,
+              auth.roles
+            )
+              ? true
+              : this._router.parseUrl(defaultPath)
+          )
+        );
+      }
     }
-  }
-}
-
-/**
- * Route guard allows routes only when not authenticated
- */
-@Injectable()
-export class WhenNotAuthenticated implements CanActivate {
-  /**
-   * Path to redirect to when route condition not met
-   */
-  private static _defaultPath = '/';
-  /**
-   * Sets path to redirect to when route condition not met
-   * @param path Path to redirect to when route condition not met
-   */
-  public static onFailRedirectTo(path: string): void {
-    WhenNotAuthenticated._defaultPath = path;
-  }
-
-  constructor(private _router: Router, private _auth: AuthenticationService) {}
-
-  /**
-   * Checks if route can be activated
-   */
-  public canActivate(): Observable<boolean | UrlTree> {
-    // If authentication initialized, resolve
-    if (this._auth.isInitialized) {
-      return !this._auth.info
-        ? of(true)
-        : of(this._router.parseUrl(WhenNotAuthenticated._defaultPath));
-    }
-    // If not initialized, wait for initialization
-    else {
-      return this._auth.isAuthenticatedObservable.pipe(
-        map((info) =>
-          !info
-            ? true
-            : this._router.parseUrl(WhenNotAuthenticated._defaultPath)
-        )
-      );
-    }
-  }
+  };
 }

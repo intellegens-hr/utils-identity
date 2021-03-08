@@ -12,14 +12,10 @@ export * from './services';
 import {
   AuthenticationService,
   AuthenticationHttpInterceptorProvider,
-  WhenAuthenticated,
-  WhenNotAuthenticated,
 } from './services';
 const injectables = [
   AuthenticationService,
   AuthenticationHttpInterceptorProvider,
-  WhenAuthenticated,
-  WhenNotAuthenticated,
 ];
 
 /**
@@ -27,7 +23,7 @@ const injectables = [
  */
 @NgModule({
   declarations: [],
-  providers: [...injectables],
+  providers: [injectables],
   imports: [...modules],
   exports: [...modules],
 })

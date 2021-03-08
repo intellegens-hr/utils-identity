@@ -3,18 +3,46 @@
 // ----------------------------------------------------------------------------
 
 // Import modules
-import { NgModule } from '@angular/core';
+import { NgModule, Injectable } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Router, Routes } from '@angular/router';
 
 // Import components
 import { SomeComponent } from './component';
 
 // Import route guards
 import {
-  WhenAuthenticated,
-  WhenNotAuthenticated,
+  AuthenticationService,
+  AuthenticationRouterGuardFactory,
 } from '@intellegens/ngz-utils-identity';
+
+/**
+ * When authenticated router guard, redirects to /public if not authenticated
+ */
+@Injectable()
+export class WhenAuthenticated extends AuthenticationRouterGuardFactory(
+  (isAuthenticated: boolean, info: any, claims: any, roles: any) =>
+    isAuthenticated,
+  'public'
+) {
+  constructor(public _router: Router, public _auth: AuthenticationService) {
+    super(_router, _auth);
+  }
+}
+
+/**
+ * When not-authenticated router guard, redirects to /private if not authenticated
+ */
+@Injectable()
+class WhenNotAuthenticated extends AuthenticationRouterGuardFactory(
+  (isAuthenticated: boolean, info: any, claims: any, roles: any) =>
+    !isAuthenticated,
+  'private'
+) {
+  constructor(public _router: Router, public _auth: AuthenticationService) {
+    super(_router, _auth);
+  }
+}
 
 // Routes definition
 const routes: Routes = [
@@ -30,8 +58,6 @@ const routes: Routes = [
   },
   { path: '**', redirectTo: 'public' },
 ];
-WhenAuthenticated.onFailRedirectTo('public');
-WhenNotAuthenticated.onFailRedirectTo('private');
 
 /**
  * Routing module
@@ -39,7 +65,8 @@ WhenNotAuthenticated.onFailRedirectTo('private');
  */
 @NgModule({
   declarations: [SomeComponent],
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
+  providers: [AuthenticationService, WhenAuthenticated, WhenNotAuthenticated],
+  imports: [RouterModule.forRoot(routes), CommonModule],
+  exports: [RouterModule, CommonModule],
 })
 export class AppRoutingModule {}
