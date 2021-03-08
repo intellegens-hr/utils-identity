@@ -39,7 +39,7 @@ WhenNotAuthenticated.onFailRedirectTo('private');
  */
 @NgModule({
   declarations: [SomeComponent],
-  imports: [RouterModule.forRoot(routes), CommonModule],
-  exports: [RouterModule, CommonModule, SomeComponent],
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

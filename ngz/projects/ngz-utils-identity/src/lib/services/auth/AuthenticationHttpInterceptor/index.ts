@@ -41,7 +41,7 @@ class AuthenticationHttpInterceptor implements HttpInterceptor {
  * Provider for authentication service HTTP interceptor
  */
 // tslint:disable-next-line: variable-name
-export const AuthenticationHttpInterceptopProvider = {
+export const AuthenticationHttpInterceptorProvider = {
   provide: HTTP_INTERCEPTORS,
   useClass: AuthenticationHttpInterceptor,
   multi: true,

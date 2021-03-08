@@ -11,13 +11,13 @@ const modules = [HttpClientModule, RouterModule];
 export * from './services';
 import {
   AuthenticationService,
-  AuthenticationHttpInterceptopProvider,
+  AuthenticationHttpInterceptorProvider,
   WhenAuthenticated,
   WhenNotAuthenticated,
 } from './services';
 const injectables = [
   AuthenticationService,
-  AuthenticationHttpInterceptopProvider,
+  AuthenticationHttpInterceptorProvider,
   WhenAuthenticated,
   WhenNotAuthenticated,
 ];
