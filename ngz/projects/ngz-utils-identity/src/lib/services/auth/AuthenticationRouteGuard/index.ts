@@ -4,88 +4,64 @@
 // Import dependencies
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { AuthenticationService } from '../Authentication';
 
 /**
- * Route guard allows routes only when authenticated
+ * Route guard factory, allows routes based on authentication status
+ * @param authenticationValidationCallbackFn Callback determining if route guard should allow or prevent the route from being loaded
+ * @param defaultPath Default path to redirect to if route guard prevents route from being loaded
+ * @returns RouteGuard prototype to extend
  */
-@Injectable()
-export class WhenAuthenticated implements CanActivate {
+export function AuthenticationRouteGuardFactory(
+  authenticationValidationCallbackFn: (auth: AuthenticationService) => boolean,
+  defaultPath = '/',
+): new (_router: Router, _auth: AuthenticationService) => CanActivate {
   /**
-   * Path to redirect to when route condition not met
+   *  Route guard prototype to be extended
    */
-  private static _defaultPath = '/';
-  /**
-   * Sets path to redirect to when route condition not met
-   * @param path Path to redirect to when route condition not met
-   */
-  public static onFailRedirectTo(path: string): void {
-    WhenAuthenticated._defaultPath = path;
-  }
+  return class AuthenticationGuard implements CanActivate {
+    constructor(public _router: Router, public _auth: AuthenticationService) {}
 
-  constructor(private _router: Router, private _auth: AuthenticationService) {}
-
-  /**
-   * Checks if route can be activated
-   */
-  public canActivate(): Observable<boolean | UrlTree> {
-    // If authentication initialized, resolve
-    if (this._auth.isInitialized) {
-      return !!this._auth.info
-        ? of(true)
-        : of(this._router.parseUrl(WhenAuthenticated._defaultPath));
+    /**
+     * Checks if route can be activated
+     */
+    public canActivate(
+      _route: ActivatedRouteSnapshot,
+      _state: RouterStateSnapshot,
+    ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree;
+    public canActivate(
+      _route: ActivatedRouteSnapshot,
+      _state: RouterStateSnapshot,
+      forcedReevaluation: boolean = false,
+    ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+      // If authentication initialized, resolve
+      if (this._auth.isInitialized) {
+        return authenticationValidationCallbackFn(this._auth) ? of(true) : of(composeDefaultPath(this._router, defaultPath, forcedReevaluation));
+      }
+      // If not initialized, wait for initialization
+      else {
+        return this._auth.isAuthenticatedObservable.pipe(
+          map((auth: AuthenticationService) =>
+            authenticationValidationCallbackFn(auth) ? true : composeDefaultPath(this._router, defaultPath, forcedReevaluation),
+          ),
+        );
+      }
     }
-    // If not initialized, wait for initialization
-    else {
-      return this._auth.isAuthenticatedObservable.pipe(
-        map((info) =>
-          !!info ? true : this._router.parseUrl(WhenAuthenticated._defaultPath)
-        )
-      );
-    }
-  }
+  };
 }
 
 /**
- * Route guard allows routes only when not authenticated
+ * Composes a path based on the default path given for a route guard, and in case of forced reevaluation of the route guard, navigates to the default path
+ * @param router Router instance
+ * @param defaultPath Default path provided to the route guard
+ * @param forcedReevaluation If reevaluation of the route guard is being forced by changes to the authentication service
+ * @returns Default path URL
  */
-@Injectable()
-export class WhenNotAuthenticated implements CanActivate {
-  /**
-   * Path to redirect to when route condition not met
-   */
-  private static _defaultPath = '/';
-  /**
-   * Sets path to redirect to when route condition not met
-   * @param path Path to redirect to when route condition not met
-   */
-  public static onFailRedirectTo(path: string): void {
-    WhenNotAuthenticated._defaultPath = path;
+function composeDefaultPath(router: Router, defaultPath: string, forcedReevaluation: boolean = false): UrlTree {
+  const url = router.parseUrl(defaultPath);
+  if (forcedReevaluation) {
+    router.navigateByUrl(url);
   }
-
-  constructor(private _router: Router, private _auth: AuthenticationService) {}
-
-  /**
-   * Checks if route can be activated
-   */
-  public canActivate(): Observable<boolean | UrlTree> {
-    // If authentication initialized, resolve
-    if (this._auth.isInitialized) {
-      return !this._auth.info
-        ? of(true)
-        : of(this._router.parseUrl(WhenNotAuthenticated._defaultPath));
-    }
-    // If not initialized, wait for initialization
-    else {
-      return this._auth.isAuthenticatedObservable.pipe(
-        map((info) =>
-          !info
-            ? true
-            : this._router.parseUrl(WhenNotAuthenticated._defaultPath)
-        )
-      );
-    }
-  }
+  return url;
 }

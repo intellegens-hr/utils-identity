@@ -9,25 +9,15 @@ const modules = [HttpClientModule, RouterModule];
 
 // Import and (re)export injectables
 export * from './services';
-import {
-  AuthenticationService,
-  AuthenticationHttpInterceptopProvider,
-  WhenAuthenticated,
-  WhenNotAuthenticated,
-} from './services';
-const injectables = [
-  AuthenticationService,
-  AuthenticationHttpInterceptopProvider,
-  WhenAuthenticated,
-  WhenNotAuthenticated,
-];
+import { AuthenticationService, AuthenticationHttpInterceptorProvider } from './services';
+const injectables = [AuthenticationService, AuthenticationHttpInterceptorProvider];
 
 /**
  * Main ngx-showcase library module
  */
 @NgModule({
   declarations: [],
-  providers: [...injectables],
+  providers: [injectables],
   imports: [...modules],
   exports: [...modules],
 })

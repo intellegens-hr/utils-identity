@@ -3,18 +3,35 @@
 // ----------------------------------------------------------------------------
 
 // Import modules
-import { NgModule } from '@angular/core';
+import { NgModule, Injectable } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Router, Routes } from '@angular/router';
 
 // Import components
 import { SomeComponent } from './component';
 
 // Import route guards
-import {
-  WhenAuthenticated,
-  WhenNotAuthenticated,
-} from '@intellegens/ngz-utils-identity';
+import { AuthenticationService, AuthenticationRouteGuardFactory } from '@intellegens/ngz-utils-identity';
+
+/**
+ * When authenticated router guard, redirects to /public if not authenticated
+ */
+@Injectable()
+class WhenAuthenticated extends AuthenticationRouteGuardFactory((auth: AuthenticationService) => auth.isAuthenticated, 'public') {
+  constructor(public _router: Router, public _auth: AuthenticationService) {
+    super(_router, _auth);
+  }
+}
+
+/**
+ * When not-authenticated router guard, redirects to /private if not authenticated
+ */
+@Injectable()
+class WhenNotAuthenticated extends AuthenticationRouteGuardFactory((auth: AuthenticationService) => !auth.isAuthenticated, 'private') {
+  constructor(public _router: Router, public _auth: AuthenticationService) {
+    super(_router, _auth);
+  }
+}
 
 // Routes definition
 const routes: Routes = [
@@ -30,8 +47,6 @@ const routes: Routes = [
   },
   { path: '**', redirectTo: 'public' },
 ];
-WhenAuthenticated.onFailRedirectTo('public');
-WhenNotAuthenticated.onFailRedirectTo('private');
 
 /**
  * Routing module
@@ -39,7 +54,8 @@ WhenNotAuthenticated.onFailRedirectTo('private');
  */
 @NgModule({
   declarations: [SomeComponent],
+  providers: [AuthenticationService, WhenAuthenticated, WhenNotAuthenticated],
   imports: [RouterModule.forRoot(routes), CommonModule],
-  exports: [RouterModule, CommonModule, SomeComponent],
+  exports: [RouterModule, CommonModule],
 })
 export class AppRoutingModule {}

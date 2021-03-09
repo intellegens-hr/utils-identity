@@ -3,8 +3,14 @@
 
 // Import dependencies
 import { Subject } from 'rxjs';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Router, ActivatedRoute, RouterStateSnapshot } from '@angular/router';
+
+/**
+ * Authenticated user claim type
+ */
+export type TAuthenticatedUserClaim = { type: string; value: string };
 
 /**
  * Authentication service, provides methods for API authentication
@@ -14,7 +20,7 @@ export class AuthenticationService {
   /**
    * Authentication API root path
    */
-  private _path = 'auth';
+  private _path = '/auth';
   /**
    * If login should trigger a full page refresh (for safety, to clear any left-over data)
    */
@@ -38,10 +44,10 @@ export class AuthenticationService {
   /**
    * API auth access token
    */
-  public get accessToken(): string | null {
-    return localStorage.getItem('ngz-utils-identity:AccessToken');
+  public get accessToken(): string | undefined {
+    return localStorage.getItem('ngz-utils-identity:AccessToken') || undefined;
   }
-  public set accessToken(value: string | null) {
+  public set accessToken(value: string | undefined) {
     if (value) {
       localStorage.setItem('ngz-utils-identity:AccessToken', value);
     } else {
@@ -51,16 +57,13 @@ export class AuthenticationService {
   /**
    * API auth access token creation time
    */
-  public get accessTokenCTime(): number | null {
+  private get _accessTokenCTime(): number | undefined {
     const value = localStorage.getItem('ngz-utils-identity:accessTokenCTime');
-    return value ? parseInt(value, 10) : null;
+    return value ? parseInt(value, 10) : undefined;
   }
-  public set accessTokenCTime(value: number | null) {
+  private set _accessTokenCTime(value: number | undefined) {
     if (value) {
-      localStorage.setItem(
-        'ngz-utils-identity:accessTokenCTime',
-        value.toString()
-      );
+      localStorage.setItem('ngz-utils-identity:accessTokenCTime', value.toString());
     } else {
       localStorage.removeItem('ngz-utils-identity:accessTokenCTime');
     }
@@ -68,16 +71,13 @@ export class AuthenticationService {
   /**
    * API auth access token time-to-live
    */
-  public get accessTokenTTL(): number | null {
+  private get _accessTokenTTL(): number | undefined {
     const value = localStorage.getItem('ngz-utils-identity:accessTokenTTL');
-    return value ? parseInt(value, 10) : null;
+    return value ? parseInt(value, 10) : undefined;
   }
-  public set accessTokenTTL(value: number | null) {
+  private set _accessTokenTTL(value: number | undefined) {
     if (value) {
-      localStorage.setItem(
-        'ngz-utils-identity:accessTokenTTL',
-        value.toString()
-      );
+      localStorage.setItem('ngz-utils-identity:accessTokenTTL', value.toString());
     } else {
       localStorage.removeItem('ngz-utils-identity:accessTokenTTL');
     }
@@ -85,10 +85,10 @@ export class AuthenticationService {
   /**
    * API auth refresh token if onw is known
    */
-  public get refreshToken(): string | null {
-    return localStorage.getItem('ngz-utils-identity:RefreshToken');
+  private get _refreshToken(): string | undefined {
+    return localStorage.getItem('ngz-utils-identity:RefreshToken') || undefined;
   }
-  public set refreshToken(value: string | null) {
+  private set _refreshToken(value: string | undefined) {
     if (value) {
       localStorage.setItem('ngz-utils-identity:RefreshToken', value);
     } else {
@@ -97,14 +97,39 @@ export class AuthenticationService {
   }
 
   /**
+   * Holds reference to token refresh timeout
+   */
+  private _refreshTokenTimeout?: any;
+
+  /**
    * Authenticated user info
    */
   private _info?: any;
   /**
-   * Gets info for the authenticated user or false if user not authenticated
+   * Gets info for the authenticated user if user not authenticated
    */
-  public get info(): any | false {
-    return this._info || false;
+  public get info(): any | undefined {
+    return this._info;
+  }
+  /**
+   * Authenticated user's claims
+   */
+  private _claims: TAuthenticatedUserClaim[] = [];
+  /**
+   * Gets authenticated user's claims
+   */
+  public get claims(): TAuthenticatedUserClaim[] {
+    return this._claims;
+  }
+  /**
+   * Authenticated user's roles
+   */
+  private _roles: string[] = [];
+  /**
+   * Gets authenticated user's roles
+   */
+  public get roles(): string[] {
+    return this._roles;
   }
   /**
    * Gets authentication state
@@ -116,7 +141,7 @@ export class AuthenticationService {
   /**
    * Authentication state observable
    */
-  private _isAuthenticatedObservable = new Subject<any>();
+  private _isAuthenticatedObservable = new Subject<AuthenticationService>();
   /**
    * Gets authentication state observable
    */
@@ -124,7 +149,7 @@ export class AuthenticationService {
     return this._isAuthenticatedObservable;
   }
 
-  constructor(private _http: HttpClient) {}
+  constructor(private _injector: Injector, private _router: Router, private _route: ActivatedRoute, private _http: HttpClient) {}
 
   /**
    * Initializes the authentication service, checking if current user is authenticated
@@ -132,10 +157,7 @@ export class AuthenticationService {
    * @param refreshOnLogin If login should trigger a full page refresh (for safety, to clear any left-over data)
    * @param refreshOnLogout If logout should trigger a full page refresh (for safety, to clear any left-over data)
    */
-  public async initialize(
-    path: string = 'auth',
-    { refreshOnLogin = true, refreshOnLogout = true } = {}
-  ): Promise<any | false> {
+  public async initialize(path: string = '/auth', { refreshOnLogin = true, refreshOnLogout = true } = {}): Promise<void> {
     // Set configuration
     this._path = path.endsWith('/') ? path.substr(0, path.length - 1) : path;
     this._refreshOnLogin = refreshOnLogin;
@@ -148,13 +170,9 @@ export class AuthenticationService {
     this._isInitialized = true;
 
     // Refresh routing on authentication change
-    this._isAuthenticatedObservable.subscribe((isAuthenticated) => {
-      // TODO: Refresh without reloading ...
-      window.location.reload();
+    this._isAuthenticatedObservable.subscribe(_ => {
+      this._forceRerunAuthGuard();
     });
-
-    // Return authenticated info
-    return this.info;
   }
 
   /**
@@ -162,7 +180,7 @@ export class AuthenticationService {
    * @param username Username
    * @param password Password
    */
-  public async login(username: string, password: string): Promise<any | false> {
+  public async login(username: string, password: string): Promise<boolean> {
     try {
       // Attempt login API request
       const res = (await this._http
@@ -174,20 +192,15 @@ export class AuthenticationService {
         .toPromise()) as any;
 
       // Handle failed login
-      if (
-        !res.success ||
-        !res?.data?.[0]?.accessToken ||
-        !res?.data?.[0]?.refreshToken ||
-        !res?.data?.[0]?.lifetime
-      ) {
+      if (!res.success || !res?.data?.[0]?.accessToken || !res?.data?.[0]?.refreshToken || !res?.data?.[0]?.lifetime) {
         return false;
       }
 
       // Set tokens
       this.accessToken = res?.data?.[0]?.accessToken;
-      this.accessTokenCTime = Date.now();
-      this.accessTokenTTL = res?.data?.[0]?.lifetime;
-      this.refreshToken = res?.data?.[0]?.refreshToken;
+      this._accessTokenCTime = Date.now();
+      this._accessTokenTTL = res?.data?.[0]?.lifetime;
+      this._refreshToken = res?.data?.[0]?.refreshToken;
 
       // Start token refresh process in background
       this._startTokenRefreshScheduler();
@@ -195,6 +208,7 @@ export class AuthenticationService {
       // Refresh on login (for safety, to clear any left-over data)
       if (this._refreshOnLogin) {
         window.location.reload();
+        return true;
       }
       // If no refresh, get authenticated user info
       else {
@@ -208,18 +222,18 @@ export class AuthenticationService {
 
   /**
    * Performs user log-out
-   * TODO: ...
+   * TODO: Revoke the current token instead of just doing a local logout
    */
   public async logout(): Promise<void> {
     // Remove tokens
-    this.accessToken = null;
-    this.accessTokenCTime = null;
-    this.accessTokenTTL = null;
-    this.refreshToken = null;
+    this.accessToken = undefined;
+    this._accessTokenCTime = undefined;
+    this._accessTokenTTL = undefined;
+    this._refreshToken = undefined;
 
     // Remove info
     this._info = false;
-    this._isAuthenticatedObservable.next(this._info);
+    this._isAuthenticatedObservable.next(this);
 
     // Stop scheduled token refreshing
     this._stopTokenRefreshScheduler();
@@ -230,47 +244,119 @@ export class AuthenticationService {
     }
   }
 
+  public async refreshAuthenticationInfo(): Promise<boolean> {
+    return this._getAuthInfo();
+  }
+
+  public async refreshAuthenticationToken(): Promise<void> {
+    return this._refreshAuth();
+  }
+
   /**
    * Checks if user currently authenticated and if so fetches user info
    */
-  private async _getAuthInfo(): Promise<any | false> {
+  private async _getAuthInfo(): Promise<boolean> {
     try {
       // Check if user authorized
-      const res = (await this._http
-        .get(`${this._path}/init`)
-        .toPromise()) as any;
+      const res = (await this._http.get(`${this._path}/init`).toPromise()) as any;
+
+      // (Re)Start token refresh process in background
+      this._startTokenRefreshScheduler();
+
       // Store user info
       this._info = res?.data?.[0];
-      this._isAuthenticatedObservable.next(this._info);
-      return this._info;
+      this._claims = this._info.claims ? [...this._info.claims] : [];
+      this._roles = this._claims.filter(claim => claim.type === 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role').map(claim => claim.value);
+      delete this._info.claims;
+      this._isAuthenticatedObservable.next(this);
+      return true;
     } catch (err) {
       // Handle not authorized (401) response
-      if (
-        err instanceof HttpErrorResponse &&
-        (err as HttpErrorResponse).status === 401
-      ) {
+      if (err instanceof HttpErrorResponse && (err as HttpErrorResponse).status === 401) {
         // Store user info
         this._info = false;
-        this._isAuthenticatedObservable.next(this._info);
+        this._isAuthenticatedObservable.next(this);
         return false;
       }
       // Handle other errors
       else {
+        this._isAuthenticatedObservable.next(this);
         throw err;
       }
     }
   }
 
   /**
+   * Refreshes user auth token
+   */
+  private async _refreshAuth(): Promise<void> {
+    // Attempt refresh-token API request
+    const res = (await this._http
+      .post(`${this._path}/token`, {
+        grantType: 'refresh_token',
+        refreshToken: this._refreshToken,
+      })
+      .toPromise()) as any;
+
+    // Handle failed login
+    if (!res.success || !res?.data?.[0]?.accessToken || !res?.data?.[0]?.refreshToken || !res?.data?.[0]?.lifetime) {
+      throw new Error('Failed refreshing authentication token!');
+    }
+
+    // Set tokens
+    this.accessToken = res?.data?.[0]?.accessToken;
+    this._accessTokenCTime = Date.now();
+    this._accessTokenTTL = res?.data?.[0]?.lifetime;
+    this._refreshToken = res?.data?.[0]?.refreshToken;
+
+    // (Re)Start token refresh process in background
+    this._startTokenRefreshScheduler();
+  }
+
+  /**
    * Starts auth token refresh scheduler in background
    */
   private _startTokenRefreshScheduler(): void {
-    // TODO: ...
+    // Stop any previously scheduled token refresh timeouts
+    this._stopTokenRefreshScheduler();
+    // (Re)Schedule a refresh token timeout
+    if (this._accessTokenCTime && this._accessTokenTTL) {
+      const refreshInterval = this._accessTokenCTime + this._accessTokenTTL * 1000 - Date.now();
+      this._refreshTokenTimeout = setTimeout(() => {
+        try {
+          this._refreshAuth();
+        } catch (err) {}
+      }, refreshInterval);
+    }
   }
   /**
    * Stops auth token refresh scheduler
    */
   private _stopTokenRefreshScheduler(): void {
-    // TODO: ...
+    // Clear refresh-token timeout
+    if (this._refreshTokenTimeout !== undefined) {
+      clearTimeout(this._refreshTokenTimeout);
+    }
+  }
+
+  /**
+   * Dirty hack for angular2 routing recheck
+   * (https://stackoverflow.com/questions/45680250/angular2-how-to-reload-page-with-router-recheck-canactivate)
+   */
+  private _forceRerunAuthGuard(): void {
+    if (this._route.root.children.length) {
+      // Gets current route
+      const currentRoute = this._route.root.children[0];
+      // Gets first guard class
+      // tslint:disable-next-line: variable-name
+      const AuthGuard = currentRoute?.snapshot?.routeConfig?.canActivate?.[0];
+      // Injects guard
+      // tslint:disable-next-line: deprecation
+      const authGuard = this._injector.get(AuthGuard);
+      // Makes custom RouterStateSnapshot object
+      const routerStateSnapshot: RouterStateSnapshot = Object.assign({}, currentRoute.snapshot, { url: this._router.url });
+      // Runs canActivate
+      authGuard.canActivate(currentRoute.snapshot, routerStateSnapshot, true);
+    }
   }
 }
