@@ -106,7 +106,7 @@ export class AuthenticationService {
    */
   private _info?: any;
   /**
-   * Gets info for the authenticated user or false if user not authenticated
+   * Gets info for the authenticated user if user not authenticated
    */
   public get info(): any | undefined {
     return this._info;
@@ -126,7 +126,7 @@ export class AuthenticationService {
    */
   private _roles: string[] = [];
   /**
-   * Gets info for the authenticated user or false if user not authenticated
+   * Gets authenticated user's roles
    */
   public get roles(): string[] {
     return this._roles;
