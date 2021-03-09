@@ -157,7 +157,7 @@ export class AuthenticationService {
    * @param refreshOnLogin If login should trigger a full page refresh (for safety, to clear any left-over data)
    * @param refreshOnLogout If logout should trigger a full page refresh (for safety, to clear any left-over data)
    */
-  public async initialize(path: string = '/auth', { refreshOnLogin = true, refreshOnLogout = true } = {}): Promise<any | false> {
+  public async initialize(path: string = '/auth', { refreshOnLogin = true, refreshOnLogout = true } = {}): Promise<void> {
     // Set configuration
     this._path = path.endsWith('/') ? path.substr(0, path.length - 1) : path;
     this._refreshOnLogin = refreshOnLogin;
@@ -173,9 +173,6 @@ export class AuthenticationService {
     this._isAuthenticatedObservable.subscribe(_ => {
       this._forceRerunAuthGuard();
     });
-
-    // Return authenticated info
-    return this.info;
   }
 
   /**
@@ -183,7 +180,7 @@ export class AuthenticationService {
    * @param username Username
    * @param password Password
    */
-  public async login(username: string, password: string): Promise<any | false> {
+  public async login(username: string, password: string): Promise<boolean> {
     try {
       // Attempt login API request
       const res = (await this._http
@@ -211,6 +208,7 @@ export class AuthenticationService {
       // Refresh on login (for safety, to clear any left-over data)
       if (this._refreshOnLogin) {
         window.location.reload();
+        return true;
       }
       // If no refresh, get authenticated user info
       else {
@@ -246,10 +244,18 @@ export class AuthenticationService {
     }
   }
 
+  public async refreshAuthenticationInfo(): Promise<boolean> {
+    return this._getAuthInfo();
+  }
+
+  public async refreshAuthenticationToken(): Promise<void> {
+    return this._refreshAuth();
+  }
+
   /**
    * Checks if user currently authenticated and if so fetches user info
    */
-  private async _getAuthInfo(): Promise<any | false> {
+  private async _getAuthInfo(): Promise<boolean> {
     try {
       // Check if user authorized
       const res = (await this._http.get(`${this._path}/init`).toPromise()) as any;
@@ -263,7 +269,7 @@ export class AuthenticationService {
       this._roles = this._claims.filter(claim => claim.type === 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role').map(claim => claim.value);
       delete this._info.claims;
       this._isAuthenticatedObservable.next(this);
-      return this._info;
+      return true;
     } catch (err) {
       // Handle not authorized (401) response
       if (err instanceof HttpErrorResponse && (err as HttpErrorResponse).status === 401) {
@@ -283,33 +289,28 @@ export class AuthenticationService {
   /**
    * Refreshes user auth token
    */
-  private async _refreshAuth(): Promise<any | false> {
-    try {
-      // Attempt refresh-token API request
-      const res = (await this._http
-        .post(`${this._path}/token`, {
-          grantType: 'refresh_token',
-          refreshToken: this._refreshToken,
-        })
-        .toPromise()) as any;
+  private async _refreshAuth(): Promise<void> {
+    // Attempt refresh-token API request
+    const res = (await this._http
+      .post(`${this._path}/token`, {
+        grantType: 'refresh_token',
+        refreshToken: this._refreshToken,
+      })
+      .toPromise()) as any;
 
-      // Handle failed login
-      if (!res.success || !res?.data?.[0]?.accessToken || !res?.data?.[0]?.refreshToken || !res?.data?.[0]?.lifetime) {
-        return false;
-      }
-
-      // Set tokens
-      this.accessToken = res?.data?.[0]?.accessToken;
-      this._accessTokenCTime = Date.now();
-      this._accessTokenTTL = res?.data?.[0]?.lifetime;
-      this._refreshToken = res?.data?.[0]?.refreshToken;
-
-      // (Re)Start token refresh process in background
-      this._startTokenRefreshScheduler();
-    } catch (err) {
-      // Return failed login
-      return false;
+    // Handle failed login
+    if (!res.success || !res?.data?.[0]?.accessToken || !res?.data?.[0]?.refreshToken || !res?.data?.[0]?.lifetime) {
+      throw new Error('Failed refreshing authentication token!');
     }
+
+    // Set tokens
+    this.accessToken = res?.data?.[0]?.accessToken;
+    this._accessTokenCTime = Date.now();
+    this._accessTokenTTL = res?.data?.[0]?.lifetime;
+    this._refreshToken = res?.data?.[0]?.refreshToken;
+
+    // (Re)Start token refresh process in background
+    this._startTokenRefreshScheduler();
   }
 
   /**
